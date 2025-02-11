@@ -3,4 +3,5 @@ export default interface Task {
   body: string;
   id: number;
   project_id?: number;
+  due?: string
 }

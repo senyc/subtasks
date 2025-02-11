@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "tailwindcss";
+@import '../node_modules/flowbite-vue/dist/index.css';
+
+@theme {
+  --font-primary: "Inter", "serif";
+}
+:root {
+  --font-primary: "Inter", "serif";
+  /* this fixes a tailwind 4 regressions with flowbite-vue*/
+  --color-gray-900: "#11182780"
+}

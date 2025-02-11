@@ -1,5 +1,11 @@
-export default interface Project {
+export interface Project {
   title: string;
-  body: string;
-  id?: number;
+  due?: string;
+  body?: string;
+  id: number;
+}
+
+export interface ProjectResponse extends Project {
+  total_tasks: number;
+  completed_tasks: number;
 }

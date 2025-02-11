@@ -1,0 +1,39 @@
+<template>
+  <fwb-table-row class="my-3 border-b-gray-200">
+    <fwb-table-cell>
+      <fwb-checkbox @click="$emit('toggleChecked', project.id)" :model-value="checked" />
+    </fwb-table-cell>
+    <fwb-table-cell @click="$router.push(`/projects/${project.id}/tasks`)"
+      class="cursor-pointer flex overflow-ellipsis line-clamp-1 flex-col">
+      <h3 class="text-lg font-bold">
+        {{ project.title }}
+      </h3>
+      <p>
+        {{ project.body }}
+      </p>
+    </fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ "February 25" }}</fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks - project.completed_tasks }} </fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks }}</fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.completed_tasks }}</fwb-table-cell>
+    <fwb-table-cell>
+      <EditProject :project=project />
+    </fwb-table-cell>
+  </fwb-table-row>
+</template>
+
+<script setup lang="ts">
+import {
+  FwbTableCell,
+  FwbTableRow,
+  FwbCheckbox,
+} from 'flowbite-vue'
+import EditProject from './EditProject.vue';
+import type { ProjectResponse } from '@annotations/project';
+
+defineProps<{
+  project: ProjectResponse
+  checked: boolean
+}>()
+
+</script>

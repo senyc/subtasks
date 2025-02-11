@@ -1,8 +1,16 @@
+<template>
+  <main>
+    <Header />
+    <RouterView />
+  </main>
+</template>
+
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import tasks from './components/store'
 const loading = ref(false);
-import TaskForm from "./components/TaskForm.vue";
+import './index.css'
+import Header from "./components/Header.vue";
 
 async function fetchData() {
   loading.value = true
@@ -31,25 +39,3 @@ onMounted(() => {
 })
 
 </script>
-
-<template>
-  <TaskForm />
-  <section class="post">
-    <div v-if="loading" class="loading">Loading...</div>
-    <ul v-for="task in tasks" :key="task.id">
-      <li class="task">
-        <h4>{{ task.title }}</h4>
-        <p>{{ task.body }}</p>
-        <button @click="deleteTask(task.id)">Delete</button>
-      </li>
-    </ul>
-  </section>
-</template>
-
-<style scoped>
-.task {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-</style>

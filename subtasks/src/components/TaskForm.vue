@@ -1,53 +1,17 @@
-<script setup lang="ts">
-import { reactive } from 'vue';
-import tasks from './store'
-const newTask = reactive({ title: "", body: "" })
-
-async function onSubmit() {
-  const res = await fetch("http://localhost:8000/tasks", {
-    method: "POST",
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(newTask)
-  })
-
-  // Add new task to shared state
-  tasks.push(await res.json())
-  // Empty fields
-  newTask.body = ""
-  newTask.title = ""
-}
-</script>
-
 <template>
-  <form @submit.prevent="onSubmit">
-    <section class='form'>
-      <div class="item">
-        <p>title:</p>
-        <input autofocus required v-model="newTask.title" type="text" />
-      </div>
-      <div class="item">
-        <p>body:</p>
-        <input v-model="newTask.body" type="text" />
-      </div>
-    </section>
-    <input type="submit" />
+  <form @submit.prevent="$emit('onSubmit')" class="flex flex-col gap-2 text-left">
+    <fwb-input placeholder="Task Title" v-model="task.title" label="Task Title" />
+    <fwb-textarea v-model="task.body" :rows="4" label="Task Body" placeholder="Task Body" />
+    <fwb-input type="date" v-model="task.due" label="Due Date" />
   </form>
 </template>
 
-<style>
-.form {
-  display: flex;
-  gap: 10px;
-  padding-bottom: 10px;
-}
+<script lang="ts" setup>
+import type Task from '@annotations/task';
+import { FwbInput, FwbTextarea } from 'flowbite-vue'
+type PartialTask = Omit<Task, "id">
 
-.item {
-  align-items: center;
-  height: 36px;
-  gap: 10px;
-  font-size: 15px;
-  display: flex;
-}
-</style>
+defineProps<{
+  task: PartialTask
+}>()
+</script>
