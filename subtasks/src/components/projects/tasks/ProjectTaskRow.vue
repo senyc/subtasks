@@ -26,7 +26,7 @@ import {
   FwbCheckbox,
 } from 'flowbite-vue'
 import type Task from '@annotations/task';
-import EditTask from './EditTask.vue';
+import EditTask from '../../EditTask.vue';
 defineProps<{
   task: Task
   checked: boolean

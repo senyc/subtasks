@@ -6,7 +6,9 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
 
     "paths": {
-      "@annotations/*": ["./src/annotations/*"]
+      "@annotations/*": ["./src/annotations/*"],
+      "@components/*": ["./src/components/*"],
+      "@actions/*": ["./src/actions/*"],
     }
   }
 }

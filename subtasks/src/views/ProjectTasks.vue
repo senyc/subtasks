@@ -2,17 +2,17 @@
   <div class="px-8">
     <ProjectBreadCrumbs />
     <ProjectTaskNavigation :project-id="projectId" />
-    <TaskList :project-id="projectId" />
+    <ProjectTaskList :project-id="projectId" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { provide, reactive } from 'vue'
-import TaskList from '../components/TaskList.vue';
-
 import { useRoute } from 'vue-router'
-import ProjectBreadCrumbs from '../components/ProjectBreadCrumbs.vue';
-import ProjectTaskNavigation from '../components/ProjectTaskNavigation.vue';
+import ProjectTaskList from '@components/projects/tasks/ProjectTaskList.vue';
+
+import ProjectBreadCrumbs from '@components/projects/ProjectBreadCrumbs.vue';
+import ProjectTaskNavigation from '@components/projects/ProjectTaskNavigation.vue';
 
 const route = useRoute()
 const projectId = parseInt(route.params.id as string)

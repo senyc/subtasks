@@ -55,7 +55,6 @@ async function onSubmit() {
     body: JSON.stringify(project)
   })
   if (res.ok) {
-    console.log(project)
     queryClient.invalidateQueries({ queryKey: ["projects"] })
   }
 }

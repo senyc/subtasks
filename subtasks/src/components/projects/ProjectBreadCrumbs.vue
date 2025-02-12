@@ -46,9 +46,9 @@
 import { FwbBreadcrumb, FwbBreadcrumbItem } from 'flowbite-vue'
 import { useRoute } from 'vue-router'
 
+import useProject from '@actions/project'
 import NewProject from './NewProject.vue'
-import useProject from '../actions/project'
-import NewTask from './NewTask.vue'
+import NewTask from '../NewTask.vue'
 const route = useRoute()
 
 const showProjectName = route.name === "projectTasks"

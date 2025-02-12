@@ -36,7 +36,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import { reactive, ref } from 'vue'
 import { FwbButton, FwbModal } from 'flowbite-vue'
 import type Task from '@annotations/task'
-import TaskForm from './TaskForm.vue';
+import TaskForm from './projects/tasks/ProjectTaskForm.vue';
 const queryClient = useQueryClient()
 
 const props = defineProps<{

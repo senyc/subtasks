@@ -16,7 +16,7 @@
       </div>
     </template>
     <template #body>
-      <TaskForm :project="task" @on-submit="onSubmit" />
+      <ProjectTaskForm :task="task" @on-submit="onSubmit" />
     </template>
     <template #footer>
       <div class="flex justify-between">
@@ -36,7 +36,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import { reactive, ref } from 'vue'
 import { FwbButton, FwbModal } from 'flowbite-vue'
 import type Task from '@annotations/task'
-import TaskForm from './ProjectForm.vue';
+import ProjectTaskForm from './projects/tasks/ProjectTaskForm.vue';
 const queryClient = useQueryClient()
 
 const props = defineProps<{

@@ -12,7 +12,7 @@
       </fwb-table-head-cell>
     </fwb-table-head>
     <fwb-table-body>
-      <TaskRow :project-id="projectId" @toggle-checked="toggleChecked" :checkedTasks="checkedTasks"
+      <ProjectTaskRow :project-id="projectId" @toggle-checked="toggleChecked" :checkedTasks="checkedTasks"
         v-for="task in tasks" :key="task.id" :checked="checkedTasks.includes(task.id)" :task="task" />
     </fwb-table-body>
   </fwb-table>
@@ -27,8 +27,8 @@ import {
   FwbTableHeadCell,
 } from 'flowbite-vue'
 import { inject } from 'vue'
-import useTasks from '../actions/tasks'
-import TaskRow from './TaskRow.vue';
+import useTasks from '@actions/tasks'
+import ProjectTaskRow from './ProjectTaskRow.vue';
 
 let checkedTasks = inject<number[]>('checked', [])
 

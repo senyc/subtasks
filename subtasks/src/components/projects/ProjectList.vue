@@ -37,7 +37,7 @@ import { inject } from 'vue';
 // Inject api used here because we would like the parent component to know about what is checked to perform 
 // mutations/deletions on the checked items (via the bar items)
 let checkedProjects = inject<number[]>('checked', [])
-import useProjects from '../actions/projects'
+import useProjects from '@actions/projects'
 
 const { data: projects } = useProjects()
 
