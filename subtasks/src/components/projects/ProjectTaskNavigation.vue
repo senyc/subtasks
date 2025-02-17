@@ -14,7 +14,7 @@
       </svg></button>
     <div class="flex flex-row items-center ml-auto">
       <div class="flex flex-row items-center">
-        <button class="cursor-pointer">
+        <button @click="completeCheckedTasks" class="cursor-pointer">
           <svg class="w-9 h-9 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
             width="24" height="24" fill="none" viewBox="0 0 24 24">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -54,6 +54,12 @@ function clearCheckedTasks() {
   checked.splice(0)
 }
 
+async function completeTask(id: number) {
+  return fetch(`http://localhost:8000/task/${id}/complete`, {
+    method: "PATCH"
+  })
+}
+
 async function deleteTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}`, {
     method: "DELETE"
@@ -67,6 +73,9 @@ async function deleteCheckedTasks() {
 }
 
 async function completeCheckedTasks() {
-
+  await Promise.all(checked.map(id => completeTask(id)))
+  queryClient.invalidateQueries({ queryKey: ['tasks', props.projectId] })
+  clearCheckedTasks()
 }
+
 </script>

@@ -49,6 +49,7 @@ const isShowModal = ref(false)
 const task = reactive<Omit<Task, "id">>({
   title: props.task.title,
   body: props.task.body,
+  due_date: props.task.due_date,
 })
 
 async function onSubmit() {
@@ -57,12 +58,9 @@ async function onSubmit() {
     method: "PUT",
     headers: {
       'Content-Type': 'application/json',
-      'accept': 'application/json'
+      'Accept': 'application/json'
     },
-    body: JSON.stringify({
-      title: task.title,
-      body: task.body
-    })
+    body: JSON.stringify(task)
   })
   if (res.ok) {
     isShowModal.value = false

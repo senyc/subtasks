@@ -1,8 +1,10 @@
 export interface Project {
-  title: string;
-  due?: string;
-  body?: string;
   id: number;
+  title: string;
+  body?: string;
+  due_date?: string;
+  completed_date?: string;
+  created_at?: string;
 }
 
 export interface ProjectResponse extends Project {

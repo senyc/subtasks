@@ -1,10 +1,12 @@
+from datetime import date, datetime
 from fastapi import FastAPI
 from collections.abc import Sequence
 from contextlib import asynccontextmanager
 from typing import Annotated
-
+from pydantic import ConfigDict, InstanceOf
 from fastapi import Depends, FastAPI, Query, HTTPException
-from sqlmodel import Field, Session, SQLModel, create_engine, select, func
+from pydantic import AfterValidator, BeforeValidator
+from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -34,18 +36,41 @@ async def root():
     return {"message": "Hello World"}
 
 
-class Project(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+# This allows for objects with table=true to have validations run
+# per: https://github.com/fastapi/sqlmodel/issues/52#issuecomment-1225746421
+class BaseSQLModel(SQLModel):
+    model_config = ConfigDict(validate_assignment=True)  # type: ignore
+
+
+def convert_to_date(s: str | date | None) -> date | None:
+    if s is None or s == "":
+        return None
+    if isinstance(s, date):
+        return s
+    return datetime.strptime(s, "%Y-%m-%d").date()
+
+
+DueDate = Annotated[date | None, BeforeValidator(convert_to_date)]
+
+
+class Project(BaseSQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
     title: str
     body: str
+    due_date: DueDate
+    completed_date: DueDate
+    created_at: datetime = Field(default=datetime.now(), nullable=False)
 
 
-class Task(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
-    project_id: int = Field(default=0, foreign_key="project.id")
+class Task(BaseSQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    project_id: int | None = Field(default=None, foreign_key="project.id")
     title: str
     body: str
     completed: bool = Field(default=False)
+    due_date: DueDate
+    completed_date: DueDate
+    created_at: datetime = Field(default=datetime.now(), nullable=False)
 
 
 sqlite_file_name = "database.db"
@@ -89,17 +114,22 @@ def read_projects(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
 ) -> Sequence[ProjectResponse]:
-    projects_with_task_count = session.exec(
-        select(Project, func.count(Task.id), func.count(select(Task.id).where(Task.completed)))  # type: ignore
-        .outerjoin(Task, Project.id == Task.project_id)
-        .group_by(Project.id)
-        .offset(offset)
-        .limit(limit)
-    ).all()
 
+    stmt = (
+        select(
+            Project,
+            select(func.count(Task.id)).subquery(), # type: ignore
+            select(func.count(select(Task.id).where(Task.completed))).subquery(),  # type: ignore
+        )
+        .outerjoin(Task, Project.id == Task.project_id) # type: ignore
+        .group_by(Project.id)  # type: ignore
+    ).offset(offset).limit(limit)
+    projects_with_task_count = session.exec(stmt).all()
     return [
         ProjectResponse(
-            **project.dict(), total_tasks=task_count, completed_tasks=completed_tasks
+            **project.model_dump(),
+            total_tasks=task_count,
+            completed_tasks=completed_tasks,
         )
         for project, task_count, completed_tasks in projects_with_task_count
     ]
@@ -120,6 +150,7 @@ def update_project(project_id: int, project: Project, session: SessionDep) -> Pr
         raise HTTPException(status_code=404, detail="Project not found")
     updated_project.title = project.title
     updated_project.body = project.body
+    updated_project.due_date = project.due_date
     session.commit()
     session.refresh(updated_project)
     return updated_project
@@ -145,6 +176,28 @@ def create_task(task: Task, session: SessionDep) -> Task:
     return task
 
 
+@app.patch("/task/{task_id}/complete")
+def complete_task(task_id, session: SessionDep) -> Task:
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.completed = True
+    session.commit()
+    session.refresh(task)
+    return task
+
+
+@app.patch("/task/{task_id}/incomplete")
+def incomplete_task(task_id, session: SessionDep) -> Task:
+    task = session.get(Task, task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task.completed = False
+    session.commit()
+    session.refresh(task)
+    return task
+
+
 @app.post("/project/{project_id}/task")
 def create_project_task(
     project_id: int, task: Task, session: SessionDep
@@ -162,7 +215,21 @@ def read_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
 ) -> Sequence[Task]:
-    tasks = session.exec(select(Task).offset(offset).limit(limit)).all()
+    tasks = session.exec(
+        select(Task).where(not Task.completed).offset(offset).limit(limit)
+    ).all()
+    return tasks
+
+
+@app.get("/tasks/completed")
+def read_completed_tasks(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = Query(default=100, le=100),
+) -> Sequence[Task]:
+    tasks = session.exec(
+        select(Task).where(Task.completed).offset(offset).limit(limit)
+    ).all()
     return tasks
 
 
@@ -181,6 +248,7 @@ def Update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
         raise HTTPException(status_code=404, detail="Task not found")
     updated_task.title = task.title
     updated_task.body = task.body
+    updated_task.due_date = task.due_date
     session.commit()
     session.refresh(updated_task)
     return updated_task
@@ -210,8 +278,35 @@ def read_project_tasks(
         raise HTTPException(status_code=404, detail="Project not found")
 
     tasks = session.exec(
-        select(Task).where(Task.project_id == project_id).offset(offset).limit(limit)
+        select(Task)
+        .where(and_(Task.project_id == project_id, Task.completed != True))
+        .offset(offset)
+        .limit(limit)
     ).all()
+
+    if not tasks:
+        raise HTTPException(status_code=404, detail="Tasks not found for project")
+    return tasks
+
+
+@app.get("/project/{project_id}/tasks/completed")
+def read_completed_project_tasks(
+    project_id: int,
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = Query(default=100, le=100),
+) -> Sequence[Task] | None:
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    tasks = session.exec(
+        select(Task)
+        .where(and_(Task.project_id == project_id, Task.completed == True))
+        .offset(offset)
+        .limit(limit)
+    ).all()
+
     if not tasks:
         raise HTTPException(status_code=404, detail="Tasks not found for project")
     return tasks

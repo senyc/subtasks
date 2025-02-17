@@ -4,11 +4,13 @@ import { VueQueryPlugin } from "@tanstack/vue-query";
 import Projects from "./views/Projects.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import ProjectTasks from "./views/ProjectTasks.vue";
+import CompletedProjectTasks from "./views/CompletedProjectTasks.vue";
 
 const routes = [
   { path: "", component: Projects, name: "root" },
   { path: "/projects", component: Projects, name: "projects" },
   { path: "/projects/:id/tasks", component: ProjectTasks, name: "projectTasks" },
+  { path: "/projects/:id/tasks/completed", component: CompletedProjectTasks, name: "completedProjectTasks" },
   { path: "/projects/:id", component: Projects, name: "project" },
 ];
 

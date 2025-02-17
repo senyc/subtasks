@@ -48,6 +48,7 @@ const isShowModal = ref(false)
 const project = reactive<Omit<Project, "id" | "totalTasks" | "completedTasks">>({
   title: props.project.title,
   body: props.project.body,
+  due_date: props.project.due_date,
 })
 
 async function onSubmit() {
@@ -58,10 +59,7 @@ async function onSubmit() {
       'Content-Type': 'application/json',
       'accept': 'application/json'
     },
-    body: JSON.stringify({
-      title: project.title,
-      body: project.body
-    })
+    body: JSON.stringify(project)
   })
   if (res.ok) {
     isShowModal.value = false

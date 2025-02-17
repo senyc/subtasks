@@ -9,5 +9,5 @@ async function getTasks(projectId: number): Promise<Task[]> {
   return res.json();
 }
 
-export default (projectId: number) =>
+export default (projectId: number,) =>
   useQuery({ queryKey: ["tasks", projectId], queryFn: () => getTasks(projectId) });

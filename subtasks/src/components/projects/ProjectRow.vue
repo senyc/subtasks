@@ -12,8 +12,8 @@
         {{ project.body }}
       </p>
     </fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ "February 25" }}</fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks - project.completed_tasks }} </fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ reprDate(project.due_date) }}</fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ (project.total_tasks - project.completed_tasks) || 0 }} </fwb-table-cell>
     <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks }}</fwb-table-cell>
     <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.completed_tasks }}</fwb-table-cell>
     <fwb-table-cell>
@@ -30,7 +30,7 @@ import {
 } from 'flowbite-vue'
 import EditProject from './EditProject.vue';
 import type { ProjectResponse } from '@annotations/project';
-
+import { reprDate } from '../../utils/date';
 defineProps<{
   project: ProjectResponse
   checked: boolean

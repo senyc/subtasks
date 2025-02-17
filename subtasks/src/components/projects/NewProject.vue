@@ -42,6 +42,7 @@ const queryClient = useQueryClient()
 const project = reactive<Omit<Project, "id" | "totalTasks" | "completedTasks">>({
   title: "",
   body: "",
+  due_date: ""
 })
 
 const isShowModal = ref(false)

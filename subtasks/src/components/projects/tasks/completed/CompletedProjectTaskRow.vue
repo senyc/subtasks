@@ -11,8 +11,9 @@
         {{ task.body }}
       </p>
     </fwb-table-cell>
+    <fwb-table-cell>{{ reprDate(task.completed_date) }}</fwb-table-cell>
     <fwb-table-cell>{{ reprDate(task.due_date) }}</fwb-table-cell>
-    <fwb-table-cell>{{reprDate(task.created_at) }}</fwb-table-cell>
+    <fwb-table-cell>{{ reprDate(task.created_at) }}</fwb-table-cell>
     <fwb-table-cell>
       <EditTask :project-id="projectId" :task=task />
     </fwb-table-cell>
@@ -26,8 +27,8 @@ import {
   FwbCheckbox,
 } from 'flowbite-vue'
 import type Task from '@annotations/task';
-import EditTask from '../../EditTask.vue';
-import { reprDate } from '../../../utils/date';
+import EditTask from '@components/EditTask.vue';
+import { reprDate } from '../../../../utils/date';
 defineProps<{
   task: Task
   checked: boolean
