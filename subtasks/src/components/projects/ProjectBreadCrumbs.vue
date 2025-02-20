@@ -21,8 +21,10 @@
         <RouterLink class="text-gray-700 hover:text-gray-900 dark:hover:text-white text-[17px]" to="/projects">Projects
         </RouterLink>
       </fwb-breadcrumb-item>
-      <fwb-breadcrumb-item class="text-xl" v-if="showProjectName"
-        :href="route.name == 'completedProjectTasks' ? `/projects/${projectId}/tasks` : '#'">
+      <fwb-breadcrumb-item class="text-xl" v-if="showProjectName">
+        <RouterLink class="text-gray-700 hover:text-gray-900 dark:hover:text-white text-[17px]"
+          :to="route.name == 'completedProjectTasks' ? `/projects/${projectId}/tasks` : '#'">{{ project?.title }}
+        </RouterLink>
         <template #arrow-icon>
           <svg class="mr-1 size-7 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +33,6 @@
               fill-rule="evenodd" />
           </svg>
         </template>
-        <p class="text-[17px]">{{ project?.title }}</p>
       </fwb-breadcrumb-item>
       <fwb-breadcrumb-item class="text-xl" v-if="route.name == 'completedProjectTasks'" href="#">
         <template #arrow-icon>
@@ -48,26 +49,35 @@
     <div v-if="!showProjectName" class="ml-auto">
       <NewProject />
     </div>
-    <div v-if="showProjectName" class="inline-flex ml-auto">
-      <TaskDropdown :project-id="projectId" />
+    <div v-if="showProjectName" class="flex gap-5 items-center ml-auto">
+      <fwb-toggle :model-value="$route.name == 'completedProjectTasks'" @change="toggleIncomplete" reverse
+        label="Show Completed" size="sm" />
       <NewTask :project-id="projectId" />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { FwbBreadcrumb, FwbBreadcrumbItem } from 'flowbite-vue'
-import { useRoute } from 'vue-router'
+import { FwbBreadcrumb, FwbBreadcrumbItem, FwbToggle } from 'flowbite-vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import useProject from '@actions/project'
 import NewProject from './NewProject.vue'
 import NewTask from '../NewTask.vue'
-import TaskDropdown from './tasks/TaskDropdown.vue'
 const route = useRoute()
+const router = useRouter()
 
 const showProjectName = route.name === "projectTasks" || route.name == "completedProjectTasks"
 
 const projectId = parseInt(route.params.id as string || "")
 const { data: project } = useProject({ enabled: showProjectName, id: projectId })
+
+function toggleIncomplete() {
+  if (route.name != "completedProjectTasks") {
+    router.push(`/projects/${projectId}/tasks/completed`)
+  } else {
+    router.push(`/projects/${projectId}/tasks`)
+  }
+}
 
 </script>

@@ -60,6 +60,7 @@ async function completeTask(id: number) {
   })
 }
 
+
 async function deleteTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}`, {
     method: "DELETE"
@@ -71,6 +72,7 @@ async function deleteCheckedTasks() {
   queryClient.invalidateQueries({ queryKey: ['tasks', props.projectId] })
   clearCheckedTasks()
 }
+
 
 async function completeCheckedTasks() {
   await Promise.all(checked.map(id => completeTask(id)))

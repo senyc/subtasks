@@ -1,5 +1,5 @@
 <template>
-  <fwb-dropdown placement="left" text="Left" close-inside>
+  <fwb-dropdown align-to-end placement="bottom" text="Bottom" close-inside>
     <template #trigger>
       <fwb-button color="light">
         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 4 15">
@@ -8,8 +8,9 @@
         </svg>
       </fwb-button>
     </template>
-    <nav class="p-2 hover:bg-gray-200 text-lg text-gray-700 text-nowrap">
-      <RouterLink :to="`/projects/${projectId}/tasks/completed`">Show completed</RouterLink>
+    <nav class="p-2 hover:bg-gray-200 text-md text-gray-700 text-nowrap">
+      <RouterLink v-if="!currentlyShowingCompleting" :to="`/projects/${projectId}/tasks/completed`">Show completed</RouterLink>
+      <RouterLink v-if="currentlyShowingCompleting" :to="`/projects/${projectId}/tasks`">Show incomplete</RouterLink>
     </nav>
   </fwb-dropdown>
 </template>
@@ -19,6 +20,7 @@ import { FwbDropdown } from 'flowbite-vue'
 
 defineProps<{
   projectId: number
+  currentlyShowingCompleting: boolean
 }>()
 
 </script>

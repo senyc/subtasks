@@ -182,10 +182,10 @@ def complete_task(task_id, session: SessionDep) -> Task:
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     task.completed = True
+    task.completed_date = date.today()
     session.commit()
     session.refresh(task)
     return task
-
 
 @app.patch("/task/{task_id}/incomplete")
 def incomplete_task(task_id, session: SessionDep) -> Task:
@@ -230,7 +230,9 @@ def read_completed_tasks(
     tasks = session.exec(
         select(Task).where(Task.completed).offset(offset).limit(limit)
     ).all()
-    return tasks
+    if tasks:
+        return tasks
+    return []
 
 
 @app.get("/task/{task_id}")
@@ -285,7 +287,7 @@ def read_project_tasks(
     ).all()
 
     if not tasks:
-        raise HTTPException(status_code=404, detail="Tasks not found for project")
+        return []
     return tasks
 
 
@@ -308,5 +310,5 @@ def read_completed_project_tasks(
     ).all()
 
     if not tasks:
-        raise HTTPException(status_code=404, detail="Tasks not found for project")
+        return []
     return tasks

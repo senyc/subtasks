@@ -4,7 +4,7 @@
       <fwb-table-head-cell class="w-5">
         <fwb-checkbox @click="toggleAllChecked" :model-value="checkedTasks.length === tasks?.length" />
       </fwb-table-head-cell>
-      <fwb-table-head-cell class="w-4/6">Task Name</fwb-table-head-cell>
+      <fwb-table-head-cell class="w-3/6">Task Name</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/6">Date Completed</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/6">Date Due</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/6">Date Added</fwb-table-head-cell>
