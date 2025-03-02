@@ -3,10 +3,10 @@ from fastapi import FastAPI
 from collections.abc import Sequence
 from contextlib import asynccontextmanager
 from typing import Annotated
-from pydantic import ConfigDict, InstanceOf
+from pydantic import ConfigDict
 from fastapi import Depends, FastAPI, Query, HTTPException
-from pydantic import AfterValidator, BeforeValidator
-from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_
+from pydantic import BeforeValidator
+from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_, case
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -57,6 +57,7 @@ class Project(BaseSQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     title: str
     body: str
+    completed: bool = Field(default=False)
     due_date: DueDate
     completed_date: DueDate
     created_at: datetime = Field(default=datetime.now(), nullable=False)
@@ -116,14 +117,51 @@ def read_projects(
 ) -> Sequence[ProjectResponse]:
 
     stmt = (
-        select(
-            Project,
-            select(func.count(Task.id)).subquery(), # type: ignore
-            select(func.count(select(Task.id).where(Task.completed))).subquery(),  # type: ignore
+        (
+            select(  # type: ignore
+                Project,
+                func.count(Task.id),  # type: ignore
+                func.count(Task.id).filter(Task.completed == True),  # type: ignore
+            )
+            .where(Project.completed == False)
+            .join(Task, Project.id == Task.project_id, isouter=True)
+            .group_by(Project.id)
         )
-        .outerjoin(Task, Project.id == Task.project_id) # type: ignore
-        .group_by(Project.id)  # type: ignore
-    ).offset(offset).limit(limit)
+        .offset(offset)
+        .limit(limit)
+    )
+    projects_with_task_count = session.exec(stmt).all()
+    return [
+        ProjectResponse(
+            **project.model_dump(),
+            total_tasks=task_count,
+            completed_tasks=completed_tasks,
+        )
+        for project, task_count, completed_tasks in projects_with_task_count
+    ]
+
+
+@app.get("/projects/completed")
+def read_completed_projects(
+    session: SessionDep,
+    offset: int = 0,
+    limit: int = Query(default=100, le=100),
+) -> Sequence[ProjectResponse]:
+
+    stmt = (
+        (
+            select(  # type: ignore
+                Project,
+                func.count(Task.id),  # type: ignore
+                func.count(Task.id).filter(Task.completed == True),  # type: ignore
+            )
+            .where(Project.completed == True)
+            .join(Task, Project.id == Task.project_id, isouter=True)
+            .group_by(Project.id)
+        )
+        .offset(offset)
+        .limit(limit)
+    )
     projects_with_task_count = session.exec(stmt).all()
     return [
         ProjectResponse(
@@ -168,6 +206,18 @@ def delete_project(project_id: int, session: SessionDep) -> int | None:
     return project_to_delete.id
 
 
+@app.patch("/project/{project_id}/complete")
+def complete_project(project_id, session: SessionDep) -> Project:
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project.completed = True
+    project.completed_date = date.today()
+    session.commit()
+    session.refresh(project)
+    return project
+
+
 @app.post("/tasks")
 def create_task(task: Task, session: SessionDep) -> Task:
     session.add(task)
@@ -186,6 +236,7 @@ def complete_task(task_id, session: SessionDep) -> Task:
     session.commit()
     session.refresh(task)
     return task
+
 
 @app.patch("/task/{task_id}/incomplete")
 def incomplete_task(task_id, session: SessionDep) -> Task:

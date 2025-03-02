@@ -1,12 +1,18 @@
-import { useQuery } from '@tanstack/vue-query'
-import type { ProjectResponse } from '../annotations/project'
+import { useQuery } from "@tanstack/vue-query";
+import type { ProjectResponse } from "../annotations/project";
 
-async function getProjects(): Promise<ProjectResponse[]> {
-  const res = await fetch("http://localhost:8000/projects")
+async function getProjects(completed: boolean): Promise<ProjectResponse[]> {
+  const res = await fetch(
+    `http://localhost:8000/projects${completed ? "/completed" : ""}`,
+  );
   if (!res.ok) {
-    throw new Error("Cannot fetch projects")
+    throw new Error("Cannot fetch projects");
   }
-  return res.json()
+  return res.json();
 }
 
-export default () => useQuery({ queryKey: ['projects'], queryFn: getProjects })
+export default (completed: boolean = false) =>
+  useQuery({
+    queryKey: ["projects", completed ? "completed" : "incomplete"],
+    queryFn: () => getProjects(completed),
+  });
