@@ -23,7 +23,7 @@
       </fwb-breadcrumb-item>
       <fwb-breadcrumb-item class="text-xl" v-if="showProjectName">
         <RouterLink class="text-gray-700 hover:text-gray-900 dark:hover:text-white text-[17px]"
-          :to="route.name == 'completedProjectTasks' ? `/projects/${projectId}/tasks` : '#'">{{ project?.title }}
+          :to="showProjectName ? `/projects/${projectId}/tasks` : '#'">{{ project?.title }}
         </RouterLink>
         <template #arrow-icon>
           <svg class="mr-1 size-7 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
@@ -34,7 +34,7 @@
           </svg>
         </template>
       </fwb-breadcrumb-item>
-      <fwb-breadcrumb-item class="text-xl" v-if="route.name?.toString().includes('completed')" href="#">
+      <fwb-breadcrumb-item class="text-xl" v-if="completed" href="#">
         <template #arrow-icon>
           <svg class="mr-1 size-7 text-gray-400" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">
@@ -47,8 +47,7 @@
       </fwb-breadcrumb-item>
     </fwb-breadcrumb>
     <div class="flex gap-5 items-center ml-auto">
-      <fwb-toggle :model-value="route.name?.toString().includes('completed')" @change="toggleIncomplete" reverse
-        label="Show Completed" size="sm" />
+      <fwb-toggle :model-value="completed" @change="toggleIncomplete" reverse label="Show Completed" size="sm" />
       <div v-if="!showProjectName" class="ml-auto">
         <NewProject />
       </div>
@@ -69,13 +68,20 @@ import NewTask from '../NewTask.vue'
 const route = useRoute()
 const router = useRouter()
 
-const showProjectName = route.name === "projectTasks" || route.name == "completedProjectTasks"
+const props = withDefaults(defineProps<{
+  completed?: boolean
+  showProjectName?: boolean
+}>(), {
+  completed: false,
+  showProjectName: false
+})
+
 
 const projectId = parseInt(route.params.id as string || "")
-const { data: project } = useProject({ enabled: showProjectName, id: projectId })
+const { data: project } = useProject({ enabled: props.showProjectName, id: projectId })
 
 function toggleIncomplete() {
-  if (route.name?.toString().includes("completed")) {
+  if (props.completed) {
     router.back()
   } else {
     router.push(`${route.path.replace(/\/$/, '')}/completed`)

@@ -1,8 +1,8 @@
 <template>
   <div class="px-8">
-  <ProjectBreadCrumbs />
-  <ProjectNavigation />
-  <ProjectList />
+    <ProjectBreadCrumbs completed/>
+    <ProjectNavigation completed />
+    <ProjectList />
   </div>
 </template>
 

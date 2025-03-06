@@ -1,7 +1,7 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
     <fwb-input v-model="search" class="min-w-[45rem] rounded-xl" placeholder="Search for Projects" size="md" />
-    <button @click="completeCheckedProjects" class="cursor-pointer">
+    <button v-if="!completed" @click="completeCheckedProjects" class="cursor-pointer">
       <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
         width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -45,6 +45,10 @@ import { useQueryClient } from '@tanstack/vue-query'
 
 const queryClient = useQueryClient()
 const checked = inject("checked", [])
+
+withDefaults(defineProps<{
+  completed?: boolean
+}>(), { completed: false })
 
 function clearCheckedProjects() {
   checked.splice(0)

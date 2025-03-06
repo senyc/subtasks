@@ -1,13 +1,13 @@
 <template>
   <div class="px-8">
-    <ProjectBreadCrumbs />
-    <CompletedProjectTaskNavigation :project-id="projectId" />
+    <ProjectBreadCrumbs showProjectName completed />
+    <ProjectTaskNavigation completed :project-id="projectId" />
     <CompletedProjectTaskList :project-id="projectId" />
   </div>
 </template>
 
 <script setup lang="ts">
-import CompletedProjectTaskNavigation from '@components/projects/tasks/completed/CompletedProjectTaskNavigation.vue'
+import ProjectTaskNavigation from '@components/projects/ProjectTaskNavigation.vue'
 import CompletedProjectTaskList from '@components/projects/tasks/completed/CompletedProjectTaskList.vue'
 import ProjectBreadCrumbs from '@components/projects/ProjectBreadCrumbs.vue';
 import { provide, reactive } from 'vue'
