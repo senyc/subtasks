@@ -11,8 +11,9 @@
         {{ task.body }}
       </p>
     </fwb-table-cell>
+    <fwb-table-cell v-if="completed">{{ reprDate(task.completed_date) }}</fwb-table-cell>
     <fwb-table-cell>{{ reprDate(task.due_date) }}</fwb-table-cell>
-    <fwb-table-cell>{{reprDate(task.created_at) }}</fwb-table-cell>
+    <fwb-table-cell>{{ reprDate(task.created_at) }}</fwb-table-cell>
     <fwb-table-cell>
       <EditTask :project-id="projectId" :task=task />
     </fwb-table-cell>
@@ -28,10 +29,14 @@ import {
 import type Task from '@annotations/task';
 import EditTask from '../../EditTask.vue';
 import { reprDate } from '../../../utils/date';
-defineProps<{
+
+withDefaults(defineProps<{
   task: Task
   checked: boolean
   projectId: number
-}>()
+  completed?: boolean
+}>(), {
+  completed: false
+})
 
 </script>

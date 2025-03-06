@@ -4,7 +4,8 @@
       <fwb-table-head-cell class="w-5">
         <fwb-checkbox @click="toggleAllChecked" :model-value="checkedTasks.length === tasks?.length" />
       </fwb-table-head-cell>
-      <fwb-table-head-cell class="w-4/6">Task Name</fwb-table-head-cell>
+      <fwb-table-head-cell :class="{ 'w-3/6': completed, 'w-4/6': !completed }">Task Name</fwb-table-head-cell>
+      <fwb-table-head-cell v-if="completed" class="w-1/6">Date Completed</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/6">Date Due</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/6">Date Added</fwb-table-head-cell>
       <fwb-table-head-cell>
@@ -12,8 +13,9 @@
       </fwb-table-head-cell>
     </fwb-table-head>
     <fwb-table-body>
-      <ProjectTaskRow :project-id="projectId" @toggle-checked="toggleChecked" :checkedTasks="checkedTasks"
-        v-for="task in tasks" :key="task.id" :checked="checkedTasks.includes(task.id)" :task="task" />
+      <ProjectTaskRow :completed="completed" :project-id="projectId" @toggle-checked="toggleChecked"
+        :checkedTasks="checkedTasks" v-for="task in tasks" :key="task.id" :checked="checkedTasks.includes(task.id)"
+        :task="task" />
     </fwb-table-body>
   </fwb-table>
 </template>
@@ -32,10 +34,14 @@ import ProjectTaskRow from './ProjectTaskRow.vue';
 
 let checkedTasks = inject<number[]>('checked', [])
 
-const props = defineProps<{
-  projectId: number
-}>()
-const { data: tasks } = useTasks(props.projectId)
+const props = withDefaults(defineProps<{
+  projectId: number,
+  completed?: boolean
+}>(),
+  { completed: false }
+)
+
+const { data: tasks } = useTasks({ projectId: props.projectId, showCompleted: props.completed })
 
 function toggleAllChecked() {
   if (!tasks.value) {
