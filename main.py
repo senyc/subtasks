@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime, timezone
 from fastapi import FastAPI
 from collections.abc import Sequence
 from contextlib import asynccontextmanager
@@ -6,7 +6,7 @@ from typing import Annotated
 from pydantic import ConfigDict
 from fastapi import Depends, FastAPI, Query, HTTPException
 from pydantic import BeforeValidator
-from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_, case
+from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -42,15 +42,15 @@ class BaseSQLModel(SQLModel):
     model_config = ConfigDict(validate_assignment=True)  # type: ignore
 
 
-def convert_to_date(s: str | date | None) -> date | None:
+def convert_to_date(s: str | datetime | None) -> datetime | None:
     if s is None or s == "":
         return None
-    if isinstance(s, date):
+    if isinstance(s, datetime):
         return s
-    return datetime.strptime(s, "%Y-%m-%d").date()
+    return datetime.strptime(s, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
 
-DueDate = Annotated[date | None, BeforeValidator(convert_to_date)]
+DueDate = Annotated[datetime | None, BeforeValidator(convert_to_date)]
 
 
 class Project(BaseSQLModel, table=True):
@@ -212,7 +212,7 @@ def complete_project(project_id, session: SessionDep) -> Project:
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     project.completed = True
-    project.completed_date = date.today()
+    project.completed_date = datetime.now()
     session.commit()
     session.refresh(project)
     return project
@@ -232,7 +232,7 @@ def complete_task(task_id, session: SessionDep) -> Task:
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     task.completed = True
-    task.completed_date = date.today()
+    task.completed_date = datetime.now()
     session.commit()
     session.refresh(task)
     return task
@@ -247,6 +247,7 @@ def incomplete_task(task_id, session: SessionDep) -> Task:
     session.commit()
     session.refresh(task)
     return task
+
 
 @app.patch("/project/{project_id}/incomplete")
 def incomplete_project(project_id, session: SessionDep) -> Project:

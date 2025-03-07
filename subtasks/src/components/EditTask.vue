@@ -49,7 +49,7 @@ const isShowModal = ref(false)
 const task = reactive<Omit<Task, "id">>({
   title: props.task.title,
   body: props.task.body,
-  due_date: props.task.due_date,
+  due_date: props.task.due_date ? new Date(props.task.due_date).toISOString().split('T')[0] : '',
 })
 
 async function onSubmit() {
