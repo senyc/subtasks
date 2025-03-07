@@ -7,7 +7,8 @@
       </fwb-table-head-cell>
       <fwb-table-head-cell class="w-5/10">Project
         Name</fwb-table-head-cell>
-      <fwb-table-head-cell class="w-1/10">Date Due</fwb-table-head-cell>
+      <fwb-table-head-cell v-if="!completed" class="w-1/10">Date Due</fwb-table-head-cell>
+      <fwb-table-head-cell v-else class="w-1/10">Date Completed</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/10">Tasks Remaining</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/10">Tasks Total</fwb-table-head-cell>
       <fwb-table-head-cell class="w-1/10">Tasks Complete</fwb-table-head-cell>
@@ -16,8 +17,9 @@
       </fwb-table-head-cell>
     </fwb-table-head>
     <fwb-table-body>
-      <ProjectRow @toggle-checked="toggleChecked" :checked-projects="checkedProjects" v-for="project in projects"
-        :key="project.id" :checked="checkedProjects.includes(project.id)" :project="project" />
+      <ProjectRow :completed="completed" :toggle-checked="toggleChecked" :checked-projects="checkedProjects"
+        v-for="project in projects" :key="project.id" :checked="checkedProjects.includes(project.id)"
+        :project="project" />
     </fwb-table-body>
   </fwb-table>
 </template>
@@ -39,7 +41,12 @@ import { inject } from 'vue';
 let checkedProjects = inject<number[]>('checked', [])
 import useProjects from '@actions/projects'
 
-const { data: projects } = useProjects()
+const props = withDefaults(defineProps<{
+  completed?: boolean
+}>(),
+  { completed: false })
+
+const { data: projects } = useProjects({ completed: props.completed })
 
 function toggleAllChecked() {
   if (!projects.value) {
