@@ -248,6 +248,16 @@ def incomplete_task(task_id, session: SessionDep) -> Task:
     session.refresh(task)
     return task
 
+@app.patch("/project/{project_id}/incomplete")
+def incomplete_project(project_id, session: SessionDep) -> Project:
+    project = session.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    project.completed = False
+    session.commit()
+    session.refresh(project)
+    return project
+
 
 @app.post("/project/{project_id}/task")
 def create_project_task(

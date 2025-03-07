@@ -8,6 +8,13 @@
           d="M5 11.917 9.724 16.5 19 7.5" />
       </svg>
     </button>
+    <button v-if="completed" @click="incompleteCheckedProjects" class="cursor-pointer">
+      <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        width="24" height="24" fill="none" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 8v4l3 3M3.22302 14C4.13247 18.008 7.71683 21 12 21c4.9706 0 9-4.0294 9-9 0-4.97056-4.0294-9-9-9-3.72916 0-6.92858 2.26806-8.29409 5.5M7 9H3V5" />
+      </svg>
+    </button>
     <button class="cursor-pointer" @click="deleteCheckedProjects"><svg class="w-6 h-6 text-gray-800 dark:text-white"
         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -72,6 +79,17 @@ async function completeProject(id: number) {
   })
 }
 
+async function incompleteProject(id: number) {
+  return fetch(`http://localhost:8000/project/${id}/incomplete`, {
+    method: "PATCH"
+  })
+}
+
+async function incompleteCheckedProjects() {
+  await Promise.all(checked.map(id => incompleteProject(id)))
+  queryClient.invalidateQueries({ queryKey: ['projects'] })
+  clearCheckedProjects()
+}
 async function completeCheckedProjects() {
   await Promise.all(checked.map(id => completeProject(id)))
   queryClient.invalidateQueries({ queryKey: ['projects'] })
