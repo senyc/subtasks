@@ -3,7 +3,7 @@
     <fwb-table-head class="bg-gray-100">
       <fwb-table-head-cell class="w-5">
         <fwb-checkbox @click="toggleAllChecked"
-          :model-value="checkedProjects.length === projects?.length && checkedProjects.length > 0" />
+          :model-value="checked.length === projects?.length && checked.length > 0" />
       </fwb-table-head-cell>
       <fwb-table-head-cell class="w-5/10">Project
         Name</fwb-table-head-cell>
@@ -17,9 +17,8 @@
       </fwb-table-head-cell>
     </fwb-table-head>
     <fwb-table-body>
-      <ProjectRow :completed="completed" :toggle-checked="toggleChecked" :checked-projects="checkedProjects"
-        v-for="project in projects" :key="project.id" :checked="checkedProjects.includes(project.id)"
-        :project="project" />
+      <ProjectRow :completed="completed" @toggle-checked="toggleChecked" v-for="project in projects" :key="project.id"
+        :checked="checked.includes(project.id)" :project="project" />
     </fwb-table-body>
   </fwb-table>
 </template>
@@ -38,7 +37,7 @@ import { inject } from 'vue';
 
 // Inject api used here because we would like the parent component to know about what is checked to perform 
 // mutations/deletions on the checked items (via the bar items)
-let checkedProjects = inject<number[]>('checked', [])
+let checked = inject<number[]>('checked', [])
 import useProjects from '@actions/projects'
 
 const props = withDefaults(defineProps<{
@@ -53,19 +52,20 @@ function toggleAllChecked() {
     return
   }
 
-  if (checkedProjects.length === projects.value.length) {
-    checkedProjects.splice(0);
+  if (checked.length === projects.value.length) {
+    checked.splice(0);
   } else {
-    checkedProjects.splice(0); // Clear the array reactively
-    projects.value.forEach(project => checkedProjects.push(project.id)); // Add all project ids
+    checked.splice(0); // Clear the array reactively
+    projects.value.forEach(project => checked.push(project.id)); // Add all project ids
   }
 }
 
 function toggleChecked(id: number) {
-  if (checkedProjects.includes(id)) {
-    checkedProjects.splice(checkedProjects.indexOf(id), 1)
+  console.log("fdsa")
+  if (checked.includes(id)) {
+    checked.splice(checked.indexOf(id), 1)
   } else {
-    checkedProjects.push(id)
+    checked.push(id)
   }
 }
 </script>

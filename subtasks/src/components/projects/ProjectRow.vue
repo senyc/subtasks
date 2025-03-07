@@ -19,7 +19,7 @@
     <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
       (project.total_tasks - project.completed_tasks) || 0 }} </fwb-table-cell>
     <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks
-    }}</fwb-table-cell>
+      }}</fwb-table-cell>
     <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
       project.completed_tasks }}</fwb-table-cell>
     <fwb-table-cell>
@@ -40,11 +40,10 @@ import { reprDate } from '../../utils/date';
 
 withDefaults(defineProps<{
   project: ProjectResponse
-  checked?: boolean
+  checked: boolean
   completed?: boolean
 }>(), {
   completed: false,
-  checked: false
 })
 
 </script>
