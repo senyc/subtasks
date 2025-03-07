@@ -1,6 +1,6 @@
 <template>
   <div class="px-8">
-    <ProjectBreadCrumbs />
+    <ProjectBreadCrumbs show-project-name />
     <ProjectTaskNavigation :project-id="projectId" />
     <ProjectTaskList :project-id="projectId" />
   </div>

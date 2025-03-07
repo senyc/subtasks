@@ -12,10 +12,16 @@
         {{ project.body }}
       </p>
     </fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ reprDate(project.due_date) }}</fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ (project.total_tasks - project.completed_tasks) || 0 }} </fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks }}</fwb-table-cell>
-    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.completed_tasks }}</fwb-table-cell>
+    <fwb-table-cell v-if="!completed" class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
+      reprDate(project.due_date) }}</fwb-table-cell>
+    <fwb-table-cell v-else class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
+      reprDate(project.completed_date) }}</fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
+      (project.total_tasks - project.completed_tasks) || 0 }} </fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{ project.total_tasks
+    }}</fwb-table-cell>
+    <fwb-table-cell class="cursor-pointer" @click="$router.push(`/projects/${project.id}/tasks`)">{{
+      project.completed_tasks }}</fwb-table-cell>
     <fwb-table-cell>
       <EditProject :project=project />
     </fwb-table-cell>
@@ -31,9 +37,14 @@ import {
 import EditProject from './EditProject.vue';
 import type { ProjectResponse } from '@annotations/project';
 import { reprDate } from '../../utils/date';
-defineProps<{
+
+withDefaults(defineProps<{
   project: ProjectResponse
-  checked: boolean
-}>()
+  checked?: boolean
+  completed?: boolean
+}>(), {
+  completed: false,
+  checked: false
+})
 
 </script>

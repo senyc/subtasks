@@ -11,7 +11,7 @@ async function getProjects(completed: boolean): Promise<ProjectResponse[]> {
   return res.json();
 }
 
-export default (completed: boolean = false) =>
+export default ({ completed = false }: { completed?: boolean }) =>
   useQuery({
     queryKey: ["projects", completed ? "completed" : "incomplete"],
     queryFn: () => getProjects(completed),
