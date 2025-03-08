@@ -45,6 +45,7 @@ const props = defineProps<{
 const task = reactive<Omit<Task, "id">>({
   title: "",
   body: "",
+  project_id: props.projectId
 })
 
 

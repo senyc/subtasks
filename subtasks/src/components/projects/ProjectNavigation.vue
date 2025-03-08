@@ -127,7 +127,7 @@ import { useQueryClient } from "@tanstack/vue-query";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     completed?: boolean;
     page: number;
@@ -136,7 +136,6 @@ const props = withDefaults(
   { completed: false, pageSize: 20 },
 );
 
-console.log(props.page);
 function clearCheckedProjects() {
   checked.splice(0);
 }

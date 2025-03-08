@@ -116,6 +116,17 @@ class PagedProjectResponse:
     count: int
 
 
+@app.get("/projects/all")
+def all_projects(
+    session: SessionDep,
+) -> Sequence[Project]:
+    """Used for the select box when choosing to swap a task that a project is in
+    Returns less data than the standard /projects endpoint
+    """
+    projects = session.exec(select(Project)).all()
+    return projects
+
+
 @app.get("/projects/")
 def read_projects(
     session: SessionDep,
@@ -324,6 +335,7 @@ def Update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     updated_task.title = task.title
     updated_task.body = task.body
     updated_task.due_date = task.due_date
+    updated_task.project_id = task.project_id
     session.commit()
     session.refresh(updated_task)
     return updated_task
