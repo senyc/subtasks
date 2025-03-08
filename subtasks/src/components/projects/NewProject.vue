@@ -57,6 +57,9 @@ async function onSubmit() {
   })
   if (res.ok) {
     queryClient.invalidateQueries({ queryKey: ["projects"] })
+    project.title = ""
+    project.body = ""
+    project.due_date = ""
   }
 }
 </script>

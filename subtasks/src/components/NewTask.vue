@@ -63,6 +63,7 @@ async function onSubmit() {
     queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] })
     task.title = ""
     task.body = ""
+    task.due_date = ""
   }
 }
 </script>
