@@ -1,8 +1,9 @@
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from fastapi import FastAPI
 from collections.abc import Sequence
 from contextlib import asynccontextmanager
-from typing import Annotated
+from typing import Annotated, TypedDict
 from pydantic import ConfigDict
 from fastapi import Depends, FastAPI, Query, HTTPException
 from pydantic import BeforeValidator
@@ -109,36 +110,43 @@ class ProjectResponse(Project):
     completed_tasks: int
 
 
+@dataclass
+class PagedProjectResponse:
+    projects: Sequence[ProjectResponse]
+    count: int
+
+
 @app.get("/projects/")
 def read_projects(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
-) -> Sequence[ProjectResponse]:
+) -> PagedProjectResponse:
 
-    stmt = (
-        (
-            select(  # type: ignore
-                Project,
-                func.count(Task.id),  # type: ignore
-                func.count(Task.id).filter(Task.completed == True),  # type: ignore
-            )
-            .where(Project.completed == False)
-            .join(Task, Project.id == Task.project_id, isouter=True)
-            .group_by(Project.id)
+    projects_with_task_count = session.exec(
+        select(  # type: ignore
+            Project,
+            func.count(Task.id),  # type: ignore
+            func.count(Task.id).filter(Task.completed == True),  # type: ignore
         )
+        .where(Project.completed == False)
+        .join(Task, Project.id == Task.project_id, isouter=True)
+        .group_by(Project.id)
         .offset(offset)
         .limit(limit)
+    ).all()
+    project_count = session.exec(select(func.count(Project.id))).one()  # type: ignore
+    return PagedProjectResponse(
+        projects=[
+            ProjectResponse(
+                **project.model_dump(),
+                total_tasks=task_count,
+                completed_tasks=completed_tasks,
+            )
+            for project, task_count, completed_tasks in projects_with_task_count
+        ],
+        count=project_count,
     )
-    projects_with_task_count = session.exec(stmt).all()
-    return [
-        ProjectResponse(
-            **project.model_dump(),
-            total_tasks=task_count,
-            completed_tasks=completed_tasks,
-        )
-        for project, task_count, completed_tasks in projects_with_task_count
-    ]
 
 
 @app.get("/projects/completed")
@@ -146,31 +154,34 @@ def read_completed_projects(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
-) -> Sequence[ProjectResponse]:
+) -> PagedProjectResponse:
 
-    stmt = (
-        (
-            select(  # type: ignore
-                Project,
-                func.count(Task.id),  # type: ignore
-                func.count(Task.id).filter(Task.completed == True),  # type: ignore
-            )
-            .where(Project.completed == True)
-            .join(Task, Project.id == Task.project_id, isouter=True)
-            .group_by(Project.id)
+    projects_with_task_count = session.exec(
+        select(  # type: ignore
+            Project,
+            func.count(Task.id),  # type: ignore
+            func.count(Task.id).filter(Task.completed == True),  # type: ignore
         )
+        .where(Project.completed == True)
+        .join(Task, Project.id == Task.project_id, isouter=True)
+        .group_by(Project.id)
         .offset(offset)
         .limit(limit)
+    ).all()
+
+    project_count = session.exec(select(func.count(Project.id))).one()  # type: ignore
+
+    return PagedProjectResponse(
+        projects=[
+            ProjectResponse(
+                **project.model_dump(),
+                total_tasks=task_count,
+                completed_tasks=completed_tasks,
+            )
+            for project, task_count, completed_tasks in projects_with_task_count
+        ],
+        count=project_count,
     )
-    projects_with_task_count = session.exec(stmt).all()
-    return [
-        ProjectResponse(
-            **project.model_dump(),
-            total_tasks=task_count,
-            completed_tasks=completed_tasks,
-        )
-        for project, task_count, completed_tasks in projects_with_task_count
-    ]
 
 
 @app.get("/project/{project_id}")
