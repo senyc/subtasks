@@ -11,6 +11,14 @@ import { provide, reactive } from 'vue';
 import ProjectBreadCrumbs from '@components/projects/ProjectBreadCrumbs.vue';
 import ProjectList from '@components/projects/ProjectList.vue';
 import ProjectNavigation from '@components/projects/ProjectNavigation.vue';
-const checkedProjects = reactive<number[]>([])
-provide<number[]>('checked', checkedProjects)
+import { useRoute, } from 'vue-router';
+
+const checked = reactive<number[]>([])
+provide<number[]>('checked', checked)
+
+const route = useRoute()
+
+route.query.page
+
+
 </script>
