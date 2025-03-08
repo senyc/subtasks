@@ -1,21 +1,7 @@
-import { keepPreviousData, useQuery } from "@tanstack/vue-query";
 import type { ProjectResponse } from "../annotations/project";
+import { calculateOffsetLimit } from "../utils/pagination";
 
-function calculateOffsetLimit({
-  page,
-  pageSize,
-}: {
-  /** This value is expected to be one indexed*/
-  page: number;
-  pageSize: number;
-}) {
-  const offset = (page - 1) * pageSize;
-  const limit = page * pageSize;
-  /** These values are expected to be 0-indexed as they are used in the query*/
-  return [offset, limit];
-}
-
-async function getProjects({
+export async function getProjects({
   completed,
   page,
   pageSize,
@@ -37,24 +23,3 @@ async function getProjects({
   }
   return res.json();
 }
-
-export default ({
-  completed = false,
-  page,
-  pageSize = 20,
-}: {
-  completed?: boolean;
-  page: number;
-  pageSize?: number;
-}) =>
-  useQuery({
-    placeholderData: keepPreviousData,
-    queryKey: [
-      "projects",
-      completed ? "completed" : "incomplete",
-      page,
-      pageSize,
-    ],
-    queryFn: () =>
-      getProjects({ pageSize: pageSize, page: page, completed: completed }),
-  });

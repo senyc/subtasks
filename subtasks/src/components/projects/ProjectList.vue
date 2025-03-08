@@ -9,7 +9,7 @@
           "
         />
       </fwb-table-head-cell>
-      <fwb-table-head-cell class="w-5/10">Project Name</fwb-table-head-cell>
+      <fwb-table-head-cell class="w-5/10"> Project Name</fwb-table-head-cell>
       <fwb-table-head-cell v-if="!completed" class="w-1/10"
         >Date Due</fwb-table-head-cell
       >
@@ -45,12 +45,13 @@ import {
   FwbTableHeadCell,
 } from "flowbite-vue";
 import ProjectRow from "./ProjectRow.vue";
-import { inject } from "vue";
+import { computed, inject } from "vue";
 
 // Inject api used here because we would like the parent component to know about what is checked to perform
 // mutations/deletions on the checked items (via the bar items)
 let checked = inject<number[]>("checked", []);
-import useProjects from "@actions/projects";
+import { getProjects } from "@actions/projects";
+import { useQuery } from "@tanstack/vue-query";
 
 const props = withDefaults(
   defineProps<{
@@ -61,10 +62,19 @@ const props = withDefaults(
   { completed: false, pageSize: 20 },
 );
 
-const { data } = useProjects({
-  completed: props.completed,
-  page: props.page,
-  pageSize: props.pageSize,
+const { data } = useQuery({
+  queryKey: computed(() => [
+    "projects",
+    props.completed ? "completed" : "incomplete",
+    { page: props.page, size: props.pageSize },
+  ]),
+  notifyOnChangeProps: "all",
+  queryFn: () =>
+    getProjects({
+      pageSize: props.pageSize,
+      page: props.page,
+      completed: props.completed,
+    }),
 });
 
 const projects = data.value?.projects;
