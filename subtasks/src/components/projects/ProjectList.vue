@@ -68,7 +68,6 @@ const { data } = useQuery({
     props.completed ? "completed" : "incomplete",
     { page: props.page, size: props.pageSize },
   ]),
-  notifyOnChangeProps: "all",
   queryFn: () =>
     getProjects({
       pageSize: props.pageSize,
