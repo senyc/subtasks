@@ -1,8 +1,8 @@
 <template>
   <div class="px-8">
-  <ProjectBreadCrumbs />
-  <ProjectNavigation />
-  <ProjectList />
+    <ProjectBreadCrumbs />
+    <ProjectNavigation />
+    <ProjectList :page="parseInt($route.query.page as string ?? '1')" />
   </div>
 </template>
 
