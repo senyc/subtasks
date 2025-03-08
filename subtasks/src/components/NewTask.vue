@@ -42,6 +42,7 @@ const queryClient = useQueryClient()
 const props = defineProps<{
   projectId: number
 }>()
+
 const task = reactive<Omit<Task, "id">>({
   title: "",
   body: "",

@@ -23,8 +23,10 @@
   </fwb-button>
   <fwb-modal v-if="isShowModal" @close="isShowModal = false">
     <template #header>
-      <div class="border-none flex items-center text-lg">
-        Edit {{ props.task.title }}
+      <div
+        class="ml-2 border-none text-left line-clamp-1 overflow-ellipsis text-lg"
+      >
+        Edit: {{ props.task.title }}
       </div>
     </template>
     <template #body>
@@ -64,7 +66,6 @@ const task = reactive<Omit<Task, "id">>({
     : "",
   project_id: props.task.project_id,
 });
-
 
 async function onSubmit() {
   const res = await fetch(`http://localhost:8000/task/${props.task.id}`, {
