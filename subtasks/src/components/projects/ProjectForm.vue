@@ -10,6 +10,7 @@
       label="Project Title"
     />
     <fwb-textarea
+      @keydown.ctrl.enter="$emit('onSubmit')"
       v-model="project.body"
       :rows="4"
       label="Project Body"

@@ -10,6 +10,7 @@
       ref="titleRef"
     />
     <fwb-textarea
+      @keydown.ctrl.enter="$emit('onSubmit')"
       v-model="task.body"
       :rows="4"
       label="Task Body"

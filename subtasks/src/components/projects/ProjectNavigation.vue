@@ -1,4 +1,3 @@
-// TODO: we should update the input search class to be our own styled component based off of flowbite
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
     <SearchBar placeholder="Search for Projects" :search="search" />
