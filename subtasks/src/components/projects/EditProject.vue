@@ -30,7 +30,10 @@
       </div>
     </template>
     <template #body>
-      <ProjectForm :project="project" @on-submit="onSubmit" />
+      <ProjectForm
+        :project="project"
+        @on-submit="onSubmit"
+      />
     </template>
     <template #footer>
       <div class="flex justify-between">

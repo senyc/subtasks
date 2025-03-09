@@ -7,6 +7,7 @@
       placeholder="Task Title"
       v-model="task.title"
       label="Task Title"
+      ref="titleRef"
     />
     <fwb-textarea
       v-model="task.body"
@@ -31,9 +32,12 @@
 import type { Project } from "@annotations/project";
 import type Task from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";
-import { FwbInput, FwbTextarea } from "flowbite-vue";
+import { FwbInput, FwbTextarea, FwbSelect } from "flowbite-vue";
+import { nextTick, useTemplateRef, onMounted } from "vue";
+
 type PartialTask = Omit<Task, "id">;
-import { FwbSelect } from "flowbite-vue";
+
+const titleRef = useTemplateRef("titleRef");
 
 const { data } = useQuery({
   queryKey: ["projects", "all"],
@@ -45,6 +49,19 @@ const { data } = useQuery({
     return res.json();
   },
 });
+
+onMounted(() => {
+  nextTick(() => {
+    // Gets the underlying input element within the flowbite component
+    const inputElement = titleRef.value?.$el.querySelector(
+      "input",
+    ) as HTMLInputElement;
+    if (inputElement) {
+      inputElement.focus();
+    }
+  });
+});
+
 defineProps<{
   task: PartialTask;
 }>();

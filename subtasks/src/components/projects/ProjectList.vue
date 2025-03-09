@@ -63,11 +63,11 @@ const props = withDefaults(
 );
 
 const { data } = useQuery({
-  queryKey: computed(() => [
+  queryKey: [
     "projects",
-    props.completed ? "completed" : "incomplete",
-    { page: props.page, size: props.pageSize },
-  ]),
+    computed(() => (props.completed ? "completed" : "incomplete")),
+    { page: () => props.page, size: () => props.pageSize },
+  ],
   queryFn: () =>
     getProjects({
       pageSize: props.pageSize,

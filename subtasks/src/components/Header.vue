@@ -14,14 +14,9 @@
       </fwb-navbar-collapse>
     </template>
   </Navbar>
-
-
 </template>
 
 <script setup lang="ts">
-import Navbar from './shared/Navbar.vue';
-import {
-  FwbNavbarCollapse,
-  FwbNavbarLink,
-} from 'flowbite-vue'
+import Navbar from "./shared/Navbar.vue";
+import { FwbNavbarCollapse, FwbNavbarLink } from "flowbite-vue";
 </script>
