@@ -8,3 +8,11 @@ export function reprDate(date?: string): string {
     month: 'long'
   })
 }
+export function dateHasElapsed(inputDate: Date) {
+  const today = new Date();
+
+  inputDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  return inputDate < today;
+}
