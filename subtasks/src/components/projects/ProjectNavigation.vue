@@ -1,11 +1,7 @@
+// TODO: we should update the input search class to be our own styled component based off of flowbite
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
-    <fwb-input
-      v-model="search"
-      class="min-w-[45rem] rounded-xl"
-      placeholder="Search for Projects"
-      size="md"
-    />
+    <SearchBar placeholder="Search for Projects" :search="search" />
     <button
       v-if="!completed"
       @click="completeCheckedProjects"
@@ -120,21 +116,24 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject } from "vue";
 import { FwbInput } from "flowbite-vue";
 import { useQueryClient } from "@tanstack/vue-query";
-
+import SearchBar from "@components/shared/SearchBar.vue";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
 
-withDefaults(
-  defineProps<{
-    completed?: boolean;
-    page: number;
-    pageSize?: number;
-  }>(),
-  { completed: false, pageSize: 20 },
-);
+const {
+  completed = false,
+  pageSize = 20,
+  page,
+  search = "",
+} = defineProps<{
+  completed?: boolean;
+  page: number;
+  pageSize?: number;
+  search?: string;
+}>();
 
 function clearCheckedProjects() {
   checked.splice(0);
@@ -174,6 +173,4 @@ async function completeCheckedProjects() {
   queryClient.invalidateQueries({ queryKey: ["projects"] });
   clearCheckedProjects();
 }
-
-const search = ref("");
 </script>

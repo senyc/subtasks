@@ -2,10 +2,12 @@
   <div class="px-8">
     <ProjectBreadCrumbs show-project-name />
     <ProjectTaskNavigation
+      :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
       :project-id="projectId"
     />
     <ProjectTaskList
+      :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
       :project-id="projectId"
     />

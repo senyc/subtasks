@@ -5,10 +5,12 @@ export async function getProjects({
   completed,
   page,
   pageSize,
+  search,
 }: {
   completed: boolean;
   page: number;
   pageSize: number;
+  search: string;
 }): Promise<{ projects: ProjectResponse[]; count: number }> {
   const [offset, limit] = calculateOffsetLimit({
     page: page,
@@ -16,7 +18,7 @@ export async function getProjects({
   });
 
   const res = await fetch(
-    `http://localhost:8000/projects${completed ? "/completed" : ""}?offset=${offset}&limt=${limit}`,
+    `http://localhost:8000/projects${completed ? "/completed" : ""}?offset=${offset}&limt=${limit}&search=${search}`,
   );
   if (!res.ok) {
     throw new Error("Cannot fetch projects");

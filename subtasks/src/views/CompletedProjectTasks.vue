@@ -4,11 +4,13 @@
     <ProjectTaskNavigation
       completed
       :project-id="projectId"
+      :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
     <ProjectTaskList
       completed
       :project-id="projectId"
+      :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
   </div>

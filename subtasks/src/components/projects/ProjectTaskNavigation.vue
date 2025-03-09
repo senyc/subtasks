@@ -1,16 +1,10 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
-    <fwb-input
-      v-model="search"
-      class="min-w-[45rem] rounded-xl"
-      placeholder="Search for Tasks"
-      size="md"
-    />
-
+    <SearchBar :search="search" placeholder="Search for Tasks"/>
     <button
       v-if="!completed"
-      class="cursor-pointer"
       @click="completeCheckedTasks"
+      class="cursor-pointer"
     >
       <svg
         class="w-6 h-6 text-gray-800 dark:text-white"
@@ -30,7 +24,6 @@
         />
       </svg>
     </button>
-
     <button
       v-if="completed"
       @click="incompleteCheckedTasks"
@@ -123,26 +116,26 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject } from "vue";
 import { FwbInput } from "flowbite-vue";
 import { useQueryClient } from "@tanstack/vue-query";
+import SearchBar from "@components/shared/SearchBar.vue";
 
-const props = withDefaults(
-  defineProps<{
-    projectId: number;
-    completed?: boolean;
-    page: number;
-    pageSize?: number;
-  }>(),
-  {
-    completed: false,
-    pageSize: 20,
-  },
-);
+const {
+  completed = false,
+  pageSize = 20,
+  search = "",
+  projectId,
+} = defineProps<{
+  projectId: number;
+  completed?: boolean;
+  page: number;
+  pageSize?: number;
+  search?: string;
+}>();
 
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
-const search = ref("");
 
 function clearCheckedTasks() {
   checked.splice(0);
@@ -162,7 +155,7 @@ async function incompleteTask(id: number) {
 
 async function incompleteCheckedTasks() {
   await Promise.all(checked.map((id) => incompleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] });
+  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
   clearCheckedTasks();
 }
 
@@ -174,13 +167,13 @@ async function deleteTask(id: number) {
 
 async function deleteCheckedTasks() {
   await Promise.all(checked.map((id) => deleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] });
+  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
   clearCheckedTasks();
 }
 
 async function completeCheckedTasks() {
   await Promise.all(checked.map((id) => completeTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] });
+  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
   clearCheckedTasks();
 }
 </script>
