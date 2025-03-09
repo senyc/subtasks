@@ -1,30 +1,41 @@
 <template>
   <fwb-table hoverable>
-    <fwb-table-head class="bg-gray-100">
-      <fwb-table-head-cell class="w-5">
-        <fwb-checkbox
-          @click="toggleAllChecked"
-          :model-value="
-            checked.length === projects?.length && checked.length > 0
-          "
-        />
-      </fwb-table-head-cell>
-      <fwb-table-head-cell class="w-5/10"> Project Name</fwb-table-head-cell>
-      <fwb-table-head-cell v-if="!completed" class="w-1/10"
-        >Date Due</fwb-table-head-cell
+    <thead class="bg-gray-100">
+      <tr
+        class="flex flex-row text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400 bg-gray-100"
       >
-      <fwb-table-head-cell v-else class="w-1/10"
-        >Date Completed</fwb-table-head-cell
-      >
-      <fwb-table-head-cell class="w-1/10">Tasks Remaining</fwb-table-head-cell>
-      <fwb-table-head-cell class="w-1/10">Tasks Total</fwb-table-head-cell>
-      <fwb-table-head-cell class="w-1/10">Tasks Complete</fwb-table-head-cell>
-      <fwb-table-head-cell>
-        <span class="sr-only">Edit</span>
-      </fwb-table-head-cell>
-    </fwb-table-head>
+        <fwb-table-head-cell class="w-7">
+          <fwb-checkbox
+            @click="toggleAllChecked"
+            :model-value="
+              checked.length === projects?.length && checked.length > 0
+            "
+          />
+        </fwb-table-head-cell>
+        <fwb-table-head-cell class="grow xl:min-w-52 min-w-36">
+          Project Name</fwb-table-head-cell
+        >
+        <fwb-table-head-cell v-if="!completed" class="xl:min-w-52 min-w-36"
+          >Date Due</fwb-table-head-cell
+        >
+        <fwb-table-head-cell v-else class="xl:min-w-52 min-w-36"
+          >Date Completed</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Tasks Remaining</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Tasks Total</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Tasks Complete</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="min-w-36">
+          <span class="sr-only">Edit</span>
+        </fwb-table-head-cell>
+      </tr>
+    </thead>
     <fwb-table-body>
       <ProjectRow
+        v-if="data && data.projects.length > 0"
         :completed="completed"
         @toggle-checked="toggleChecked"
         v-for="project in data?.projects"
@@ -32,6 +43,7 @@
         :checked="checked.includes(project.id)"
         :project="project"
       />
+      <EmptyRow v-else-if="isFetched" />
     </fwb-table-body>
   </fwb-table>
 </template>
@@ -41,7 +53,6 @@ import {
   FwbTable,
   FwbCheckbox,
   FwbTableBody,
-  FwbTableHead,
   FwbTableHeadCell,
 } from "flowbite-vue";
 import ProjectRow from "./ProjectRow.vue";
@@ -52,6 +63,7 @@ import { computed, inject } from "vue";
 let checked = inject<number[]>("checked", []);
 import { getProjects } from "@actions/projects";
 import { keepPreviousData, useQuery } from "@tanstack/vue-query";
+import EmptyRow from "@components/shared/EmptyRow.vue";
 
 const {
   completed = false,
@@ -65,7 +77,7 @@ const {
   search?: string;
 }>();
 
-const { data } = useQuery({
+const { data, isFetched } = useQuery({
   placeholderData: keepPreviousData,
   queryKey: [
     "projects",

@@ -1,35 +1,41 @@
 <template>
   <fwb-table>
-    <fwb-table-head class="bg-gray-100">
-      <fwb-table-head-cell class="w-5">
-        <fwb-checkbox
-          @click="toggleAllChecked"
-          :model-value="checkedTasks.length === tasks?.length"
-        />
-      </fwb-table-head-cell>
-      <fwb-table-head-cell :class="{ 'w-3/6': completed, 'w-4/6': !completed }"
-        >Task Name</fwb-table-head-cell
+    <thead class="font-bold bg-gray-100">
+      <tr
+        class="flex flex-row text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400 bg-gray-100"
       >
-      <fwb-table-head-cell v-if="completed" class="w-1/6"
-        >Date Completed</fwb-table-head-cell
-      >
-      <fwb-table-head-cell class="w-1/6">Date Due</fwb-table-head-cell>
-      <fwb-table-head-cell class="w-1/6">Date Added</fwb-table-head-cell>
-      <fwb-table-head-cell>
-        <span class="sr-only">Edit</span>
-      </fwb-table-head-cell>
-    </fwb-table-head>
+        <fwb-table-head-cell class="w-7">
+          <fwb-checkbox
+            @click="toggleAllChecked"
+            :model-value="
+              checked.length === tasks?.length && checked.length > 0
+            "
+          />
+        </fwb-table-head-cell>
+        <fwb-table-head-cell class="grow">Task Name</fwb-table-head-cell>
+        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
+          >Date Completed</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Date Due</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Date Added</fwb-table-head-cell>
+        <fwb-table-head-cell class="min-w-36">
+          <span class="sr-only">Edit</span>
+        </fwb-table-head-cell>
+      </tr>
+    </thead>
     <fwb-table-body>
       <ProjectTaskRow
+        v-if="tasks && tasks.length > 0"
         :completed="completed"
         :project-id="projectId"
         @toggle-checked="toggleChecked"
-        :checkedTasks="checkedTasks"
+        :checkedTasks="checked"
         v-for="task in tasks"
         :key="task.id"
-        :checked="checkedTasks.includes(task.id)"
+        :checked="checked.includes(task.id)"
         :task="task"
       />
+      <EmptyRow v-else-if="isFetched" />
     </fwb-table-body>
   </fwb-table>
 </template>
@@ -39,22 +45,22 @@ import {
   FwbTable,
   FwbCheckbox,
   FwbTableBody,
-  FwbTableHead,
   FwbTableHeadCell,
 } from "flowbite-vue";
 import { computed, inject } from "vue";
 import { getTasks } from "@actions/tasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import { keepPreviousData, useQuery } from "@tanstack/vue-query";
+import EmptyRow from "@components/shared/EmptyRow.vue";
 
-let checkedTasks = inject<number[]>("checked", []);
+const checked = inject<number[]>("checked", []);
 
 const {
   projectId,
   completed = false,
   page,
   pageSize = 20,
-  search = '',
+  search = "",
 } = defineProps<{
   projectId: number;
   completed?: boolean;
@@ -63,13 +69,13 @@ const {
   search: string;
 }>();
 
-const { data: tasks } = useQuery({
+const { data: tasks, isFetched } = useQuery({
   placeholderData: keepPreviousData,
   queryKey: [
     "tasks",
     () => projectId,
     computed(() => (completed ? "completed" : "incompleted")),
-    { search: ()=> search, page: () => page, size: () => pageSize },
+    { search: () => search, page: () => page, size: () => pageSize },
   ],
   queryFn: () =>
     getTasks({
@@ -77,7 +83,7 @@ const { data: tasks } = useQuery({
       completed,
       page,
       pageSize,
-      search
+      search,
     }),
 });
 
@@ -86,19 +92,19 @@ function toggleAllChecked() {
     return;
   }
 
-  if (checkedTasks.length === tasks.value.length) {
-    checkedTasks.splice(0);
+  if (checked.length === tasks.value.length) {
+    checked.splice(0);
   } else {
-    checkedTasks.splice(0);
-    tasks.value.forEach((task) => checkedTasks.push(task.id));
+    checked.splice(0);
+    tasks.value.forEach((task) => checked.push(task.id));
   }
 }
 
 function toggleChecked(id: number) {
-  if (checkedTasks.includes(id)) {
-    checkedTasks.splice(checkedTasks.indexOf(id), 1);
+  if (checked.includes(id)) {
+    checked.splice(checked.indexOf(id), 1);
   } else {
-    checkedTasks.push(id);
+    checked.push(id);
   }
 }
 </script>
