@@ -45,7 +45,7 @@ import {
 import { computed, inject } from "vue";
 import { getTasks } from "@actions/tasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
-import { useQuery } from "@tanstack/vue-query";
+import { keepPreviousData, useQuery } from "@tanstack/vue-query";
 
 let checkedTasks = inject<number[]>("checked", []);
 
@@ -54,19 +54,22 @@ const {
   completed = false,
   page,
   pageSize = 20,
+  search = '',
 } = defineProps<{
   projectId: number;
   completed?: boolean;
   page: number;
   pageSize?: number;
+  search: string;
 }>();
 
 const { data: tasks } = useQuery({
+  placeholderData: keepPreviousData,
   queryKey: [
     "tasks",
     () => projectId,
     computed(() => (completed ? "completed" : "incompleted")),
-    { page: () => page, size: () => pageSize },
+    { search: ()=> search, page: () => page, size: () => pageSize },
   ],
   queryFn: () =>
     getTasks({
@@ -74,6 +77,7 @@ const { data: tasks } = useQuery({
       completed,
       page,
       pageSize,
+      search
     }),
 });
 

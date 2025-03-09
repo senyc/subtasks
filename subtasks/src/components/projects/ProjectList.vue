@@ -51,28 +51,33 @@ import { computed, inject } from "vue";
 // mutations/deletions on the checked items (via the bar items)
 let checked = inject<number[]>("checked", []);
 import { getProjects } from "@actions/projects";
-import { useQuery } from "@tanstack/vue-query";
+import { keepPreviousData, useQuery } from "@tanstack/vue-query";
 
-const props = withDefaults(
-  defineProps<{
-    completed?: boolean;
-    page: number;
-    pageSize?: number;
-  }>(),
-  { completed: false, pageSize: 20 },
-);
+const {
+  completed = false,
+  page,
+  pageSize = 20,
+  search = "",
+} = defineProps<{
+  completed?: boolean;
+  page: number;
+  pageSize?: number;
+  search?: string;
+}>();
 
 const { data } = useQuery({
+  placeholderData: keepPreviousData,
   queryKey: [
     "projects",
-    computed(() => (props.completed ? "completed" : "incomplete")),
-    { page: () => props.page, size: () => props.pageSize },
+    computed(() => (completed ? "completed" : "incomplete")),
+    { search: () => search, page: () => page, size: () => pageSize },
   ],
   queryFn: () =>
     getProjects({
-      pageSize: props.pageSize,
-      page: props.page,
-      completed: props.completed,
+      pageSize,
+      page,
+      completed,
+      search,
     }),
 });
 

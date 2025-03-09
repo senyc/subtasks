@@ -2,9 +2,13 @@
   <div class="px-8">
     <ProjectBreadCrumbs />
     <ProjectNavigation
+      :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
-    <ProjectList :page="parseInt(($route.query?.page as string) ?? '1')" />
+    <ProjectList
+      :search="$route.query?.search as string"
+      :page="parseInt(($route.query?.page as string) ?? '1')"
+    />
   </div>
 </template>
 

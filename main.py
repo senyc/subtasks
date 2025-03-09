@@ -132,6 +132,7 @@ def read_projects(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> PagedProjectResponse:
 
     projects_with_task_count = session.exec(
@@ -141,6 +142,7 @@ def read_projects(
             func.count(Task.id).filter(Task.completed == True),  # type: ignore
         )
         .where(Project.completed == False)
+        .where(Project.title.like("%" + search + "%"))  # type: ignore
         .join(Task, Project.id == Task.project_id, isouter=True)
         .group_by(Project.id)
         .offset(offset)
@@ -165,6 +167,7 @@ def read_completed_projects(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> PagedProjectResponse:
 
     projects_with_task_count = session.exec(
@@ -174,6 +177,7 @@ def read_completed_projects(
             func.count(Task.id).filter(Task.completed == True),  # type: ignore
         )
         .where(Project.completed == True)
+        .where(Project.title.like("%" + search + "%"))  # type: ignore
         .join(Task, Project.id == Task.project_id, isouter=True)
         .group_by(Project.id)
         .offset(offset)
@@ -298,9 +302,13 @@ def read_tasks(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> Sequence[Task]:
     tasks = session.exec(
-        select(Task).where(not Task.completed).offset(offset).limit(limit)
+        select(Task)
+        .where(and_(Task.completed == False, Task.title.like("%" + search + "%")))
+        .offset(offset)
+        .limit(limit)
     ).all()
     return tasks
 
@@ -310,9 +318,14 @@ def read_completed_tasks(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> Sequence[Task]:
     tasks = session.exec(
-        select(Task).where(Task.completed).offset(offset).limit(limit)
+        select(Task)
+        .where(Task.completed)
+        .where(Task.title.like("%" + search + "%"))
+        .offset(offset)
+        .limit(limit)
     ).all()
     if tasks:
         return tasks
@@ -359,6 +372,7 @@ def read_project_tasks(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> Sequence[Task] | None:
     project = session.get(Project, project_id)
     if not project:
@@ -366,7 +380,13 @@ def read_project_tasks(
 
     tasks = session.exec(
         select(Task)
-        .where(and_(Task.project_id == project_id, Task.completed != True))
+        .where(
+            and_(
+                Task.project_id == project_id,
+                Task.completed != True,
+                Task.title.like("%" + search + "%"),
+            )
+        )
         .offset(offset)
         .limit(limit)
     ).all()
@@ -382,6 +402,7 @@ def read_completed_project_tasks(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
+    search: str = "",
 ) -> Sequence[Task] | None:
     project = session.get(Project, project_id)
     if not project:
@@ -389,7 +410,13 @@ def read_completed_project_tasks(
 
     tasks = session.exec(
         select(Task)
-        .where(and_(Task.project_id == project_id, Task.completed == True))
+        .where(
+            and_(
+                Task.project_id == project_id,
+                Task.completed == True,
+                Task.title.like("%" + search + "%"),
+            )
+        )
         .offset(offset)
         .limit(limit)
     ).all()

@@ -1,7 +1,13 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
     <fwb-input
-      v-model="search"
+      :model-value="search"
+      @input="
+        (e) =>
+          $router.replace({
+            query: { ...$route.query, search: e.target.value },
+          })
+      "
       class="min-w-[45rem] rounded-xl"
       placeholder="Search for Projects"
       size="md"
@@ -127,14 +133,17 @@ import { useQueryClient } from "@tanstack/vue-query";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
 
-withDefaults(
-  defineProps<{
-    completed?: boolean;
-    page: number;
-    pageSize?: number;
-  }>(),
-  { completed: false, pageSize: 20 },
-);
+const {
+  completed = false,
+  pageSize = 20,
+  page,
+  search = "",
+} = defineProps<{
+  completed?: boolean;
+  page: number;
+  pageSize?: number;
+  search?: string;
+}>();
 
 function clearCheckedProjects() {
   checked.splice(0);
@@ -174,6 +183,4 @@ async function completeCheckedProjects() {
   queryClient.invalidateQueries({ queryKey: ["projects"] });
   clearCheckedProjects();
 }
-
-const search = ref("");
 </script>

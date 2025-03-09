@@ -6,18 +6,20 @@ export async function getTasks({
   completed,
   page,
   pageSize,
+  search = "",
 }: {
   projectId: number;
   completed: boolean;
   page: number;
   pageSize: number;
+  search?: string;
 }): Promise<Task[]> {
   const [offset, limit] = calculateOffsetLimit({
     page: page,
     pageSize: pageSize,
   });
   const res = await fetch(
-    `http://localhost:8000/project/${projectId}/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${limit}`,
+    `http://localhost:8000/project/${projectId}/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${limit}&search=${search}`,
   );
   if (!res.ok) {
     throw new Error("Cannot fetch tasks");

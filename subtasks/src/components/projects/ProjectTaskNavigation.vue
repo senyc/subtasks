@@ -1,12 +1,17 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
     <fwb-input
-      v-model="search"
+      :model-value="search"
+      @input="
+        (e) =>
+          $router.replace({
+            query: { ...$route.query, search: e.target.value },
+          })
+      "
       class="min-w-[45rem] rounded-xl"
-      placeholder="Search for Tasks"
+      placeholder="Search for Projects"
       size="md"
     />
-
     <button
       v-if="!completed"
       class="cursor-pointer"
@@ -123,26 +128,24 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref } from "vue";
+import { inject } from "vue";
 import { FwbInput } from "flowbite-vue";
 import { useQueryClient } from "@tanstack/vue-query";
 
-const props = withDefaults(
-  defineProps<{
-    projectId: number;
-    completed?: boolean;
-    page: number;
-    pageSize?: number;
-  }>(),
-  {
-    completed: false,
-    pageSize: 20,
-  },
-);
+const {
+  completed = false,
+  pageSize = 20,
+  search = "",
+} = defineProps<{
+  projectId: number;
+  completed?: boolean;
+  page: number;
+  pageSize?: number;
+  search?: string;
+}>();
 
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
-const search = ref("");
 
 function clearCheckedTasks() {
   checked.splice(0);
