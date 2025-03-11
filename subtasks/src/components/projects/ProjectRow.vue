@@ -59,6 +59,8 @@ import EditProject from "./EditProject.vue";
 import type { ProjectResponse } from "@annotations/project";
 import { reprDate, dateHasElapsed } from "../../utils/date";
 
+defineEmits(["toggleChecked"]);
+
 withDefaults(
   defineProps<{
     project: ProjectResponse;

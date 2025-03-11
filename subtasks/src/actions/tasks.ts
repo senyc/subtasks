@@ -13,7 +13,7 @@ export async function getTasks({
   page: number;
   pageSize: number;
   search?: string;
-}): Promise<Task[]> {
+}): Promise<{ tasks: Task[]; count: number }> {
   const [offset, limit] = calculateOffsetLimit({
     page: page,
     pageSize: pageSize,

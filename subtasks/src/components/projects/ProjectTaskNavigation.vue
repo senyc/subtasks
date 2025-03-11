@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
-    <SearchBar :search="search" placeholder="Search for Tasks"/>
+    <SearchBar :search="search" placeholder="Search for Tasks" />
     <button
       v-if="!completed"
       @click="completeCheckedTasks"
@@ -70,9 +70,16 @@
 
     <div class="flex flex-row items-center ml-auto">
       <div class="flex flex-row items-center">
-        <RouterLink :to="{ query: { page: page > 1 ? page - 1 : '1' } }"
-          ><svg
-            class="w-9 h-9 text-gray-800 dark:text-white"
+        <RouterLink
+          :aria-disabled="page > 1"
+          :to="{ query: { page: page > 1 ? page - 1 : '1' } }"
+        >
+          <svg
+            :class="{
+              'text-gray-800': page > 1,
+              'text-gray-800/30 cursor-not-allowed': page <= 1,
+            }"
+            class="size-9 dark:text-white"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -86,11 +93,24 @@
               stroke-linejoin="round"
               stroke-width="2"
               d="m14 8-4 4 4 4"
-            /></svg
-        ></RouterLink>
-        <RouterLink :to="{ query: { page: page + 1 } }" class="cursor-pointer">
+            />
+          </svg>
+        </RouterLink>
+
+        <RouterLink
+          :aria-disabled="projectsRemaining <= pageSize"
+          :to="{
+            query: { page: projectsRemaining <= pageSize ? page + 1 : page },
+          }"
+          class="cursor-pointer"
+        >
           <svg
-            class="w-9 h-9 text-gray-800 dark:text-white"
+            :class="{
+              'text-gray-800': projectsRemaining > pageSize,
+              'text-gray-800/30 cursor-not-allowed':
+                projectsRemaining <= pageSize,
+            }"
+            class="size-9 dark:text-white"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -107,25 +127,34 @@
             />
           </svg>
         </RouterLink>
-        <p class="text-md font-semibold">
-          Show {{ (page - 1) * pageSize + 1 }}-{{ page * pageSize }}
-        </p>
+        <div class="w-20">
+          <p v-if="isSuccess" class="text-md font-semibold">
+            Show {{ (page - 1) * pageSize + 1 }}-{{
+              (page - 1) * pageSize + (projectsRemaining % pageSize)
+            }}
+          </p>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { inject } from "vue";
-import { FwbInput } from "flowbite-vue";
-import { useQueryClient } from "@tanstack/vue-query";
+import { computed, inject } from "vue";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
+import { getTasks } from "@actions/tasks";
 
 const {
   completed = false,
   pageSize = 20,
   search = "",
   projectId,
+  page,
 } = defineProps<{
   projectId: number;
   completed?: boolean;
@@ -133,6 +162,41 @@ const {
   pageSize?: number;
   search?: string;
 }>();
+
+const { data, isSuccess } = useQuery({
+  placeholderData: keepPreviousData,
+  queryKey: [
+    "tasks",
+    () => projectId,
+    computed(() => (completed ? "completed" : "incompleted")),
+    { search: () => search, page: () => page, size: () => pageSize },
+  ],
+  queryFn: () =>
+    getTasks({
+      projectId,
+      completed,
+      page,
+      pageSize,
+      search,
+    }),
+});
+
+const projectsRemaining = computed(() => {
+  if (!isSuccess) {
+    return 0;
+  }
+
+  const count = data?.value?.count;
+  if (!count) {
+    return 0;
+  }
+
+  if (count <= pageSize) {
+    return count;
+  }
+
+  return count - pageSize * (page - 1);
+});
 
 const queryClient = useQueryClient();
 const checked = inject("checked", []);

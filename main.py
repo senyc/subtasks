@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import FastAPI
 from collections.abc import Sequence
 from contextlib import asynccontextmanager
-from typing import Annotated, TypedDict
+from typing import Annotated
 from pydantic import ConfigDict
 from fastapi import Depends, FastAPI, Query, HTTPException
 from pydantic import BeforeValidator
@@ -366,6 +366,12 @@ def delete_task(task_id: int, session: SessionDep) -> int | None:
     return task_to_delete.id
 
 
+@dataclass
+class PagedProjectTasksResponse:
+    tasks: Sequence[Task]
+    count: int
+
+
 @app.get("/project/{project_id}/tasks")
 def read_project_tasks(
     project_id: int,
@@ -373,7 +379,7 @@ def read_project_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> Sequence[Task] | None:
+) -> PagedProjectTasksResponse | None:
     project = session.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -392,8 +398,19 @@ def read_project_tasks(
     ).all()
 
     if not tasks:
-        return []
-    return tasks
+        return PagedProjectTasksResponse(tasks=tasks, count=0)
+
+    count = session.exec(
+            select(func.count(Task.id).filter( # type:ignore
+                and_(
+                    Task.project_id == project_id,
+                    Task.completed == False,
+                    Task.title.like("%" + search + "%"),  # type: ignore
+                )
+            )
+        )
+    ).one()
+    return PagedProjectTasksResponse(tasks=tasks, count=count)
 
 
 @app.get("/project/{project_id}/tasks/completed")
@@ -403,7 +420,7 @@ def read_completed_project_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> Sequence[Task] | None:
+) -> PagedProjectTasksResponse | None:
     project = session.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -414,7 +431,7 @@ def read_completed_project_tasks(
             and_(
                 Task.project_id == project_id,
                 Task.completed == True,
-                Task.title.like("%" + search + "%"),
+                Task.title.like("%" + search + "%"), # type: ignore
             )
         )
         .offset(offset)
@@ -422,5 +439,16 @@ def read_completed_project_tasks(
     ).all()
 
     if not tasks:
-        return []
-    return tasks
+        return PagedProjectTasksResponse(tasks=tasks, count=0)
+
+    count = session.exec(
+            select(func.count(Task.id).filter( # type: ignore
+                and_(
+                    Task.project_id == project_id,
+                    Task.completed == True,
+                    Task.title.like("%" + search + "%"),  # type: ignore
+                )
+            )
+        )
+    ).one()
+    return PagedProjectTasksResponse(tasks=tasks, count=count)
