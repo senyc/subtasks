@@ -39,6 +39,8 @@ import type Task from "@annotations/task";
 import EditTask from "../../EditTask.vue";
 import { reprDate, dateHasElapsed } from "../../../utils/date";
 
+defineEmits(["toggleChecked"]);
+
 withDefaults(
   defineProps<{
     task: Task;

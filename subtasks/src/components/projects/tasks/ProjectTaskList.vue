@@ -8,7 +8,7 @@
           <fwb-checkbox
             @click="toggleAllChecked"
             :model-value="
-              checked.length === tasks?.length && checked.length > 0
+              checked.length === data?.tasks.length && checked.length > 0
             "
           />
         </fwb-table-head-cell>
@@ -16,8 +16,12 @@
         <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
           >Date Completed</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Date Due</fwb-table-head-cell>
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Date Added</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Date Due</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Date Added</fwb-table-head-cell
+        >
         <fwb-table-head-cell class="min-w-36">
           <span class="sr-only">Edit</span>
         </fwb-table-head-cell>
@@ -25,12 +29,12 @@
     </thead>
     <fwb-table-body>
       <ProjectTaskRow
-        v-if="tasks && tasks.length > 0"
+        v-if="data && data.tasks.length > 0"
         :completed="completed"
         :project-id="projectId"
         @toggle-checked="toggleChecked"
         :checkedTasks="checked"
-        v-for="task in tasks"
+        v-for="task in data.tasks"
         :key="task.id"
         :checked="checked.includes(task.id)"
         :task="task"
@@ -69,7 +73,7 @@ const {
   search: string;
 }>();
 
-const { data: tasks, isFetched } = useQuery({
+const { data, isFetched } = useQuery({
   placeholderData: keepPreviousData,
   queryKey: [
     "tasks",
@@ -88,15 +92,15 @@ const { data: tasks, isFetched } = useQuery({
 });
 
 function toggleAllChecked() {
-  if (!tasks.value) {
+  if (!data.value) {
     return;
   }
 
-  if (checked.length === tasks.value.length) {
+  if (checked.length === data.value.tasks.length) {
     checked.splice(0);
   } else {
     checked.splice(0);
-    tasks.value.forEach((task) => checked.push(task.id));
+    data.value.tasks.forEach((task) => checked.push(task.id));
   }
 }
 
