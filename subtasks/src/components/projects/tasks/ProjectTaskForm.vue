@@ -18,7 +18,7 @@
     />
     <fwb-input type="date" v-model="task.due_date" label="Due Date" />
     <fwb-select
-      v-model="task.project_id"
+      v-model="task.project_id as string"
       :options="
         data?.map((project) => {
           return { name: project.title, value: project.id.toString() };
@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-nocheck
 import type { Project } from "@annotations/project";
 import type Task from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";

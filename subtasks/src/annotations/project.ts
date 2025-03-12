@@ -2,7 +2,7 @@ export interface Project {
   id: number;
   title: string;
   body?: string;
-  due_date?: string;
+  due_date: string;
   completed_date?: string;
   created_at?: string;
 }

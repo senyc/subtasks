@@ -1,0 +1,22 @@
+services:
+  front:
+    container_name: front
+    build: ./subtasks/
+    networks:
+    - subtask-network
+    ports:
+      - "8080:8080"
+  backend:
+    container_name: backend
+    build: ./
+    networks:
+    - subtask-network
+    volumes:
+      # Implementation specific
+      - ~/projects/subtasks/database.db:/code/database.db
+    ports:
+      - "8000:8000"
+
+networks:
+  subtask-network:
+    name: subtask
