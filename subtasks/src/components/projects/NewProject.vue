@@ -1,5 +1,5 @@
 <template>
-  <fwb-button class="cursor-pointer" size='sm' @click="isShowModal = true">
+  <fwb-button class="w-34 cursor-pointer" size='sm' @click="isShowModal = true">
     New Project
     <template #prefix>
       <svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
