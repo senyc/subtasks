@@ -100,7 +100,7 @@
         <RouterLink
           :aria-disabled="projectsRemaining <= pageSize"
           :to="{
-            query: { page: projectsRemaining <= pageSize ? page + 1 : page },
+            query: { page: projectsRemaining <= pageSize ? page : page + 1 },
           }"
           class="cursor-pointer"
         >
@@ -127,10 +127,11 @@
             />
           </svg>
         </RouterLink>
-        <div class="w-20">
+        <div class="w-24">
           <p v-if="isSuccess" class="text-md font-semibold">
             Show {{ (page - 1) * pageSize + 1 }}-{{
-              (page - 1) * pageSize + (projectsRemaining % pageSize)
+              (page - 1) * pageSize +
+              (projectsRemaining >= pageSize ? pageSize : projectsRemaining)
             }}
           </p>
         </div>
