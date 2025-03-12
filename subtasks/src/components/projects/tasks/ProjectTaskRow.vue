@@ -20,10 +20,11 @@
     <fwb-table-cell
       class="xl:min-w-52 min-w-36"
       :class="{
-        'text-red-500': dateHasElapsed(new Date(task.due_date as string)),
+        'text-red-500':
+          !completed && dateHasElapsed(new Date(task.due_date as string)),
       }"
-      >{{ reprDate(task.due_date) }}</fwb-table-cell
-    >
+      >{{ reprDate(task.due_date) }}
+    </fwb-table-cell>
     <fwb-table-cell class="xl:min-w-52 min-w-36">{{
       reprDate(task.created_at)
     }}</fwb-table-cell>
