@@ -1,7 +1,7 @@
 <template>
   <fwb-table-row class="border-b-gray-200 flex flex-row">
     <fwb-table-cell class="w-7">
-      <fwb-checkbox
+      <fwb-checkbox class="mt-2"
         @click="$emit('toggleChecked', project.id)"
         :model-value="checked"
       />
@@ -18,19 +18,19 @@
       </p>
     </fwb-table-cell>
     <fwb-table-cell
-      v-if="!completed"
+      v-if="completed"
+      class="cursor-pointer xl:min-w-52 min-w-36"
+      @click="$router.push(`/projects/${project.id}/tasks`)"
+      >{{ reprDate(project.completed_date) }}
+    </fwb-table-cell>
+    <fwb-table-cell
       class="xl:min-w-52 min-w-36 cursor-pointer"
       :class="{
-        'text-red-500': dateHasElapsed(new Date(project.due_date as string)),
+        'text-red-500':
+          !completed && dateHasElapsed(new Date(project.due_date as string)),
       }"
       @click="$router.push(`/projects/${project.id}/tasks`)"
       >{{ reprDate(project.due_date) }}</fwb-table-cell
-    >
-    <fwb-table-cell
-      v-else
-      class="cursor-pointer xl:min-w-52 min-w-36"
-      @click="$router.push(`/projects/${project.id}/tasks`)"
-      >{{ reprDate(project.completed_date) }}</fwb-table-cell
     >
     <fwb-table-cell
       class="cursor-pointer xl:min-w-52 min-w-36"

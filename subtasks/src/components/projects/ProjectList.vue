@@ -15,16 +15,18 @@
         <fwb-table-head-cell class="grow xl:min-w-52 min-w-36">
           Project Name</fwb-table-head-cell
         >
-        <fwb-table-head-cell v-if="!completed" class="xl:min-w-52 min-w-36"
-          >Date Due</fwb-table-head-cell
-        >
-        <fwb-table-head-cell v-else class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
           >Date Completed</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Date Due</fwb-table-head-cell
         >
         <fwb-table-head-cell class="xl:min-w-52 min-w-36"
           >Tasks Remaining</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Tasks Total</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+          >Tasks Total</fwb-table-head-cell
+        >
         <fwb-table-head-cell class="xl:min-w-52 min-w-36"
           >Tasks Complete</fwb-table-head-cell
         >
