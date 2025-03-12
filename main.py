@@ -148,7 +148,7 @@ def read_projects(
         .offset(offset)
         .limit(limit)
     ).all()
-    project_count = session.exec(select(func.count(Project.id))).one()  # type: ignore
+    project_count = session.exec(select(func.count(Project.id).filter(and_(Project.title.like("%" + search + "%"), Project.completed == False)))).one()  # type: ignore
     return PagedProjectResponse(
         projects=[
             ProjectResponse(
@@ -184,7 +184,7 @@ def read_completed_projects(
         .limit(limit)
     ).all()
 
-    project_count = session.exec(select(func.count(Project.id))).one()  # type: ignore
+    project_count = session.exec(select(func.count(Project.id).filter(and_(Project.title.like("%" + search + "%"), Project.completed == True)))).one()  # type: ignore
 
     return PagedProjectResponse(
         projects=[
