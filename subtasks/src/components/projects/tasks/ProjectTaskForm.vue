@@ -35,7 +35,13 @@ import type { Project } from "@annotations/project";
 import type Task from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";
 import { FwbInput, FwbTextarea, FwbSelect } from "flowbite-vue";
-import { nextTick, useTemplateRef, onMounted } from "vue";
+import {
+  nextTick,
+  useTemplateRef,
+  onMounted,
+  onBeforeUnmount,
+  onBeforeMount,
+} from "vue";
 
 type PartialTask = Omit<Task, "id">;
 
@@ -50,6 +56,14 @@ const { data } = useQuery({
     }
     return res.json();
   },
+});
+
+onBeforeUnmount(() => {
+  window.onbeforeunload = null;
+});
+
+onBeforeMount(() => {
+  window.onbeforeunload = () => true;
 });
 
 onMounted(() => {

@@ -23,7 +23,13 @@
 <script lang="ts" setup>
 import type { Project } from "@annotations/project";
 import { FwbInput, FwbTextarea } from "flowbite-vue";
-import { nextTick, onMounted, useTemplateRef } from "vue";
+import {
+  nextTick,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  useTemplateRef,
+} from "vue";
 type PartialProject = Omit<Project, "id" | "totalTasks" | "completedTasks">;
 
 defineProps<{
@@ -32,6 +38,13 @@ defineProps<{
 
 const titleRef = useTemplateRef("titleRef");
 
+onBeforeUnmount(() => {
+  window.onbeforeunload = null;
+});
+
+onBeforeMount(() => {
+  window.onbeforeunload = () => true;
+});
 onMounted(() => {
   // This is needed because the modal has it's own call to onMounted, setting focus on the modal
   nextTick(() => {
