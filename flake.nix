@@ -13,9 +13,11 @@
   in {
     devShells.x86_64-linux.default = pkgs.mkShell {
       packages = with pkgs; [
-        python3
-        python312Packages.fastapi
-        python312Packages.sqlmodel
+        (python3.withPackages (p:
+          with p; [
+            fastapi
+            sqlmodel
+          ]))
         fastapi-cli
         sqlite
       ];
