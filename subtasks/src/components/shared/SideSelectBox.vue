@@ -1,9 +1,9 @@
 <template>
-  <div class="relative">
+  <div class="relative" ref="dropdownRef">
     <label class="block mb-2 text-sm font-medium">{{ labelText }}</label>
     <button
       @click="toggleDropdown"
-      class="flex flex-row justify-between items-center p-2.5 text-sm rounded-lg w-full text-gray-900 bg-gray-50 focus:ring-primary-500 dark:bg-gray-700 border border-gray-300 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+      class="cursor-pointer flex flex-row justify-between items-center p-2.5 text-sm rounded-lg w-full text-gray-900 bg-gray-50 focus:ring-primary-500 dark:bg-gray-700 border border-gray-300 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
     >
       {{
         options?.find((option) => option.value == selectedOption)?.label ??
@@ -34,6 +34,7 @@
       <li class="px-4 py-1 select-none text-black/30">Please select one</li>
       <li
         v-for="option in options"
+        role="button"
         @mouseenter="isMousedOver = option.value"
         :key="option.value"
         :class="{
@@ -72,6 +73,7 @@ defineEmits<{
 }>();
 
 const selectedOption = ref<number>(props.defaultValue);
+// Used to remember the most recent hovered over item, matching flowbite select behavior
 const isMousedOver = ref(props.defaultValue);
 
 const toggleDropdown = () => {

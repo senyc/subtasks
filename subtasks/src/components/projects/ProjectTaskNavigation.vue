@@ -53,7 +53,7 @@
       @click="runForAll(deleteTask, ['tasks', projectId])"
     >
       <svg
-        class="w-6 h-6 text-gray-800 dark:text-white"
+        class="w-6 h-6 text-gray-800"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -70,8 +70,8 @@
         />
       </svg>
     </button>
-    <div class="relative">
-      <button @click="showMenu = !showMenu">
+    <Dropdown>
+      <template #button>
         <svg
           class="w-6 h-6 text-gray-800 dark:text-white"
           aria-hidden="true"
@@ -84,15 +84,12 @@
           <path
             stroke="currentColor"
             stroke-linecap="round"
-            stroke-width="2"
+            stroke-width="3"
             d="M12 6h.01M12 12h.01M12 18h.01"
           />
         </svg>
-      </button>
-      <div
-        :class="{ block: showMenu, hidden: !showMenu }"
-        class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-52 p-3"
-      >
+      </template>
+      <div>
         <SideSelectBox
           @selected-option="
             (option) =>
@@ -106,7 +103,7 @@
           :options="projectOptions"
         />
       </div>
-    </div>
+    </Dropdown>
     <div class="flex flex-row items-center ml-auto">
       <div class="flex flex-row items-center">
         <RouterLink
@@ -180,10 +177,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref } from "vue";
+import { computed, inject } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import SideSelectBox from "@components/shared/SideSelectBox.vue";
 import SearchBar from "@components/shared/SearchBar.vue";
+import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
 
@@ -201,7 +199,6 @@ const {
   search?: string;
 }>();
 
-const showMenu = ref(false);
 const { data, isSuccess } = useTasks({
   projectId: () => projectId,
   completed: () => completed,
