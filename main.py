@@ -306,7 +306,7 @@ def read_tasks(
 ) -> Sequence[Task]:
     tasks = session.exec(
         select(Task)
-        .where(and_(Task.completed == False, Task.title.like("%" + search + "%")))
+        .where(and_(Task.completed == False, Task.title.like("%" + search + "%"))) # type: ignore
         .offset(offset)
         .limit(limit)
     ).all()
@@ -323,7 +323,7 @@ def read_completed_tasks(
     tasks = session.exec(
         select(Task)
         .where(Task.completed)
-        .where(Task.title.like("%" + search + "%"))
+        .where(Task.title.like("%" + search + "%")) # type: ignore
         .offset(offset)
         .limit(limit)
     ).all()
@@ -341,14 +341,15 @@ def read_task(task_id: int, session: SessionDep) -> Task:
 
 
 @app.put("/task/{task_id}")
-def Update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
+def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     updated_task = session.get(Task, task_id)
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
-    updated_task.title = task.title
-    updated_task.body = task.body
-    updated_task.due_date = task.due_date
-    updated_task.project_id = task.project_id
+    # Only update values that are set in the request
+    for attr in ["title", "body", "due_date", "project_id"]:
+        value = getattr(task, attr, None)
+        if value is not None:
+            setattr(updated_task, attr, value)
     session.commit()
     session.refresh(updated_task)
     return updated_task
@@ -390,7 +391,7 @@ def read_project_tasks(
             and_(
                 Task.project_id == project_id,
                 Task.completed != True,
-                Task.title.like("%" + search + "%"),
+                Task.title.like("%" + search + "%"), # type: ignore
             )
         )
         .offset(offset)

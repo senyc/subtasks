@@ -3,7 +3,7 @@
     <SearchBar :search="search" placeholder="Search for Tasks" />
     <button
       v-if="!completed"
-      @click="completeCheckedTasks"
+      @click="runForAll(completeTask, ['tasks', projectId])"
       class="cursor-pointer"
     >
       <svg
@@ -26,7 +26,7 @@
     </button>
     <button
       v-if="completed"
-      @click="incompleteCheckedTasks"
+      @click="runForAll(incompleteTask, ['tasks', projectId])"
       class="cursor-pointer"
     >
       <svg
@@ -48,7 +48,10 @@
       </svg>
     </button>
 
-    <button class="cursor-pointer" @click="deleteCheckedTasks">
+    <button
+      class="cursor-pointer"
+      @click="runForAll(deleteTask, ['tasks', projectId])"
+    >
       <svg
         class="w-6 h-6 text-gray-800 dark:text-white"
         aria-hidden="true"
@@ -91,6 +94,13 @@
         class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-52 p-3"
       >
         <SideSelectBox
+          @selected-option="
+            (option) =>
+              runForAll(
+                (id) => updateTaskProject(option.value, id),
+                ['tasks', projectId],
+              )
+          "
           label-text="Select Project"
           :default-value="projectId"
           :options="projectOptions"
@@ -200,6 +210,8 @@ const { data, isSuccess } = useTasks({
   pageSize: () => pageSize,
 });
 
+// Get projects to show for the project drop down
+// TODO: make this a search box so if users have a lot of projects they don't have to page
 const { data: projects } = useProjects({
   completed: false,
   page: 1,
@@ -236,9 +248,25 @@ function clearCheckedTasks() {
   checked.splice(0);
 }
 
+async function runForAll(func: (id: number) => void, key: (string | number)[]) {
+  await Promise.all(checked.map((id) => func(id)));
+  queryClient.invalidateQueries({ queryKey: key });
+  clearCheckedTasks();
+}
+
 async function completeTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}/complete`, {
     method: "PATCH",
+  });
+}
+
+async function updateTaskProject(newProjectId: number, id: number) {
+  return fetch(`http://localhost:8000/task/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ project_id: newProjectId }),
   });
 }
 
@@ -248,27 +276,9 @@ async function incompleteTask(id: number) {
   });
 }
 
-async function incompleteCheckedTasks() {
-  await Promise.all(checked.map((id) => incompleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
-}
-
 async function deleteTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}`, {
     method: "DELETE",
   });
-}
-
-async function deleteCheckedTasks() {
-  await Promise.all(checked.map((id) => deleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
-}
-
-async function completeCheckedTasks() {
-  await Promise.all(checked.map((id) => completeTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
 }
 </script>

@@ -31,9 +31,14 @@
       v-if="isOpen"
       class="absolute top-7 right-[103%] bg-white border border-gray-300 text-sm shadow-md p-1 rounded-lg w-52"
     >
+      <li class="px-4 py-1 select-none text-black/30">Please select one</li>
       <li
         v-for="option in options"
+        @mouseenter="isMousedOver = option.value"
         :key="option.value"
+        :class="{
+          'bg-blue-500 text-white': isMousedOver == option.value,
+        }"
         @click="
           selectOption(option);
           $emit('selectedOption', option);
@@ -67,9 +72,11 @@ defineEmits<{
 }>();
 
 const selectedOption = ref<number>(props.defaultValue);
+const isMousedOver = ref(props.defaultValue);
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
+  isMousedOver.value = props.defaultValue;
 };
 
 const selectOption = (option: Option) => {
