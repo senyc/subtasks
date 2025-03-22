@@ -5,7 +5,10 @@
       @click="toggleDropdown"
       class="flex flex-row justify-between items-center p-2.5 text-sm rounded-lg w-full text-gray-900 bg-gray-50 focus:ring-primary-500 dark:bg-gray-700 border border-gray-300 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
     >
-      {{ selectedOption || "Select an option" }}
+      {{
+        options?.find((option) => option.value == selectedOption)?.label ??
+        "Select an option"
+      }}
       <svg
         class="size-4"
         aria-hidden="true"
@@ -47,25 +50,30 @@
 import { ref } from "vue";
 
 const isOpen = ref(false);
-const selectedOption = ref<string>();
 
 interface Option {
   label: string;
   value: number;
 }
 
-defineProps<{ options: Option[]; labelText: string }>();
+const props = defineProps<{
+  options?: Option[];
+  labelText: string;
+  defaultValue: number;
+}>();
 
 defineEmits<{
   (e: "selectedOption", { value, label }: Option): void;
 }>();
+
+const selectedOption = ref<number>(props.defaultValue);
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
 };
 
 const selectOption = (option: Option) => {
-  selectedOption.value = option.label;
+  selectedOption.value = option.value;
   isOpen.value = false;
 };
 </script>

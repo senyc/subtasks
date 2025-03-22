@@ -66,32 +66,6 @@
         />
       </svg>
     </button>
-    <div class="relative">
-      <button @click="showMenu = !showMenu">
-        <svg
-          class="w-6 h-6 text-gray-800 dark:text-white"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="2"
-            d="M12 6h.01M12 12h.01M12 18h.01"
-          />
-        </svg>
-      </button>
-      <div
-        :class="{ block: showMenu, hidden: !showMenu }"
-        class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-52 p-3"
-      >
-        <SideSelectBox label-text="Select Project" :options="options" />
-      </div>
-    </div>
     <div class="flex flex-row items-center ml-auto">
       <div class="flex flex-row items-center">
         <RouterLink
@@ -165,20 +139,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref } from "vue";
+import { computed, inject } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
 import { useProjects } from "../../composables/useProjects";
-import SideSelectBox from "@components/shared/SideSelectBox.vue";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
-
-const options = [
-  { label: "string", value: 1 },
-  { label: "string2", value: 2 },
-];
-
-const showMenu = ref(false);
 
 const { data, isSuccess } = useProjects({
   completed: () => completed,
