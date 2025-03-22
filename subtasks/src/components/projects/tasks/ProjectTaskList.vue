@@ -52,7 +52,7 @@ import {
   FwbTableHeadCell,
 } from "flowbite-vue";
 import { computed, inject } from "vue";
-import { getTasks } from "@actions/tasks";
+import { getTasks } from "../../../composables/tasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import { keepPreviousData, useQuery } from "@tanstack/vue-query";
 import EmptyRow from "@components/shared/EmptyRow.vue";

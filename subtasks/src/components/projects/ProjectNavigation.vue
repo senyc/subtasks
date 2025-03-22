@@ -166,13 +166,9 @@
 
 <script setup lang="ts">
 import { computed, inject, ref } from "vue";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useQueryClient } from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
-import { getProjects } from "@actions/projects";
+import { useProjects } from "../../composables/useProjects";
 import SideSelectBox from "@components/shared/SideSelectBox.vue";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
@@ -184,20 +180,11 @@ const options = [
 
 const showMenu = ref(false);
 
-const { data, isSuccess } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "projects",
-    computed(() => (completed ? "completed" : "incomplete")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getProjects({
-      pageSize,
-      page,
-      completed,
-      search,
-    }),
+const { data, isSuccess } = useProjects({
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
 
 const projectsRemaining = computed(() => {

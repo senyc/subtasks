@@ -148,7 +148,7 @@ import {
   useQueryClient,
 } from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
-import { getTasks } from "@actions/tasks";
+import { getTasks } from "../../composables/tasks";
 
 const {
   completed = false,
