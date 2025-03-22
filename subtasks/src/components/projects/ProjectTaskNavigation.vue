@@ -142,13 +142,9 @@
 
 <script setup lang="ts">
 import { computed, inject } from "vue";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useQueryClient } from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
-import { getTasks } from "../../composables/tasks";
+import { useTasks } from "../../composables/useTasks";
 
 const {
   completed = false,
@@ -164,22 +160,12 @@ const {
   search?: string;
 }>();
 
-const { data, isSuccess } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "tasks",
-    () => projectId,
-    computed(() => (completed ? "completed" : "incompleted")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getTasks({
-      projectId,
-      completed,
-      page,
-      pageSize,
-      search,
-    }),
+const { data, isSuccess } = useTasks({
+  projectId: () => projectId,
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
 
 const projectsRemaining = computed(() => {

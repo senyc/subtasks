@@ -51,10 +51,9 @@ import {
   FwbTableBody,
   FwbTableHeadCell,
 } from "flowbite-vue";
-import { computed, inject } from "vue";
-import { getTasks } from "../../../composables/tasks";
+import { inject } from "vue";
+import { useTasks } from "../../../composables/useTasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
-import { keepPreviousData, useQuery } from "@tanstack/vue-query";
 import EmptyRow from "@components/shared/EmptyRow.vue";
 
 const checked = inject<number[]>("checked", []);
@@ -73,22 +72,12 @@ const {
   search: string;
 }>();
 
-const { data, isFetched } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "tasks",
-    () => projectId,
-    computed(() => (completed ? "completed" : "incompleted")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getTasks({
-      projectId,
-      completed,
-      page,
-      pageSize,
-      search,
-    }),
+const { data, isFetched } = useTasks({
+  projectId: () => projectId,
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
 
 function toggleAllChecked() {
