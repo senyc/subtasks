@@ -3,7 +3,7 @@
     <SearchBar :search="search" placeholder="Search for Tasks" />
     <button
       v-if="!completed"
-      @click="completeCheckedTasks"
+      @click="runForAll(completeTask, ['tasks', projectId])"
       class="cursor-pointer"
     >
       <svg
@@ -26,7 +26,7 @@
     </button>
     <button
       v-if="completed"
-      @click="incompleteCheckedTasks"
+      @click="runForAll(incompleteTask, ['tasks', projectId])"
       class="cursor-pointer"
     >
       <svg
@@ -48,9 +48,12 @@
       </svg>
     </button>
 
-    <button class="cursor-pointer" @click="deleteCheckedTasks">
+    <button
+      class="cursor-pointer"
+      @click="runForAll(deleteTask, ['tasks', projectId])"
+    >
       <svg
-        class="w-6 h-6 text-gray-800 dark:text-white"
+        class="w-6 h-6 text-gray-800"
         aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -67,7 +70,40 @@
         />
       </svg>
     </button>
-
+    <Dropdown>
+      <template #button>
+        <svg
+          class="w-6 h-6 text-gray-800 dark:text-white"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="3"
+            d="M12 6h.01M12 12h.01M12 18h.01"
+          />
+        </svg>
+      </template>
+      <div>
+        <SideSelectBox
+          @selected-option="
+            (option) =>
+              runForAll(
+                (id) => updateTaskProject(option.value, id),
+                ['tasks', projectId],
+              )
+          "
+          label-text="Select Project"
+          :default-value="projectId"
+          :options="projectOptions"
+        />
+      </div>
+    </Dropdown>
     <div class="flex flex-row items-center ml-auto">
       <div class="flex flex-row items-center">
         <RouterLink
@@ -142,13 +178,12 @@
 
 <script setup lang="ts">
 import { computed, inject } from "vue";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useQueryClient } from "@tanstack/vue-query";
+import SideSelectBox from "@components/shared/SideSelectBox.vue";
 import SearchBar from "@components/shared/SearchBar.vue";
-import { getTasks } from "@actions/tasks";
+import Dropdown from "@components/shared/Dropdown.vue";
+import { useTasks } from "../../composables/useTasks";
+import { useProjects } from "../../composables/useProjects";
 
 const {
   completed = false,
@@ -164,23 +199,27 @@ const {
   search?: string;
 }>();
 
-const { data, isSuccess } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "tasks",
-    () => projectId,
-    computed(() => (completed ? "completed" : "incompleted")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getTasks({
-      projectId,
-      completed,
-      page,
-      pageSize,
-      search,
-    }),
+const { data, isSuccess } = useTasks({
+  projectId: () => projectId,
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
+
+// Get projects to show for the project drop down
+// TODO: make this a search box so if users have a lot of projects they don't have to page
+const { data: projects } = useProjects({
+  completed: false,
+  page: 1,
+  pageSize: 100,
+});
+
+const projectOptions = computed(() =>
+  projects.value?.projects.map((project) => {
+    return { value: project.id, label: project.title };
+  }),
+);
 
 const projectsRemaining = computed(() => {
   if (!isSuccess) {
@@ -206,9 +245,25 @@ function clearCheckedTasks() {
   checked.splice(0);
 }
 
+async function runForAll(func: (id: number) => void, key: (string | number)[]) {
+  await Promise.all(checked.map((id) => func(id)));
+  queryClient.invalidateQueries({ queryKey: key });
+  clearCheckedTasks();
+}
+
 async function completeTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}/complete`, {
     method: "PATCH",
+  });
+}
+
+async function updateTaskProject(newProjectId: number, id: number) {
+  return fetch(`http://localhost:8000/task/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ project_id: newProjectId }),
   });
 }
 
@@ -218,27 +273,9 @@ async function incompleteTask(id: number) {
   });
 }
 
-async function incompleteCheckedTasks() {
-  await Promise.all(checked.map((id) => incompleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
-}
-
 async function deleteTask(id: number) {
   return fetch(`http://localhost:8000/task/${id}`, {
     method: "DELETE",
   });
-}
-
-async function deleteCheckedTasks() {
-  await Promise.all(checked.map((id) => deleteTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
-}
-
-async function completeCheckedTasks() {
-  await Promise.all(checked.map((id) => completeTask(id)));
-  queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-  clearCheckedTasks();
 }
 </script>

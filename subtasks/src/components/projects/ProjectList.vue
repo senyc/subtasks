@@ -58,13 +58,12 @@ import {
   FwbTableHeadCell,
 } from "flowbite-vue";
 import ProjectRow from "./ProjectRow.vue";
-import { computed, inject } from "vue";
+import { inject } from "vue";
 
 // Inject api used here because we would like the parent component to know about what is checked to perform
 // mutations/deletions on the checked items (via the bar items)
 let checked = inject<number[]>("checked", []);
-import { getProjects } from "@actions/projects";
-import { keepPreviousData, useQuery } from "@tanstack/vue-query";
+import { useProjects } from "../../composables/useProjects";
 import EmptyRow from "@components/shared/EmptyRow.vue";
 
 const {
@@ -79,20 +78,11 @@ const {
   search?: string;
 }>();
 
-const { data, isFetched } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "projects",
-    computed(() => (completed ? "completed" : "incomplete")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getProjects({
-      pageSize,
-      page,
-      completed,
-      search,
-    }),
+const { data, isFetched } = useProjects({
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
 
 const projects = data.value?.projects;

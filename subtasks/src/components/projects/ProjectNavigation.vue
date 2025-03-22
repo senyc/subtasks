@@ -98,7 +98,7 @@
         <RouterLink
           :aria-disabled="projectsRemaining <= pageSize"
           :to="{
-            query: { page: projectsRemaining <= pageSize ? page : page +1 },
+            query: { page: projectsRemaining <= pageSize ? page : page + 1 },
           }"
           class="cursor-pointer"
         >
@@ -128,7 +128,8 @@
         <div class="w-24">
           <p v-if="isSuccess" class="text-md font-semibold">
             Show {{ (page - 1) * pageSize + 1 }}-{{
-              (page - 1) * pageSize + (projectsRemaining >= pageSize ? pageSize : projectsRemaining)
+              (page - 1) * pageSize +
+              (projectsRemaining >= pageSize ? pageSize : projectsRemaining)
             }}
           </p>
         </div>
@@ -139,30 +140,17 @@
 
 <script setup lang="ts">
 import { computed, inject } from "vue";
-import {
-  keepPreviousData,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { useQueryClient } from "@tanstack/vue-query";
 import SearchBar from "@components/shared/SearchBar.vue";
-import { getProjects } from "@actions/projects";
+import { useProjects } from "../../composables/useProjects";
 const queryClient = useQueryClient();
 const checked = inject("checked", []);
 
-const { data, isSuccess } = useQuery({
-  placeholderData: keepPreviousData,
-  queryKey: [
-    "projects",
-    computed(() => (completed ? "completed" : "incomplete")),
-    { search: () => search, page: () => page, size: () => pageSize },
-  ],
-  queryFn: () =>
-    getProjects({
-      pageSize,
-      page,
-      completed,
-      search,
-    }),
+const { data, isSuccess } = useProjects({
+  completed: () => completed,
+  search: () => search,
+  page: () => page,
+  pageSize: () => pageSize,
 });
 
 const projectsRemaining = computed(() => {
