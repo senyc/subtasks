@@ -8,7 +8,7 @@
     "paths": {
       "@annotations/*": ["./src/annotations/*"],
       "@components/*": ["./src/components/*"],
-      "@actions/*": ["src/composables/*"],
+      "@actions/*": ["./src/composables/*"],
     }
   }
 }
