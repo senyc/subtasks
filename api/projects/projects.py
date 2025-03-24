@@ -1,103 +1,19 @@
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from fastapi import FastAPI
+from datetime import datetime
+from sqlmodel import select, func, and_
+from fastapi import APIRouter, HTTPException, Query
 from collections.abc import Sequence
-from contextlib import asynccontextmanager
-from typing import Annotated
-from pydantic import ConfigDict
-from fastapi import Depends, FastAPI, Query, HTTPException
-from pydantic import BeforeValidator
-from sqlmodel import Field, Session, SQLModel, create_engine, select, func, and_
-from fastapi.middleware.cors import CORSMiddleware
+from dataclasses import dataclass
+
+from api.db.db import Project, SessionDep, Task
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
-
-origins = [
-    "*",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+project_router = APIRouter(
+    tags=["projects"],
+    responses={404: {"description": "Not found"}},
 )
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-# This allows for objects with table=true to have validations run
-# per: https://github.com/fastapi/sqlmodel/issues/52#issuecomment-1225746421
-class BaseSQLModel(SQLModel):
-    model_config = ConfigDict(validate_assignment=True)  # type: ignore
-
-
-def convert_to_date(s: str | datetime | None) -> datetime | None:
-    if s is None or s == "":
-        return None
-    if isinstance(s, datetime):
-        return s
-    return datetime.strptime(s, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-
-
-DueDate = Annotated[datetime | None, BeforeValidator(convert_to_date)]
-
-
-class Project(BaseSQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    title: str
-    body: str
-    completed: bool = Field(default=False)
-    due_date: DueDate
-    completed_date: DueDate
-    created_at: datetime = Field(default=datetime.now(), nullable=False)
-
-
-class Task(BaseSQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    project_id: int | None = Field(default=None, foreign_key="project.id")
-    title: str
-    body: str
-    completed: bool = Field(default=False)
-    due_date: DueDate
-    completed_date: DueDate
-    created_at: datetime = Field(default=datetime.now(), nullable=False)
-
-
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
-    with Session(engine) as session:
-        yield session
-
-
-SessionDep = Annotated[Session, Depends(get_session)]
-"""This is basically just an annotation with extra information
-The `Depends` is a fastapi specific thing using dependency injection to give the handler the item requested
-basically dependency injection"""
-
-
-@app.post("/project")
+@project_router.post("/project")
 def create_project(project: Project, session: SessionDep) -> Project:
     session.add(project)
     session.commit()
@@ -116,7 +32,7 @@ class PagedProjectResponse:
     count: int
 
 
-@app.get("/projects/all")
+@project_router.get("/projects/all")
 def all_projects(
     session: SessionDep,
 ) -> Sequence[Project]:
@@ -127,7 +43,7 @@ def all_projects(
     return projects
 
 
-@app.get("/projects/")
+@project_router.get("/projects/")
 def read_projects(
     session: SessionDep,
     offset: int = 0,
@@ -162,7 +78,7 @@ def read_projects(
     )
 
 
-@app.get("/projects/completed")
+@project_router.get("/projects/completed")
 def read_completed_projects(
     session: SessionDep,
     offset: int = 0,
@@ -199,7 +115,7 @@ def read_completed_projects(
     )
 
 
-@app.get("/project/{project_id}")
+@project_router.get("/project/{project_id}")
 def read_project(project_id: int, session: SessionDep) -> Project:
     project = session.get(Project, project_id)
     if not project:
@@ -207,7 +123,7 @@ def read_project(project_id: int, session: SessionDep) -> Project:
     return project
 
 
-@app.put("/project/{project_id}")
+@project_router.put("/project/{project_id}")
 def update_project(project_id: int, project: Project, session: SessionDep) -> Project:
     updated_project = session.get(Project, project_id)
     if not updated_project:
@@ -220,7 +136,7 @@ def update_project(project_id: int, project: Project, session: SessionDep) -> Pr
     return updated_project
 
 
-@app.delete("/project/{project_id}")
+@project_router.delete("/project/{project_id}")
 def delete_project(project_id: int, session: SessionDep) -> int | None:
     project_to_delete = session.get(Project, project_id)
 
@@ -232,7 +148,7 @@ def delete_project(project_id: int, session: SessionDep) -> int | None:
     return project_to_delete.id
 
 
-@app.patch("/project/{project_id}/complete")
+@project_router.patch("/project/{project_id}/complete")
 def complete_project(project_id, session: SessionDep) -> Project:
     project = session.get(Project, project_id)
     if not project:
@@ -244,38 +160,7 @@ def complete_project(project_id, session: SessionDep) -> Project:
     return project
 
 
-@app.post("/tasks")
-def create_task(task: Task, session: SessionDep) -> Task:
-    session.add(task)
-    session.commit()
-    session.refresh(task)
-    return task
-
-
-@app.patch("/task/{task_id}/complete")
-def complete_task(task_id, session: SessionDep) -> Task:
-    task = session.get(Task, task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    task.completed = True
-    task.completed_date = datetime.now()
-    session.commit()
-    session.refresh(task)
-    return task
-
-
-@app.patch("/task/{task_id}/incomplete")
-def incomplete_task(task_id, session: SessionDep) -> Task:
-    task = session.get(Task, task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    task.completed = False
-    session.commit()
-    session.refresh(task)
-    return task
-
-
-@app.patch("/project/{project_id}/incomplete")
+@project_router.patch("/project/{project_id}/incomplete")
 def incomplete_project(project_id, session: SessionDep) -> Project:
     project = session.get(Project, project_id)
     if not project:
@@ -286,7 +171,7 @@ def incomplete_project(project_id, session: SessionDep) -> Project:
     return project
 
 
-@app.post("/project/{project_id}/task")
+@project_router.post("/project/{project_id}/task")
 def create_project_task(
     project_id: int, task: Task, session: SessionDep
 ) -> Task | None:
@@ -297,83 +182,13 @@ def create_project_task(
     return task
 
 
-@app.get("/tasks")
-def read_tasks(
-    session: SessionDep,
-    offset: int = 0,
-    limit: int = Query(default=100, le=100),
-    search: str = "",
-) -> Sequence[Task]:
-    tasks = session.exec(
-        select(Task)
-        .where(and_(Task.completed == False, Task.title.like("%" + search + "%"))) # type: ignore
-        .offset(offset)
-        .limit(limit)
-    ).all()
-    return tasks
-
-
-@app.get("/tasks/completed")
-def read_completed_tasks(
-    session: SessionDep,
-    offset: int = 0,
-    limit: int = Query(default=100, le=100),
-    search: str = "",
-) -> Sequence[Task]:
-    tasks = session.exec(
-        select(Task)
-        .where(Task.completed)
-        .where(Task.title.like("%" + search + "%")) # type: ignore
-        .offset(offset)
-        .limit(limit)
-    ).all()
-    if tasks:
-        return tasks
-    return []
-
-
-@app.get("/task/{task_id}")
-def read_task(task_id: int, session: SessionDep) -> Task:
-    task = session.get(Task, task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return task
-
-
-@app.put("/task/{task_id}")
-def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
-    updated_task = session.get(Task, task_id)
-    if not updated_task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    # Only update values that are set in the request
-    for attr in ["title", "body", "due_date", "project_id"]:
-        value = getattr(task, attr, None)
-        if value is not None:
-            setattr(updated_task, attr, value)
-    session.commit()
-    session.refresh(updated_task)
-    return updated_task
-
-
-@app.delete("/task/{task_id}")
-def delete_task(task_id: int, session: SessionDep) -> int | None:
-    task_to_delete = session.get(Task, task_id)
-
-    if not task_to_delete:
-        raise HTTPException(status_code=404, detail="Task not found")
-    session.delete(task_to_delete)
-    session.commit()
-
-    return task_to_delete.id
-
-
 @dataclass
 class PagedProjectTasksResponse:
     tasks: Sequence[Task]
     count: int
 
 
-@app.get("/project/{project_id}/tasks")
+@project_router.get("/project/{project_id}/tasks")
 def read_project_tasks(
     project_id: int,
     session: SessionDep,
@@ -391,7 +206,7 @@ def read_project_tasks(
             and_(
                 Task.project_id == project_id,
                 Task.completed != True,
-                Task.title.like("%" + search + "%"), # type: ignore
+                Task.title.like("%" + search + "%"),  # type: ignore
             )
         )
         .offset(offset)
@@ -402,7 +217,8 @@ def read_project_tasks(
         return PagedProjectTasksResponse(tasks=tasks, count=0)
 
     count = session.exec(
-            select(func.count(Task.id).filter( # type:ignore
+        select(
+            func.count(Task.id).filter(  # type:ignore
                 and_(
                     Task.project_id == project_id,
                     Task.completed == False,
@@ -414,7 +230,7 @@ def read_project_tasks(
     return PagedProjectTasksResponse(tasks=tasks, count=count)
 
 
-@app.get("/project/{project_id}/tasks/completed")
+@project_router.get("/project/{project_id}/tasks/completed")
 def read_completed_project_tasks(
     project_id: int,
     session: SessionDep,
@@ -432,7 +248,7 @@ def read_completed_project_tasks(
             and_(
                 Task.project_id == project_id,
                 Task.completed == True,
-                Task.title.like("%" + search + "%"), # type: ignore
+                Task.title.like("%" + search + "%"),  # type: ignore
             )
         )
         .offset(offset)
@@ -443,7 +259,8 @@ def read_completed_project_tasks(
         return PagedProjectTasksResponse(tasks=tasks, count=0)
 
     count = session.exec(
-            select(func.count(Task.id).filter( # type: ignore
+        select(
+            func.count(Task.id).filter(  # type: ignore
                 and_(
                     Task.project_id == project_id,
                     Task.completed == True,
