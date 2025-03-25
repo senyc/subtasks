@@ -45,6 +45,7 @@ def read_tasks(
     ).all()
     return tasks
 
+
 @task_router.get("/task/{task_id}")
 def read_task(task_id: int, session: SessionDep) -> Task:
     task = session.get(Task, task_id)
@@ -53,13 +54,14 @@ def read_task(task_id: int, session: SessionDep) -> Task:
     return task
 
 
+# TODO: this should be a patch
 @task_router.put("/task/{task_id}")
 def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     updated_task = session.get(Task, task_id)
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
     # Only update values that are set in the request
-    for attr in ["title", "body", "due_date", "project_id"]:
+    for attr in ["title", "body", "due_date", "project_id", "order"]:
         value = getattr(task, attr, None)
         if value is not None:
             setattr(updated_task, attr, value)
@@ -79,11 +81,17 @@ def delete_task(task_id: int, session: SessionDep) -> int | None:
 
     return task_to_delete.id
 
+
 @task_router.post("/tasks")
 def create_task(task: Task, session: SessionDep) -> Task:
     session.add(task)
     session.commit()
     session.refresh(task)
+
+    task.order = task.id  # Set order to id
+    session.commit()  # Commit again to save the change
+    session.refresh(task)  # Refresh to ensure updated values
+
     return task
 
 
@@ -91,7 +99,7 @@ def create_task(task: Task, session: SessionDep) -> Task:
 def complete_task(task_id, session: SessionDep) -> Task:
     task = session.get(Task, task_id)
     if not task:
-            raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found")
     task.completed = True
     task.completed_date = datetime.now()
     session.commit()
@@ -103,7 +111,7 @@ def complete_task(task_id, session: SessionDep) -> Task:
 def incomplete_task(task_id, session: SessionDep) -> Task:
     task = session.get(Task, task_id)
     if not task:
-            raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=404, detail="Task not found")
     task.completed = False
     session.commit()
     session.refresh(task)

@@ -8,7 +8,8 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build"
+    "type-check": "vue-tsc --build",
+    "test": "vitest"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.3",
@@ -29,6 +30,7 @@
     "typescript": "~5.7.3",
     "vite": "^6.0.11",
     "vite-plugin-vue-devtools": "^7.7.0",
+    "vitest": "^3.0.9",
     "vue-tsc": "^2.2.0"
   }
 }

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlmodel import select, func, and_
+from sqlmodel import desc, select, func, and_
 from fastapi import APIRouter, HTTPException, Query
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -171,6 +171,7 @@ def incomplete_project(project_id, session: SessionDep) -> Project:
     return project
 
 
+# This should use existing task endpoint
 @project_router.post("/project/{project_id}/task")
 def create_project_task(
     project_id: int, task: Task, session: SessionDep
@@ -210,7 +211,7 @@ def read_project_tasks(
             )
         )
         .offset(offset)
-        .limit(limit)
+        .limit(limit).order_by(desc(Task.order)) # type: ignore
     ).all()
 
     if not tasks:

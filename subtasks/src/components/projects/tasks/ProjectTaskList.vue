@@ -16,7 +16,7 @@
       </tr>
     </thead>
     <fwb-table-body>
-      <VueDraggable v-if="tasks" ref="el" v-model="tasks">
+      <VueDraggable @end="onEnd" v-if="tasks" ref="el" v-model="tasks">
         <ProjectTaskRow v-if="tasks && tasks.length > 0" :completed="completed" :project-id="projectId"
           @toggle-checked="toggleChecked" :checkedTasks="checked" v-for="task in tasks" :key="task.id"
           :checked="checked.includes(task.id)" :task="task" />
@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { VueDraggable } from 'vue-draggable-plus'
+import { VueDraggable, type SortableEvent } from 'vue-draggable-plus'
 import {
   FwbTable,
   FwbCheckbox,
@@ -39,6 +39,10 @@ import { useTasks } from "../../../composables/useTasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import EmptyRow from "@components/shared/EmptyRow.vue";
 import type Task from '@annotations/task';
+import { useQueryClient } from "@tanstack/vue-query";
+import { getInbetweenOrder } from '../../../utils/sorting';
+
+const queryClient = useQueryClient();
 
 const checked = inject<number[]>("checked", []);
 
@@ -85,6 +89,29 @@ function toggleAllChecked() {
     checked.splice(0);
     data.value.tasks.forEach((task) => checked.push(task.id));
   }
+}
+
+async function onEnd(event: SortableEvent) {
+  const newIndex = event.newIndex
+  const newOrder = getInbetweenOrder(newIndex, tasks.value)
+  if (newOrder == undefined || newIndex == undefined) {
+    return
+  }
+
+  const task = tasks.value[newIndex]
+
+  // Update the in-place value
+  tasks.value[newIndex].order = newOrder
+
+  const res = await fetch(`http://localhost:8000/task/${task.id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ order: newOrder }),
+  });
+  if (res.ok)
+    queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
 }
 
 function toggleChecked(id: number) {

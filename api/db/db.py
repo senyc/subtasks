@@ -46,17 +46,18 @@ DueDate = Annotated[datetime | None, BeforeValidator(convert_to_date)]
 
 
 class Project(BaseSQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
     title: str
     body: str
     completed: bool = Field(default=False)
     due_date: DueDate
     completed_date: DueDate
     created_at: datetime = Field(default=datetime.now(), nullable=False)
+    order: float = Field(default=0.0, nullable=False)
 
 
 class Task(BaseSQLModel, table=True):
-    id: int | None = Field(default=None, primary_key=True)
+    id: int = Field(primary_key=True)
     project_id: int | None = Field(default=None, foreign_key="project.id")
     title: str
     body: str
@@ -64,3 +65,4 @@ class Task(BaseSQLModel, table=True):
     due_date: DueDate
     completed_date: DueDate
     created_at: datetime = Field(default=datetime.now(), nullable=False)
+    order: float = Field(default=0.0, nullable=False)
