@@ -63,7 +63,9 @@ def read_projects(
         .group_by(Project.id)
         .offset(offset)
         .limit(limit)
+        .order_by(desc(Project.order))  # type: ignore
     ).all()
+
     project_count = session.exec(select(func.count(Project.id).filter(and_(Project.title.like("%" + search + "%"), Project.completed == False)))).one()  # type: ignore
     return PagedProjectResponse(
         projects=[
@@ -128,9 +130,10 @@ def update_project(project_id: int, project: Project, session: SessionDep) -> Pr
     updated_project = session.get(Project, project_id)
     if not updated_project:
         raise HTTPException(status_code=404, detail="Project not found")
-    updated_project.title = project.title
-    updated_project.body = project.body
-    updated_project.due_date = project.due_date
+    for attr in ["title", "body", "due_date", "order"]:
+        value = getattr(project, attr, None)
+        if value is not None:
+            setattr(updated_project, attr, value)
     session.commit()
     session.refresh(updated_project)
     return updated_project
@@ -180,6 +183,10 @@ def create_project_task(
     session.add(task)
     session.commit()
     session.refresh(task)
+
+    task.order = task.id
+    session.commit()
+    session.refresh(task)
     return task
 
 
@@ -211,7 +218,8 @@ def read_project_tasks(
             )
         )
         .offset(offset)
-        .limit(limit).order_by(desc(Task.order)) # type: ignore
+        .limit(limit)
+        .order_by(desc(Task.order))  # type: ignore
     ).all()
 
     if not tasks:

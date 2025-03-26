@@ -87,10 +87,10 @@ def create_task(task: Task, session: SessionDep) -> Task:
     session.add(task)
     session.commit()
     session.refresh(task)
-
-    task.order = task.id  # Set order to id
-    session.commit()  # Commit again to save the change
-    session.refresh(task)  # Refresh to ensure updated values
+    # Set order to id
+    task.order = task.id
+    session.commit()
+    session.refresh(task)
 
     return task
 
