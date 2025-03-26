@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException, Query
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from api.db.db import Project, SessionDep, Task
+from ..db.db import Project, SessionDep, Task
+from ..tasks.tasks import create_task
 
 
 project_router = APIRouter(
@@ -100,6 +101,7 @@ def read_completed_projects(
         .group_by(Project.id)
         .offset(offset)
         .limit(limit)
+        .order_by(desc(Task.order))  # type: ignore
     ).all()
 
     project_count = session.exec(select(func.count(Project.id).filter(and_(Project.title.like("%" + search + "%"), Project.completed == True)))).one()  # type: ignore
@@ -132,7 +134,7 @@ def update_project(project_id: int, project: Project, session: SessionDep) -> Pr
         raise HTTPException(status_code=404, detail="Project not found")
     for attr in ["title", "body", "due_date", "order"]:
         value = getattr(project, attr, None)
-        if value is not None:
+        if value:
             setattr(updated_project, attr, value)
     session.commit()
     session.refresh(updated_project)
@@ -174,20 +176,12 @@ def incomplete_project(project_id, session: SessionDep) -> Project:
     return project
 
 
-# This should use existing task endpoint
 @project_router.post("/project/{project_id}/task")
 def create_project_task(
     project_id: int, task: Task, session: SessionDep
 ) -> Task | None:
     task.project_id = project_id
-    session.add(task)
-    session.commit()
-    session.refresh(task)
-
-    task.order = task.id
-    session.commit()
-    session.refresh(task)
-    return task
+    return create_task(task, session)
 
 
 @dataclass
@@ -262,6 +256,7 @@ def read_completed_project_tasks(
         )
         .offset(offset)
         .limit(limit)
+        .order_by(desc(Task.order))  # type: ignore
     ).all()
 
     if not tasks:

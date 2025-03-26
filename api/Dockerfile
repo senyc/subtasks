@@ -1,13 +1,12 @@
 FROM python:3.12
 
-WORKDIR /code
+WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
 COPY ./requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
-COPY ./main.py .
+COPY . .
 
 EXPOSE 8000
 

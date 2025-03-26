@@ -3,7 +3,7 @@ from typing import Sequence
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import select
 
-from api.db.db import SessionDep, Task
+from ..db.db import SessionDep, Task
 
 task_router = APIRouter(
     tags=["tasks"],
@@ -63,7 +63,7 @@ def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     # Only update values that are set in the request
     for attr in ["title", "body", "due_date", "project_id", "order"]:
         value = getattr(task, attr, None)
-        if value is not None:
+        if value:
             setattr(updated_task, attr, value)
     session.commit()
     session.refresh(updated_task)

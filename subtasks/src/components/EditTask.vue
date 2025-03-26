@@ -44,7 +44,7 @@ const props = defineProps<{
 
 const isShowModal = ref(false);
 
-const task = reactive<Omit<Task, "id">>({
+const task = reactive<Omit<Task, "id"| "order">>({
   title: props.task.title,
   body: props.task.body,
   due_date: props.task.due_date

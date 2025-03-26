@@ -30,7 +30,10 @@ import {
   onMounted,
   useTemplateRef,
 } from "vue";
-type PartialProject = Omit<Project, "id" | "totalTasks" | "completedTasks">;
+type PartialProject = Omit<
+  Project,
+  "id" | "totalTasks" | "completedTasks" | "order"
+>;
 
 defineProps<{
   project: PartialProject;

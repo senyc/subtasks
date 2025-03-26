@@ -111,7 +111,9 @@ async function onEnd(event: SortableEvent) {
     body: JSON.stringify({ order: newOrder }),
   });
   if (res.ok)
-    queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
+    queryClient.invalidateQueries({
+      queryKey: ["tasks", () => projectId, () => completed ? "completed" : "incompleted"]
+    });
 }
 
 function toggleChecked(id: number) {

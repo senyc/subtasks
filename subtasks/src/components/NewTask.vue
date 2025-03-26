@@ -43,7 +43,7 @@ const props = defineProps<{
   projectId: number
 }>()
 
-const task = reactive<Omit<Task, "id">>({
+const task = reactive<Omit<Task, "id"|"order">>({
   title: "",
   body: "",
   project_id: props.projectId

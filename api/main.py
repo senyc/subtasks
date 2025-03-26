@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.db.db import create_db_and_tables
-from api.tasks.tasks import task_router
-from api.projects.projects import project_router
+from .db.db import create_db_and_tables
+from .tasks.tasks import task_router
+from .projects.projects import project_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

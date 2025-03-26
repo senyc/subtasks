@@ -13,7 +13,7 @@ services:
     - subtask-network
     volumes:
       # Implementation specific
-      - ~/database.db:/code/database.db
+      - ~/database.db:/root/database.db
     ports:
       - "8000:8000"
 

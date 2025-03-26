@@ -43,7 +43,7 @@ import {
   onBeforeMount,
 } from "vue";
 
-type PartialTask = Omit<Task, "id">;
+type PartialTask = Omit<Task, "id" | "order">;
 
 const titleRef = useTemplateRef("titleRef");
 
