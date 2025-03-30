@@ -112,7 +112,7 @@ async function onEnd(event: SortableEvent) {
   });
   if (res.ok)
     queryClient.invalidateQueries({
-      queryKey: ["tasks", () => projectId, () => completed ? "completed" : "incompleted"]
+      queryKey: ["tasks", ()=>projectId, () => completed ? "completed" : "incompleted"]
     });
 }
 
