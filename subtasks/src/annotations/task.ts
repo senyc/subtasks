@@ -8,4 +8,5 @@ export default interface Task {
   due_date?: string
   completed_date?: string
   created_at?: string
+  time_estimate?: number
 }
