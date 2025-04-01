@@ -23,6 +23,11 @@
     <fwb-table-cell
       @click="$emit('toggleChecked', task.id)"
       class="xl:min-w-52 min-w-36"
+      >{{ timeEstimate }}</fwb-table-cell
+    >
+    <fwb-table-cell
+      @click="$emit('toggleChecked', task.id)"
+      class="xl:min-w-52 min-w-36"
       :class="{
         'text-red-500':
           !completed && dateHasElapsed(new Date(task.due_date as string)),
@@ -45,10 +50,10 @@ import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
 import type Task from "@annotations/task";
 import EditTask from "../../EditTask.vue";
 import { reprDate, dateHasElapsed } from "../../../utils/date";
+import { computed } from "vue";
 
 defineEmits(["toggleChecked"]);
-
-withDefaults(
+const props = withDefaults(
   defineProps<{
     task: Task;
     checked: boolean;
@@ -59,4 +64,12 @@ withDefaults(
     completed: false,
   },
 );
+
+const timeEstimate = computed(() => {
+  const time = props.task?.time_estimate || 0;
+  if (!time) {
+    return "";
+  }
+  return (time < 60 ? time : time / 60) + (time < 60 ? "m" : "h");
+});
 </script>
