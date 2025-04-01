@@ -61,7 +61,7 @@ def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
     # Only update values that are set in the request
-    for attr in ["title", "body", "due_date", "project_id", "order"]:
+    for attr in ["time_estimate", "title", "body", "due_date", "project_id", "order"]:
         value = getattr(task, attr, None)
         if value:
             setattr(updated_task, attr, value)

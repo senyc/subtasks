@@ -51,6 +51,7 @@ const task = reactive<Omit<Task, "id"| "order">>({
     ? new Date(props.task.due_date).toISOString().split("T")[0]
     : "",
   project_id: props.task.project_id,
+  time_estimate: props.task.time_estimate
 });
 
 async function onSubmit() {

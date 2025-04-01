@@ -1,35 +1,17 @@
 <template>
   <fwb-table hoverable>
     <thead class="bg-gray-100">
-      <tr
-        class="flex flex-row text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400 bg-gray-100"
-      >
+      <tr class="flex flex-row text-xs text-gray-700 uppercase dark:bg-gray-700 dark:text-gray-400 bg-gray-100">
         <fwb-table-head-cell class="w-7">
-          <fwb-checkbox
-            @click="toggleAllChecked"
-            :model-value="
-              checked.length === projects?.length && checked.length > 0
-            "
-          />
+          <fwb-checkbox @click="toggleAllChecked" :model-value="checked.length === projects?.length && checked.length > 0
+            " />
         </fwb-table-head-cell>
-        <fwb-table-head-cell class="grow xl:min-w-52 min-w-36">
-          Project Name</fwb-table-head-cell
-        >
-        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
-          >Date Completed</fwb-table-head-cell
-        >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Date Due</fwb-table-head-cell
-        >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Tasks Remaining</fwb-table-head-cell
-        >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Tasks Total</fwb-table-head-cell
-        >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Tasks Complete</fwb-table-head-cell
-        >
+        <fwb-table-head-cell class="grow xl:min-w-52 min-w-36"> Project Name</fwb-table-head-cell>
+        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36">Date Completed</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Date Due</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Tasks Remaining</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Tasks Total</fwb-table-head-cell>
+        <fwb-table-head-cell class="xl:min-w-52 min-w-36">Tasks Complete</fwb-table-head-cell>
         <fwb-table-head-cell class="min-w-36">
           <span class="sr-only">Edit</span>
         </fwb-table-head-cell>
@@ -37,15 +19,8 @@
     </thead>
     <fwb-table-body>
       <VueDraggable @end="onEnd" v-if="projects" ref="el" v-model="projects">
-        <ProjectRow
-          v-if="projects.length > 0"
-          :completed="completed"
-          @toggle-checked="toggleChecked"
-          v-for="project in projects"
-          :key="project.id"
-          :checked="checked.includes(project.id)"
-          :project="project"
-        />
+        <ProjectRow v-if="projects.length > 0" :completed="completed" @toggle-checked="toggleChecked"
+          v-for="project in projects" :key="project.id" :checked="checked.includes(project.id)" :project="project" />
         <EmptyRow v-else-if="isFetched" />
       </VueDraggable>
     </fwb-table-body>

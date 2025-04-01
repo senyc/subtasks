@@ -9,6 +9,11 @@
       label="Task Title"
       ref="titleRef"
     />
+    <fwb-select
+      v-model="task.time_estimate as string"
+      :options="timeEstimateOptions"
+      label="Time Estimate"
+    />
     <fwb-textarea
       @keydown.ctrl.enter="$emit('onSubmit')"
       v-model="task.body"
@@ -47,6 +52,15 @@ type PartialTask = Omit<Task, "id" | "order">;
 
 const titleRef = useTemplateRef("titleRef");
 
+const timeEstimateOptions = [
+  { value: 15, name: "15m" },
+  { value: 30, name: "30m" },
+  { value: 45, name: "45m" },
+  { value: 60, name: "1h" },
+  { value: 90, name: "1.5h" },
+  { value: 120, name: "2h" },
+  { value: 180, name: "3h" },
+];
 const { data } = useQuery({
   queryKey: ["projects", "all"],
   queryFn: async (): Promise<Project[]> => {
