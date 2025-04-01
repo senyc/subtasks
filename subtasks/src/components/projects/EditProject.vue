@@ -69,7 +69,7 @@ const project = reactive<
 
 async function onSubmit() {
   const res = await fetch(`http://localhost:8000/project/${props.project.id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       accept: "application/json",

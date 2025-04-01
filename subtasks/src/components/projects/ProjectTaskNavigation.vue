@@ -259,7 +259,7 @@ async function completeTask(id: number) {
 
 async function updateTaskProject(newProjectId: number, id: number) {
   return fetch(`http://localhost:8000/task/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },

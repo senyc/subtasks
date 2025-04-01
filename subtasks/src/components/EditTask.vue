@@ -56,7 +56,7 @@ const task = reactive<Omit<Task, "id"| "order">>({
 
 async function onSubmit() {
   const res = await fetch(`http://localhost:8000/task/${props.task.id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",

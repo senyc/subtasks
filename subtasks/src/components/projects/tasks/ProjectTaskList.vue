@@ -105,7 +105,7 @@ async function onEnd(event: SortableEvent) {
   tasks.value[newIndex].order = newOrder
 
   const res = await fetch(`http://localhost:8000/task/${task.id}`, {
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
     },

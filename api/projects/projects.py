@@ -127,7 +127,7 @@ def read_project(project_id: int, session: SessionDep) -> Project:
     return project
 
 
-@project_router.put("/project/{project_id}")
+@project_router.patch("/project/{project_id}")
 def update_project(project_id: int, project: Project, session: SessionDep) -> Project:
     updated_project = session.get(Project, project_id)
     if not updated_project:
@@ -202,35 +202,51 @@ def read_project_tasks(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    tasks = session.exec(
+    tasks = get_project_tasks(project_id, session, False, offset, limit, search)
+    if not tasks:
+        return PagedProjectTasksResponse(tasks=tasks, count=0)
+
+    count = get_project_task_count(project_id, session, False, search)
+    return PagedProjectTasksResponse(tasks=tasks, count=count)
+
+
+def get_project_tasks(
+    project_id: int,
+    session: SessionDep,
+    completed: bool,
+    offset: int = 0,
+    limit: int = Query(default=100, le=100),
+    search: str = "",
+):
+    return session.exec(
         select(Task)
         .where(
             and_(
                 Task.project_id == project_id,
-                Task.completed != True,
+                Task.completed == completed,
                 Task.title.like("%" + search + "%"),  # type: ignore
             )
         )
         .offset(offset)
         .limit(limit)
-        .order_by(desc(Task.order))  # type: ignore
+        .order_by(desc(Task.order))
     ).all()
 
-    if not tasks:
-        return PagedProjectTasksResponse(tasks=tasks, count=0)
 
-    count = session.exec(
+def get_project_task_count(
+    project_id, session: SessionDep, completed: bool, search: str
+):
+    return session.exec(
         select(
             func.count(Task.id).filter(  # type:ignore
                 and_(
                     Task.project_id == project_id,
-                    Task.completed == False,
+                    Task.completed == completed,
                     Task.title.like("%" + search + "%"),  # type: ignore
                 )
             )
         )
     ).one()
-    return PagedProjectTasksResponse(tasks=tasks, count=count)
 
 
 @project_router.get("/project/{project_id}/tasks/completed")
@@ -245,32 +261,11 @@ def read_completed_project_tasks(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    tasks = session.exec(
-        select(Task)
-        .where(
-            and_(
-                Task.project_id == project_id,
-                Task.completed == True,
-                Task.title.like("%" + search + "%"),  # type: ignore
-            )
-        )
-        .offset(offset)
-        .limit(limit)
-        .order_by(desc(Task.order))  # type: ignore
-    ).all()
+    tasks = get_project_tasks(project_id, session, True, offset, limit, search)
 
     if not tasks:
         return PagedProjectTasksResponse(tasks=tasks, count=0)
 
-    count = session.exec(
-        select(
-            func.count(Task.id).filter(  # type: ignore
-                and_(
-                    Task.project_id == project_id,
-                    Task.completed == True,
-                    Task.title.like("%" + search + "%"),  # type: ignore
-                )
-            )
-        )
-    ).one()
+    count = get_project_task_count(project_id, session, True, search)
+
     return PagedProjectTasksResponse(tasks=tasks, count=count)
