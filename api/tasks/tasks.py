@@ -54,7 +54,6 @@ def read_task(task_id: int, session: SessionDep) -> Task:
     return task
 
 
-# TODO: this should be a patch
 @task_router.patch("/task/{task_id}")
 def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
     updated_task = session.get(Task, task_id)
