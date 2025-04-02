@@ -1,5 +1,5 @@
 <template>
-  <fwb-modal v-if="showModal" @close="$emit('close')">
+  <fwb-modal @close="$emit('close')">
     <template #header>
       <div
         class="ml-2 border-none text-left line-clamp-1 overflow-ellipsis text-lg"
@@ -30,7 +30,6 @@ import type Task from "@annotations/task";
 const props = defineProps<{
   task: Task;
   projectId: number;
-  showModal: boolean;
 }>();
 
 const emit = defineEmits<{

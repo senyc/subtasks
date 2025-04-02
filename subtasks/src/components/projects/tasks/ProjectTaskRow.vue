@@ -1,9 +1,6 @@
 <template>
   <fwb-table-row class="border-b-gray-200 flex flex-row">
-    <fwb-table-cell
-      @click="$emit('toggleChecked', task.id)"
-      class="!mt-2 w-7"
-    >
+    <fwb-table-cell @click="$emit('toggleChecked', task.id)" class="!mt-2 w-7">
       <fwb-checkbox :model-value="checked" />
     </fwb-table-cell>
     <fwb-table-cell
@@ -48,14 +45,14 @@
       >{{ reprDate(task.created_at) }}</fwb-table-cell
     >
     <fwb-table-cell class="w-42">
-      <EditTask @click="showModal = true" />
+      <EditTask @click="onOpen" />
     </fwb-table-cell>
   </fwb-table-row>
   <EditTaskModal
-    @close="showModal = false"
+    v-if="showModal"
+    @close="onClose"
     :task="task"
     :project-id="projectId"
-    :show-modal="showModal"
   />
 </template>
 
@@ -71,7 +68,18 @@ const showModal = ref(false);
 
 const emit = defineEmits<{
   (e: "toggleChecked", id: number): void;
+  (e: "toggleModal"): void;
 }>();
+
+function onClose() {
+  showModal.value = false;
+  emit("toggleModal");
+}
+function onOpen() {
+  showModal.value = true;
+
+  emit("toggleModal");
+}
 
 const props = withDefaults(
   defineProps<{
@@ -103,7 +111,7 @@ const handleClick = () => {
 const handleDoubleClick = () => {
   clickTimeout.value && clearTimeout(clickTimeout.value);
   clickTimeout.value = null;
-  showModal.value = true;
+  onOpen();
 };
 
 // Cleanup timeout when the component is unmounted
