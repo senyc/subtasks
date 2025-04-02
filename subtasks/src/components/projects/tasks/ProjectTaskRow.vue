@@ -4,7 +4,7 @@
       <fwb-checkbox :model-value="checked" />
     </fwb-table-cell>
     <fwb-table-cell
-      class="grow xl:min-w-52 min-w-36"
+      class="grow w-1/2"
       @click="handleClick"
       @dblclick="handleDoubleClick"
     >
@@ -44,7 +44,7 @@
       class="xl:min-w-52 min-w-36"
       >{{ reprDate(task.created_at) }}</fwb-table-cell
     >
-    <fwb-table-cell class="w-42">
+    <fwb-table-cell class="min-w-36">
       <EditTask @click="onOpen" />
     </fwb-table-cell>
   </fwb-table-row>

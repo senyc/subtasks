@@ -12,7 +12,7 @@
             "
           />
         </fwb-table-head-cell>
-        <fwb-table-head-cell class="grow">Task Name</fwb-table-head-cell>
+        <fwb-table-head-cell class="grow w-1/2">Task Name</fwb-table-head-cell>
         <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
           >Date Completed</fwb-table-head-cell
         >
