@@ -43,7 +43,6 @@
           :completed="completed"
           :project-id="projectId"
           @toggle-checked="toggleChecked"
-          :checkedTasks="checked"
           v-for="task in tasks"
           :key="task.id"
           :checked="checked.includes(task.id)"
@@ -68,7 +67,7 @@ import { inject, ref, watchEffect } from "vue";
 import { useTasks } from "../../../composables/useTasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import EmptyRow from "@components/shared/EmptyRow.vue";
-import type Task from "@annotations/task";
+import type {  Task } from "@annotations/task";
 import { useQueryClient } from "@tanstack/vue-query";
 import { getInbetweenOrder } from "../../../utils/sorting";
 

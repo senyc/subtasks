@@ -48,6 +48,8 @@ DueDate = Annotated[datetime | None, BeforeValidator(convert_to_date)]
 class Project(BaseSQLModel, table=True):
     id: int = Field(primary_key=True)
     title: str
+    # TODO: update this to support passing in JSON and converting to a string
+    # (or we can just store the rich text as a blob)
     body: str
     completed: bool = Field(default=False)
     due_date: DueDate

@@ -1,7 +1,7 @@
 <template>
   <form
     @submit.prevent="$emit('onSubmit')"
-    class="flex flex-col gap-2 text-left"
+    class="flex flex-col gap-3 text-left"
   >
     <fwb-input
       placeholder="Task Title"
@@ -10,17 +10,12 @@
       ref="titleRef"
     />
     <fwb-select
+      @keydown.tab
       v-model="task.time_estimate as string"
       :options="timeEstimateOptions"
       label="Time Estimate"
     />
-    <fwb-textarea
-      @keydown.ctrl.enter="$emit('onSubmit')"
-      v-model="task.body"
-      :rows="4"
-      label="Task Body"
-      placeholder="Task Body"
-    />
+    <RichTextEditor v-model="task.body"/>
     <fwb-input type="date" v-model="task.due_date" label="Due Date" />
     <fwb-select
       v-model="task.project_id as string"
@@ -37,7 +32,7 @@
 <script lang="ts" setup>
 // @ts-nocheck
 import type { Project } from "@annotations/project";
-import type Task from "@annotations/task";
+import type { Task, TaskDisplay } from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";
 import { FwbInput, FwbTextarea, FwbSelect } from "flowbite-vue";
 import {
@@ -48,7 +43,8 @@ import {
   onBeforeMount,
 } from "vue";
 
-type PartialTask = Omit<Task, "id" | "order">;
+import RichTextEditor from "./RichTextEditor.vue";
+
 
 const titleRef = useTemplateRef("titleRef");
 
@@ -72,6 +68,7 @@ const { data } = useQuery({
   },
 });
 
+// Warns the user if they are about to leave the page
 onBeforeUnmount(() => {
   window.onbeforeunload = null;
 });
@@ -93,6 +90,6 @@ onMounted(() => {
 });
 
 defineProps<{
-  task: PartialTask;
+  task: TaskDisplay;
 }>();
 </script>

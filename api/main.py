@@ -6,6 +6,7 @@ from .db.db import create_db_and_tables
 from .tasks.tasks import task_router
 from .projects.projects import project_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_db_and_tables()
@@ -26,5 +27,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-

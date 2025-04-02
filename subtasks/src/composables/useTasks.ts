@@ -1,7 +1,7 @@
-import type Task from "@annotations/task";
 import { calculateOffsetLimit } from "../utils/pagination";
 import { toValue, type MaybeRefOrGetter } from "vue";
 import { keepPreviousData, useQuery } from "@tanstack/vue-query";
+import type { Task } from "@annotations/task";
 
 async function getTasks({
   projectId,

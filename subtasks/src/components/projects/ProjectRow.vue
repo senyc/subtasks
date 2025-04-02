@@ -13,9 +13,6 @@
       <h3 class="text-lg font-bold line-clamp-2 overflow-ellipsis">
         {{ project.title }}
       </h3>
-      <p class="overflow-ellipsis line-clamp-1">
-        {{ project.body }}
-      </p>
     </fwb-table-cell>
     <fwb-table-cell
       v-if="completed"

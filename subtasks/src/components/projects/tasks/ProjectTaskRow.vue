@@ -11,9 +11,6 @@
       <h3 class="text-lg font-bold line-clamp-2 overflow-ellipsis">
         {{ task.title }}
       </h3>
-      <p class="overflow-ellipsis line-clamp-1">
-        {{ task.body }}
-      </p>
     </fwb-table-cell>
     <fwb-table-cell
       @click="handleClick"
@@ -58,7 +55,7 @@
 
 <script setup lang="ts">
 import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
-import type Task from "@annotations/task";
+import type { Task } from "@annotations/task";
 import EditTask from "../../EditTask.vue";
 import { reprDate, dateHasElapsed } from "../../../utils/date";
 import { computed, onUnmounted, ref } from "vue";
