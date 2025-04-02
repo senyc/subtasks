@@ -9,20 +9,15 @@
       v-model="project.title"
       label="Project Title"
     />
-    <fwb-textarea
-      @keydown.ctrl.enter="$emit('onSubmit')"
-      v-model="project.body"
-      :rows="4"
-      label="Project Body"
-      placeholder="Project Body"
-    />
+    <RichTextEditor v-model="project.body" />
     <fwb-input type="date" v-model="project.due_date" label="Due Date" />
   </form>
 </template>
 
 <script lang="ts" setup>
-import type { Project } from "@annotations/project";
-import { FwbInput, FwbTextarea } from "flowbite-vue";
+import type { ProjectDisplay } from "@annotations/project";
+import { FwbInput } from "flowbite-vue";
+import RichTextEditor from "../projects/tasks/RichTextEditor.vue";
 import {
   nextTick,
   onBeforeMount,
@@ -30,13 +25,9 @@ import {
   onMounted,
   useTemplateRef,
 } from "vue";
-type PartialProject = Omit<
-  Project,
-  "id" | "totalTasks" | "completedTasks" | "order"
->;
 
 defineProps<{
-  project: PartialProject;
+  project: ProjectDisplay;
 }>();
 
 const titleRef = useTemplateRef("titleRef");

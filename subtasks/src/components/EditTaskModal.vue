@@ -1,5 +1,5 @@
 <template>
-  <fwb-modal @close="$emit('close')">
+  <fwb-modal size="4xl" @close="$emit('close')">
     <template #header>
       <div
         class="ml-2 border-none text-left line-clamp-1 overflow-ellipsis text-lg"
@@ -26,7 +26,8 @@ import { reactive } from "vue";
 import { FwbButton, FwbModal } from "flowbite-vue";
 import ProjectTaskForm from "./projects/tasks/ProjectTaskForm.vue";
 const queryClient = useQueryClient();
-import type Task from "@annotations/task";
+import type { Task, TaskDisplay } from "@annotations/task";
+import { Delta } from "@vueup/vue-quill";
 const props = defineProps<{
   task: Task;
   projectId: number;
@@ -43,16 +44,23 @@ async function onSubmit() {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify(task),
+    body: JSON.stringify({ ...task, body: JSON.stringify(task.body) }),
   });
   if (res.ok) {
     emit("close");
     queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] });
   }
 }
-const task = reactive<Omit<Task, "id" | "order">>({
+
+const task = reactive<TaskDisplay>({
   title: props.task.title,
-  body: props.task.body,
+  body: (() => {
+    try {
+      return new Delta(JSON.parse(props.task.body));
+    } catch {
+      return new Delta();
+    }
+  })(),
   due_date: props.task.due_date
     ? new Date(props.task.due_date).toISOString().split("T")[0]
     : "",

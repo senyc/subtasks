@@ -1,3 +1,5 @@
+import type { Delta } from "@vueup/vue-quill";
+
 export interface Project {
   id: number;
   title: string;
@@ -12,4 +14,11 @@ export interface Project {
 export interface ProjectResponse extends Project {
   total_tasks: number;
   completed_tasks: number;
+}
+
+export interface ProjectDisplay {
+  title: string;
+  body: Delta;
+  due_date?: string;
+  completed_date?: string;
 }

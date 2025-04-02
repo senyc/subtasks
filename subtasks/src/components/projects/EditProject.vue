@@ -21,7 +21,7 @@
     </template>
     Edit
   </fwb-button>
-  <fwb-modal v-if="isShowModal" @close="isShowModal = false">
+  <fwb-modal size="4xl" v-if="isShowModal" @close="isShowModal = false">
     <template #header>
       <div
         class="ml-2 border-none text-left line-clamp-1 overflow-ellipsis text-lg"
@@ -47,8 +47,9 @@
 import { useQueryClient } from "@tanstack/vue-query";
 import { reactive, ref } from "vue";
 import { FwbButton, FwbModal } from "flowbite-vue";
-import type { Project } from "@annotations/project";
+import type { Project, ProjectDisplay } from "@annotations/project";
 import ProjectForm from "./ProjectForm.vue";
+import { Delta } from "@vueup/vue-quill";
 const queryClient = useQueryClient();
 
 const props = defineProps<{
@@ -57,11 +58,15 @@ const props = defineProps<{
 
 const isShowModal = ref(false);
 
-const project = reactive<
-  Omit<Project, "id" | "totalTasks" | "completedTasks" | "order">
->({
+const project = reactive<ProjectDisplay>({
   title: props.project.title,
-  body: props.project.body,
+  body: (() => {
+    try {
+      return new Delta(JSON.parse(props.project.body || ""));
+    } catch {
+      return new Delta();
+    }
+  })(),
   due_date: props.project.due_date
     ? new Date(props.project.due_date).toISOString().split("T")[0]
     : "",
@@ -74,7 +79,7 @@ async function onSubmit() {
       "Content-Type": "application/json",
       accept: "application/json",
     },
-    body: JSON.stringify(project),
+    body: JSON.stringify({ ...project, body: JSON.stringify(project.body) }),
   });
   if (res.ok) {
     isShowModal.value = false;

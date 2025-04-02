@@ -21,7 +21,7 @@
       </svg>
     </template>
   </fwb-button>
-  <fwb-modal v-if="isShowModal" @close="isShowModal = false">
+  <fwb-modal size="4xl" v-if="isShowModal" @close="isShowModal = false">
     <template #header>
       <div class="flex items-center">New Project</div>
     </template>
@@ -43,15 +43,14 @@
 import { useQueryClient } from "@tanstack/vue-query";
 import { reactive, ref } from "vue";
 import { FwbButton, FwbModal } from "flowbite-vue";
-import type { Project } from "@annotations/project";
+import type { ProjectDisplay } from "@annotations/project";
 import ProjectForm from "./ProjectForm.vue";
+import { Delta } from "@vueup/vue-quill";
 const queryClient = useQueryClient();
 
-const project = reactive<
-  Omit<Project, "id" | "totalTasks" | "completedTasks" | "order">
->({
+const project = reactive<ProjectDisplay>({
   title: "",
-  body: "",
+  body: new Delta(),
   due_date: "",
 });
 
@@ -63,12 +62,12 @@ async function onSubmit() {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(project),
+    body: JSON.stringify({...project, body: JSON.stringify(project.body)}),
   });
   if (res.ok) {
     queryClient.invalidateQueries({ queryKey: ["projects"] });
     project.title = "";
-    project.body = "";
+    project.body = new Delta;
     project.due_date = "";
   }
 }

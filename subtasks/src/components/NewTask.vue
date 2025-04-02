@@ -9,7 +9,7 @@
       </svg>
     </template>
   </fwb-button>
-  <fwb-modal v-if="isShowModal" @close="isShowModal = false">
+  <fwb-modal size="4xl" v-if="isShowModal" @close="isShowModal = false">
     <template #header>
       <div class="flex items-center text-lg">
         New Task
@@ -35,17 +35,18 @@
 import { useQueryClient } from '@tanstack/vue-query'
 import { reactive, ref } from 'vue'
 import { FwbButton, FwbModal } from 'flowbite-vue'
-import type Task from '@annotations/task'
+import type { TaskDisplay } from '@annotations/task'
 import TaskForm from './projects/tasks/ProjectTaskForm.vue';
+import { Delta } from '@vueup/vue-quill';
 const queryClient = useQueryClient()
 
 const props = defineProps<{
   projectId: number
 }>()
 
-const task = reactive<Omit<Task, "id" | "order">>({
+const task = reactive<TaskDisplay>({
   title: "",
-  body: "",
+  body: new Delta(),
   project_id: props.projectId,
   time_estimate: 15
 })
@@ -60,12 +61,13 @@ async function onSubmit() {
       'Content-Type': 'application/json',
       'accept': 'application/json'
     },
-    body: JSON.stringify(task)
+    body: JSON.stringify({ ...task, body: JSON.stringify(task.body) }),
   })
   if (res.ok) {
     queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] })
+    // Reset the new task data
     task.title = ""
-    task.body = ""
+    task.body = new Delta()
     task.due_date = ""
   }
 }
