@@ -4,6 +4,7 @@
     class="flex flex-col gap-2 text-left"
   >
     <fwb-input
+      @keydown.enter="$emit('onSubmit')"
       ref="titleRef"
       placeholder="Project Title"
       v-model="project.title"
@@ -39,6 +40,7 @@ onBeforeUnmount(() => {
 onBeforeMount(() => {
   window.onbeforeunload = () => true;
 });
+
 onMounted(() => {
   // This is needed because the modal has it's own call to onMounted, setting focus on the modal
   nextTick(() => {

@@ -4,13 +4,13 @@
     class="flex flex-col gap-3 text-left"
   >
     <fwb-input
+      @keydown.enter="$emit('onSubmit')"
       placeholder="Task Title"
       v-model="task.title"
       label="Task Title"
       ref="titleRef"
     />
     <fwb-select
-      @keydown.tab
       v-model="task.time_estimate as string"
       :options="timeEstimateOptions"
       label="Time Estimate"
