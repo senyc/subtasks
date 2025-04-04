@@ -55,7 +55,7 @@ const task = reactive<TaskDisplay>({
 const isShowModal = ref(false)
 async function onSubmit() {
   isShowModal.value = false
-  const url = `http://localhost:8000${props.projectId ? `/projects/${props.projectId}` : "" }/task`
+  const url = `http://localhost:8000${props.projectId ? `/project/${props.projectId}` : "" }/task`
   const res = await fetch(url, {
     method: "POST",
     headers: {

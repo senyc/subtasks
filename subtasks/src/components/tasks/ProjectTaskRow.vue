@@ -30,8 +30,8 @@
       @dblclick="handleDoubleClick"
       class="xl:min-w-52 min-w-36"
       :class="{
-        'text-red-500':
-          !completed && dateHasElapsed(new Date(task.due_date as string)),
+        'text-red-500': !completed && dateHasElapsed(new Date(task.due_date!)),
+        'text-yellow-400': !completed && dateIsToday(new Date(task.due_date!)),
       }"
       >{{ reprDate(task.due_date) }}
     </fwb-table-cell>
@@ -57,7 +57,7 @@
 import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
 import type { Task } from "@annotations/task";
 import EditTask from "./EditTask.vue";
-import { reprDate, dateHasElapsed } from "@utils/date";
+import { reprDate, dateHasElapsed, dateIsToday } from "@utils/date";
 import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
 
