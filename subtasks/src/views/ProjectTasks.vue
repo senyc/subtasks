@@ -1,4 +1,5 @@
 <template>
+  <Header active="projects" />
   <div class="px-8">
     <ProjectBreadCrumbs show-project-name />
     <ProjectTaskNavigation
@@ -17,10 +18,11 @@
 <script setup lang="ts">
 import { provide, reactive } from "vue";
 import { useRoute } from "vue-router";
-import ProjectTaskList from "@components/projects/tasks/ProjectTaskList.vue";
+import ProjectTaskList from "@components/tasks/ProjectTaskList.vue";
+import Header from "@components/Header.vue";
 
 import ProjectBreadCrumbs from "@components/projects/ProjectBreadCrumbs.vue";
-import ProjectTaskNavigation from "@components/projects/ProjectTaskNavigation.vue";
+import ProjectTaskNavigation from "@components/tasks/ProjectTaskNavigation.vue";
 
 const route = useRoute();
 const projectId = parseInt(route.params.id as string);

@@ -16,8 +16,9 @@
       label="Time Estimate"
     />
     <RichTextEditor v-model="task.body"/>
-    <fwb-input type="date" v-model="task.due_date" label="Due Date" />
+    <fwb-input type="date" v-model="task.due_date!" label="Due Date" />
     <fwb-select
+      v-if="task.project_id"
       v-model="task.project_id as string"
       :options="
         data?.map((project) => {
@@ -32,9 +33,9 @@
 <script lang="ts" setup>
 // @ts-nocheck
 import type { Project } from "@annotations/project";
-import type { Task, TaskDisplay } from "@annotations/task";
+import type {  TaskDisplay } from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";
-import { FwbInput, FwbTextarea, FwbSelect } from "flowbite-vue";
+import { FwbInput, FwbSelect } from "flowbite-vue";
 import {
   nextTick,
   useTemplateRef,
@@ -43,7 +44,7 @@ import {
   onBeforeMount,
 } from "vue";
 
-import RichTextEditor from "./RichTextEditor.vue";
+import RichTextEditor from "@components/shared/RichTextEditor.vue";
 
 
 const titleRef = useTemplateRef("titleRef");

@@ -6,11 +6,13 @@ import { createRouter, createWebHashHistory, } from "vue-router";
 import ProjectTasks from "./views/ProjectTasks.vue";
 import CompletedProjectTasks from "./views/CompletedProjectTasks.vue";
 import CompletedProjects from "./views/CompletedProjects.vue";
+import Tasks from "./views/Tasks.vue";
+import CompletedTasks from "./views/CompletedTasks.vue";
 
 const routes = [
   { path: "", component: Projects, name: "root" },
-  { path: "/completed", component: CompletedProjects, name: "completed" },
   { path: "/projects", component: Projects, name: "projects" },
+  { path: "/completed", component: CompletedProjects, name: "completed" },
   {
     path: "/projects/completed",
     component: CompletedProjects,
@@ -27,6 +29,8 @@ const routes = [
     name: "completedProjectTasks",
   },
   { path: "/projects/:id", component: Projects, name: "project" },
+  { path: "/tasks", component: Tasks, name: "tasks" },
+  { path: "/tasks/completed", component: CompletedTasks, name: "completedTasks" },
 ];
 
 const router = createRouter({

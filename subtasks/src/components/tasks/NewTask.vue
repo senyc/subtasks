@@ -36,12 +36,12 @@ import { useQueryClient } from '@tanstack/vue-query'
 import { reactive, ref } from 'vue'
 import { FwbButton, FwbModal } from 'flowbite-vue'
 import type { TaskDisplay } from '@annotations/task'
-import TaskForm from './projects/tasks/ProjectTaskForm.vue';
+import TaskForm from './ProjectTaskForm.vue';
 import { Delta } from '@vueup/vue-quill';
 const queryClient = useQueryClient()
 
 const props = defineProps<{
-  projectId: number
+  projectId?: number
 }>()
 
 const task = reactive<TaskDisplay>({
@@ -55,7 +55,8 @@ const task = reactive<TaskDisplay>({
 const isShowModal = ref(false)
 async function onSubmit() {
   isShowModal.value = false
-  const res = await fetch(`http://localhost:8000/project/${props.projectId}/task`, {
+  const url = `http://localhost:8000${props.projectId ? `/projects/${props.projectId}` : "" }/task`
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       'Content-Type': 'application/json',
@@ -64,7 +65,7 @@ async function onSubmit() {
     body: JSON.stringify({ ...task, body: JSON.stringify(task.body) }),
   })
   if (res.ok) {
-    queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] })
+    queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId || "" ] })
     // Reset the new task data
     task.title = ""
     task.body = new Delta()

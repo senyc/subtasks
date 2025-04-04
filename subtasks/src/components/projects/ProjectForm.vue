@@ -11,14 +11,14 @@
       label="Project Title"
     />
     <RichTextEditor v-model="project.body" />
-    <fwb-input type="date" v-model="project.due_date" label="Due Date" />
+    <fwb-input type="date" v-model="project.due_date!" label="Due Date" />
   </form>
 </template>
 
 <script lang="ts" setup>
 import type { ProjectDisplay } from "@annotations/project";
 import { FwbInput } from "flowbite-vue";
-import RichTextEditor from "../projects/tasks/RichTextEditor.vue";
+import RichTextEditor from "@components/shared/RichTextEditor.vue";
 import {
   nextTick,
   onBeforeMount,

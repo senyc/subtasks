@@ -56,10 +56,10 @@
 <script setup lang="ts">
 import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
 import type { Task } from "@annotations/task";
-import EditTask from "../../EditTask.vue";
-import { reprDate, dateHasElapsed } from "../../../utils/date";
+import EditTask from "./EditTask.vue";
+import { reprDate, dateHasElapsed } from "@utils/date";
 import { computed, onUnmounted, ref } from "vue";
-import EditTaskModal from "../../EditTaskModal.vue";
+import EditTaskModal from "./EditTaskModal.vue";
 
 const showModal = ref(false);
 

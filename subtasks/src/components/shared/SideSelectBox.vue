@@ -65,14 +65,14 @@ interface Option {
 const props = defineProps<{
   options?: Option[];
   labelText: string;
-  defaultValue: number;
+  defaultValue?: number;
 }>();
 
 defineEmits<{
   (e: "selectedOption", { value, label }: Option): void;
 }>();
 
-const selectedOption = ref<number>(props.defaultValue);
+const selectedOption = ref<number | undefined>(props.defaultValue);
 // Used to remember the most recent hovered over item, matching flowbite select behavior
 const isMousedOver = ref(props.defaultValue);
 

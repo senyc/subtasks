@@ -1,12 +1,12 @@
 <template>
-  <Header active="projects" />
+  <Header active="tasks" />
   <div class="px-8">
-    <ProjectBreadCrumbs />
-    <ProjectNavigation
+    <TasksBreadCrumbs />
+    <ProjectTaskNavigation
       :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
-    <ProjectList
+    <ProjectTaskList
       :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
@@ -15,9 +15,9 @@
 
 <script setup lang="ts">
 import { provide, reactive } from "vue";
-import ProjectBreadCrumbs from "@components/projects/ProjectBreadCrumbs.vue";
-import ProjectList from "@components/projects/ProjectList.vue";
-import ProjectNavigation from "@components/projects/ProjectNavigation.vue";
+import TasksBreadCrumbs from "@components/tasks/TasksBreadCrumbs.vue";
+import ProjectTaskNavigation from "@components/tasks/ProjectTaskNavigation.vue";
+import ProjectTaskList from "@components/tasks/ProjectTaskList.vue";
 import Header from "@components/Header.vue";
 
 const checked = reactive<number[]>([]);

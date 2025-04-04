@@ -8,7 +8,7 @@
     >
       <template #toolbar>
         <div id="my-toolbar">
-          <select :tabindex="4" class="ql-header">
+          <select class="ql-header">
             <option :value="1"></option>
             <option :value="2" ></option>
             <option :value="3"></option>

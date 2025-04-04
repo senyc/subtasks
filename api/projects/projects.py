@@ -2,10 +2,11 @@ from datetime import datetime
 from sqlmodel import desc, select, func, and_
 from fastapi import APIRouter, HTTPException, Query
 from collections.abc import Sequence
-from dataclasses import dataclass
+
 
 from ..db.db import Project, SessionDep, Task
-from ..tasks.tasks import create_task
+from ..types.types import PagedProjectResponse, PagedTasks, ProjectResponse
+from ..shared.shared import new_task
 
 
 project_router = APIRouter(
@@ -20,17 +21,6 @@ def create_project(project: Project, session: SessionDep) -> Project:
     session.commit()
     session.refresh(project)
     return project
-
-
-class ProjectResponse(Project):
-    total_tasks: int
-    completed_tasks: int
-
-
-@dataclass
-class PagedProjectResponse:
-    projects: Sequence[ProjectResponse]
-    count: int
 
 
 @project_router.get("/projects/all")
@@ -181,13 +171,7 @@ def create_project_task(
     project_id: int, task: Task, session: SessionDep
 ) -> Task | None:
     task.project_id = project_id
-    return create_task(task, session)
-
-
-@dataclass
-class PagedProjectTasksResponse:
-    tasks: Sequence[Task]
-    count: int
+    return new_task(task, session)
 
 
 @project_router.get("/project/{project_id}/tasks")
@@ -197,17 +181,17 @@ def read_project_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> PagedProjectTasksResponse | None:
+) -> PagedTasks | None:
     project = session.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
     tasks = get_project_tasks(project_id, session, False, offset, limit, search)
     if not tasks:
-        return PagedProjectTasksResponse(tasks=tasks, count=0)
+        return PagedTasks(tasks=tasks, count=0)
 
     count = get_project_task_count(project_id, session, False, search)
-    return PagedProjectTasksResponse(tasks=tasks, count=count)
+    return PagedTasks(tasks=tasks, count=count)
 
 
 def get_project_tasks(
@@ -256,7 +240,7 @@ def read_completed_project_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> PagedProjectTasksResponse | None:
+) -> PagedTasks | None:
     project = session.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -264,8 +248,8 @@ def read_completed_project_tasks(
     tasks = get_project_tasks(project_id, session, True, offset, limit, search)
 
     if not tasks:
-        return PagedProjectTasksResponse(tasks=tasks, count=0)
+        return PagedTasks(tasks=tasks, count=0)
 
     count = get_project_task_count(project_id, session, True, search)
 
-    return PagedProjectTasksResponse(tasks=tasks, count=count)
+    return PagedTasks(tasks=tasks, count=count)

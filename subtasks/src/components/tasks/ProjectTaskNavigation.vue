@@ -3,7 +3,7 @@
     <SearchBar :search="search" placeholder="Search for Tasks" />
     <button
       v-if="!completed"
-      @click="runForAll(completeTask, ['tasks', projectId])"
+      @click="runForAll(completeTask, ['tasks', projectId ?? ''])"
       class="cursor-pointer"
     >
       <svg
@@ -26,7 +26,7 @@
     </button>
     <button
       v-if="completed"
-      @click="runForAll(incompleteTask, ['tasks', projectId])"
+      @click="runForAll(incompleteTask, ['tasks', projectId ?? ''])"
       class="cursor-pointer"
     >
       <svg
@@ -50,7 +50,7 @@
 
     <button
       class="cursor-pointer"
-      @click="runForAll(deleteTask, ['tasks', projectId])"
+      @click="runForAll(deleteTask, ['tasks', projectId ?? ''])"
     >
       <svg
         class="w-6 h-6 text-gray-800"
@@ -95,7 +95,7 @@
             (option) =>
               runForAll(
                 (id) => updateTaskProject(option.value, id),
-                ['tasks', projectId],
+                ['tasks', projectId ?? ''],
               )
           "
           label-text="Select Project"
@@ -134,17 +134,17 @@
         </RouterLink>
 
         <RouterLink
-          :aria-disabled="projectsRemaining <= pageSize"
+          :aria-disabled="tasksRemaining <= pageSize"
           :to="{
-            query: { page: projectsRemaining <= pageSize ? page : page + 1 },
+            query: { page: tasksRemaining <= pageSize ? page : page + 1 },
           }"
           class="cursor-pointer"
         >
           <svg
             :class="{
-              'text-gray-800': projectsRemaining > pageSize,
+              'text-gray-800': tasksRemaining > pageSize,
               'text-gray-800/30 cursor-not-allowed':
-                projectsRemaining <= pageSize,
+                tasksRemaining <= pageSize,
             }"
             class="size-9 dark:text-white"
             aria-hidden="true"
@@ -167,7 +167,7 @@
           <p v-if="isSuccess" class="text-md font-semibold">
             Show {{ (page - 1) * pageSize + 1 }}-{{
               (page - 1) * pageSize +
-              (projectsRemaining >= pageSize ? pageSize : projectsRemaining)
+              (tasksRemaining >= pageSize ? pageSize : tasksRemaining)
             }}
           </p>
         </div>
@@ -192,7 +192,7 @@ const {
   projectId,
   page,
 } = defineProps<{
-  projectId: number;
+  projectId?: number;
   completed?: boolean;
   page: number;
   pageSize?: number;
@@ -200,7 +200,7 @@ const {
 }>();
 
 const { data, isSuccess } = useTasks({
-  projectId: () => projectId,
+  projectId: projectId ? () => projectId : undefined,
   completed: () => completed,
   search: () => search,
   page: () => page,
@@ -221,7 +221,7 @@ const projectOptions = computed(() =>
   }),
 );
 
-const projectsRemaining = computed(() => {
+const tasksRemaining = computed(() => {
   if (!isSuccess) {
     return 0;
   }

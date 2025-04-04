@@ -40,10 +40,10 @@
       >
         <ProjectTaskRow
           v-if="tasks && tasks.length > 0"
-          :completed="completed"
-          :project-id="projectId"
-          @toggle-checked="toggleChecked"
           v-for="task in tasks"
+          :completed="completed"
+          :project-id="task.project_id"
+          @toggle-checked="toggleChecked"
           :key="task.id"
           :checked="checked.includes(task.id)"
           :task="task"
@@ -64,12 +64,12 @@ import {
   FwbTableHeadCell,
 } from "flowbite-vue";
 import { inject, ref, watchEffect } from "vue";
-import { useTasks } from "../../../composables/useTasks";
+import { useTasks } from "@composables/useTasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import EmptyRow from "@components/shared/EmptyRow.vue";
 import type { Task } from "@annotations/task";
 import { useQueryClient } from "@tanstack/vue-query";
-import { getInbetweenOrder } from "../../../utils/sorting";
+import { getInbetweenOrder } from "@utils/sorting";
 
 const disableDraggable = ref(false);
 const queryClient = useQueryClient();
@@ -83,7 +83,7 @@ const {
   pageSize = 20,
   search = "",
 } = defineProps<{
-  projectId: number;
+  projectId?: number;
   completed?: boolean;
   page: number;
   pageSize?: number;
@@ -91,7 +91,7 @@ const {
 }>();
 
 const { data, isFetched } = useTasks({
-  projectId: () => projectId,
+  projectId: projectId ? () => projectId : undefined,
   completed: () => completed,
   search: () => search,
   page: () => page,

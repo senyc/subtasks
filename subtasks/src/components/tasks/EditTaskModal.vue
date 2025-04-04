@@ -24,13 +24,13 @@
 import { useQueryClient } from "@tanstack/vue-query";
 import { reactive } from "vue";
 import { FwbButton, FwbModal } from "flowbite-vue";
-import ProjectTaskForm from "./projects/tasks/ProjectTaskForm.vue";
+import ProjectTaskForm from "./ProjectTaskForm.vue";
 const queryClient = useQueryClient();
 import type { Task, TaskDisplay } from "@annotations/task";
 import { Delta } from "@vueup/vue-quill";
 const props = defineProps<{
   task: Task;
-  projectId: number;
+  projectId?: number;
 }>();
 
 const emit = defineEmits<{
@@ -48,7 +48,7 @@ async function onSubmit() {
   });
   if (res.ok) {
     emit("close");
-    queryClient.invalidateQueries({ queryKey: ["tasks", props.projectId] });
+    queryClient.invalidateQueries({ queryKey: ["tasks"] });
   }
 }
 

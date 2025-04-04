@@ -1,33 +1,36 @@
 from datetime import datetime
-from typing import Sequence
 from fastapi import APIRouter, HTTPException, Query
-from sqlmodel import select
+from sqlmodel import desc, select, and_
+
+from ..shared.shared import new_task, get_task_count
+from ..projects.projects import PagedTasks
 
 from ..db.db import SessionDep, Task
 
 task_router = APIRouter(
     tags=["tasks"],
-    responses={404: {"description": "Not found"}},
 )
 
 
-@task_router.get("tasks/completed")
+@task_router.get("/tasks/completed")
 def read_completed_tasks(
     session: SessionDep,
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> Sequence[Task]:
+) -> PagedTasks:
     tasks = session.exec(
         select(Task)
-        .where(Task.completed)
-        .where(Task.title.like("%" + search + "%"))  # type: ignore
+        .where(and_(Task.completed == True , Task.title.like("%" + search + "%")))  # type: ignore
         .offset(offset)
         .limit(limit)
+        .order_by(desc(Task.order))
     ).all()
-    if tasks:
-        return tasks
-    return []
+
+    if not tasks:
+        return PagedTasks(tasks=tasks, count=0)
+    count = get_task_count(session, True, search)
+    return PagedTasks(tasks=tasks, count=count)
 
 
 @task_router.get("/tasks")
@@ -36,14 +39,19 @@ def read_tasks(
     offset: int = 0,
     limit: int = Query(default=100, le=100),
     search: str = "",
-) -> Sequence[Task]:
+) -> PagedTasks:
     tasks = session.exec(
         select(Task)
         .where(and_(Task.completed == False, Task.title.like("%" + search + "%")))  # type: ignore
         .offset(offset)
         .limit(limit)
+        .order_by(desc(Task.order))
     ).all()
-    return tasks
+
+    if not tasks:
+        return PagedTasks(tasks=tasks, count=0)
+    count = get_task_count(session, False, search)
+    return PagedTasks(tasks=tasks, count=count)
 
 
 @task_router.get("/task/{task_id}")
@@ -81,17 +89,9 @@ def delete_task(task_id: int, session: SessionDep) -> int | None:
     return task_to_delete.id
 
 
-@task_router.post("/tasks")
+@task_router.post("/task")
 def create_task(task: Task, session: SessionDep) -> Task:
-    session.add(task)
-    session.commit()
-    session.refresh(task)
-    # Set order to id
-    task.order = task.id
-    session.commit()
-    session.refresh(task)
-
-    return task
+    return new_task(task, session)
 
 
 @task_router.patch("/task/{task_id}/complete")

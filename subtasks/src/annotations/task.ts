@@ -16,7 +16,7 @@ export interface Task {
 export interface TaskDisplay {
   title: string;
   body: Delta;
-  project_id: number;
+  project_id?: number;
   due_date?: string
   completed_date?: string
   time_estimate?: number

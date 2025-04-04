@@ -10,7 +10,7 @@ async function getTasks({
   pageSize,
   search = "",
 }: {
-  projectId: number;
+  projectId?: number;
   completed: boolean;
   page: number;
   pageSize: number;
@@ -21,8 +21,9 @@ async function getTasks({
     pageSize: pageSize,
   });
   const res = await fetch(
-    `http://localhost:8000/project/${projectId}/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${limit}&search=${search}`,
+    `http://localhost:8000${projectId ? `/project/${projectId}` : "" }/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${limit}&search=${search}`,
   );
+
   if (!res.ok) {
     throw new Error("Cannot fetch tasks");
   }
@@ -36,7 +37,7 @@ export function useTasks({
   pageSize,
   search,
 }: {
-  projectId: MaybeRefOrGetter<number>;
+  projectId?: MaybeRefOrGetter<number>;
   completed: MaybeRefOrGetter<boolean>;
   search?: MaybeRefOrGetter<string>;
   page: MaybeRefOrGetter<number>;
@@ -46,7 +47,8 @@ export function useTasks({
     placeholderData: keepPreviousData,
     queryKey: [
       "tasks",
-      projectId,
+      // empty string for no project (all tasks)
+      projectId ?? "",
       completed ? "completed" : "incompleted",
       { search: search, page: page, size: pageSize },
     ],
