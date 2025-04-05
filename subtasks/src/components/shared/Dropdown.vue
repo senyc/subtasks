@@ -5,7 +5,7 @@
     </button>
     <div
       :class="{ block: isOpen, hidden: !isOpen }"
-      class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-52 p-3"
+      class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-96 p-3"
       v-if="isOpen"
     >
       <slot></slot>

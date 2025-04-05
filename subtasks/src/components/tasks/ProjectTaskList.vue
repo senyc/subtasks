@@ -13,16 +13,19 @@
           />
         </fwb-table-head-cell>
         <fwb-table-head-cell class="grow w-1/2">Task Name</fwb-table-head-cell>
-        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell v-if="completed" class="min-w-36"
           >Date Completed</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell class="min-w-36"
+          >Tags</fwb-table-head-cell
+        >
+        <fwb-table-head-cell class="min-w-36"
           >Time Estimate</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell class="min-w-36"
           >Date Due</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell class="min-w-36"
           >Date Added</fwb-table-head-cell
         >
         <fwb-table-head-cell class="min-w-36">

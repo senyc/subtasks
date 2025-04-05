@@ -60,7 +60,7 @@
         label="Show Completed"
         size="sm"
       />
-      <NewTask />
+      <div><NewTask /></div>
     </div>
   </section>
 </template>

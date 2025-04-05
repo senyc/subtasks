@@ -15,20 +15,21 @@
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
-      class="xl:min-w-52 min-w-36"
+      class="min-w-36"
       v-if="completed"
       >{{ reprDate(task.completed_date) }}</fwb-table-cell
     >
+    <fwb-table-cell class="min-w-36"> Tag </fwb-table-cell>
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
-      class="xl:min-w-52 min-w-36"
+      class="min-w-36"
       >{{ timeEstimate }}</fwb-table-cell
     >
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
-      class="xl:min-w-52 min-w-36"
+      class="min-w-36"
       :class="{
         'text-red-500': !completed && dateHasElapsed(new Date(task.due_date!)),
         'text-yellow-400': !completed && dateIsToday(new Date(task.due_date!)),
@@ -38,7 +39,7 @@
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
-      class="xl:min-w-52 min-w-36"
+      class="min-w-36"
       >{{ reprDate(task.created_at) }}</fwb-table-cell
     >
     <fwb-table-cell class="min-w-36">

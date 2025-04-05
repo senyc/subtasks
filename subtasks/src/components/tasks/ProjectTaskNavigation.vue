@@ -102,6 +102,7 @@
           :default-value="projectId"
           :options="projectOptions"
         />
+        <MultiSelect :options="projectOptions" v-model="selectedProjects" />
       </div>
     </Dropdown>
     <div class="flex flex-row items-center ml-auto">
@@ -143,8 +144,7 @@
           <svg
             :class="{
               'text-gray-800': tasksRemaining > pageSize,
-              'text-gray-800/30 cursor-not-allowed':
-                tasksRemaining <= pageSize,
+              'text-gray-800/30 cursor-not-allowed': tasksRemaining <= pageSize,
             }"
             class="size-9 dark:text-white"
             aria-hidden="true"
@@ -177,13 +177,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import SideSelectBox from "@components/shared/SideSelectBox.vue";
 import SearchBar from "@components/shared/SearchBar.vue";
 import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
+import MultiSelect from "@components/shared/MultiSelect.vue";
 
 const {
   completed = false,
@@ -215,9 +216,11 @@ const { data: projects } = useProjects({
   pageSize: 100,
 });
 
+const selectedProjects = ref([]);
+
 const projectOptions = computed(() =>
   projects.value?.projects.map((project) => {
-    return { value: project.id, label: project.title };
+    return { name: project.id, label: project.title };
   }),
 );
 
