@@ -21,7 +21,14 @@
     >
     <fwb-table-cell class="min-w-36">
       <div class="flex flex-row gap-1">
-        <Tag :color="tag.color" v-for="tag in task.tags">{{ tag.name }}</Tag>
+        <Tag :color="tag.color" v-for="tag in task.tags"
+          >{{ tag.name }}
+          <template #delete
+            ><button @click="() => deleteTag(tag.id)" class="cursor-pointer">
+              &times
+            </button></template
+          >
+        </Tag>
       </div>
     </fwb-table-cell>
     <fwb-table-cell
@@ -59,15 +66,18 @@
 </template>
 
 <script setup lang="ts">
-import { FwbTableCell, FwbTableRow, FwbCheckbox, FwbBadge } from "flowbite-vue";
+import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
 import type { Task } from "@annotations/task";
 import EditTask from "./EditTask.vue";
 import { reprDate, dateHasElapsed, dateIsToday } from "@utils/date";
 import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
 import Tag from "@components/shared/Tag.vue";
+import { useQueryClient } from "@tanstack/vue-query";
+import type { Tag as TagType } from "@annotations/tag";
 
 const showModal = ref(false);
+const queryClient = useQueryClient();
 
 const emit = defineEmits<{
   (e: "toggleChecked", id: number): void;
@@ -86,7 +96,7 @@ function onOpen() {
 
 const props = withDefaults(
   defineProps<{
-    task: Task;
+    task: Task & { tags: TagType[] };
     checked: boolean;
     projectId: number;
     completed?: boolean;
@@ -96,6 +106,21 @@ const props = withDefaults(
   },
 );
 
+async function deleteTag(tagId: number) {
+  const req = await fetch(`http://localhost:8000/task/${props.task.id}/tags`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(props.task.tags?.filter((tag) => tag.id != tagId)),
+  });
+
+  if (req.ok) {
+    queryClient.invalidateQueries({
+      queryKey: ["tasks"],
+    });
+  }
+}
 const clickTimeout = ref<number | null>(null);
 
 const handleClick = () => {

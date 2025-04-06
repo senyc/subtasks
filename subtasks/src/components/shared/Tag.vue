@@ -4,6 +4,7 @@
     :style="{ backgroundColor: color, color: textColor }"
   >
     <slot />
+    <slot name="delete" />
   </div>
 </template>
 <script setup lang="ts">
