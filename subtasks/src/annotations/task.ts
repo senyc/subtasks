@@ -1,4 +1,5 @@
 import type { Delta } from "@vueup/vue-quill";
+import type { Tag } from "./tag";
 
 export interface Task {
   title: string;
@@ -7,17 +8,18 @@ export interface Task {
   order: number;
   id: number;
   project_id: number;
-  due_date?: string
-  completed_date?: string
-  created_at?: string
-  time_estimate?: number
+  due_date?: string;
+  completed_date?: string;
+  created_at?: string;
+  time_estimate?: number;
 }
 
 export interface TaskDisplay {
   title: string;
   body: Delta;
   project_id?: number;
-  due_date?: string
-  completed_date?: string
-  time_estimate?: number
+  due_date?: string;
+  completed_date?: string;
+  time_estimate?: number;
+  tags?: Tag[];
 }

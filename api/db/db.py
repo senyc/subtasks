@@ -1,7 +1,7 @@
-from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlmodel import Field, Session, SQLModel, create_engine, Relationship
 from fastapi import Depends
 from pydantic import ConfigDict
-from typing import Annotated
+from typing import Annotated, List
 from datetime import datetime, timezone
 from pydantic import BeforeValidator
 from pathlib import Path
@@ -56,6 +56,23 @@ class Project(BaseSQLModel, table=True):
     completed_date: DueDate
     created_at: datetime = Field(default=datetime.now(), nullable=False)
     order: float = Field(default=0.0, nullable=False)
+
+
+class Tag(BaseSQLModel, table=True):
+    id: int = Field(primary_key=True)
+    name: str
+    description: str = Field(default=None, nullable=True)
+    type: str = Field(default="")
+
+
+class ProjectTag(BaseSQLModel, table=True):
+    project_id: int = Field(foreign_key="project.id", primary_key=True)
+    tag_id: int = Field(foreign_key="tag.id", primary_key=True)
+
+
+class TaskTag(BaseSQLModel, table=True):
+    task_id: int = Field(foreign_key="task.id", primary_key=True)
+    tag_id: int = Field(foreign_key="tag.id", primary_key=True)
 
 
 class Task(BaseSQLModel, table=True):

@@ -8,7 +8,7 @@
       class="absolute border border-gray-300 shadow-lg rounded-lg bg-white z-50 w-96 p-3"
       v-if="isOpen"
     >
-      <slot></slot>
+      <slot />
     </div>
   </div>
 </template>
@@ -19,14 +19,23 @@ import { onMounted, onUnmounted, ref } from "vue";
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 
-// closes the dropdown
+const isClickOnModalBackdrop = (event: MouseEvent): boolean => {
+  const target = event.target as HTMLElement;
+
+  // Check if the user is clicking on a modal or button
+  return target.classList.contains("h-modal") || !!target.closest("button");
+};
+
 const handleClickOutside = (event: MouseEvent): void => {
+  if (isClickOnModalBackdrop(event)) {
+    return;
+  }
+
   if (dropdownRef.value && !dropdownRef.value.contains(event.target as Node)) {
     isOpen.value = false;
   }
 };
 
-// Adds event handler to document that will close the dropdown
 onMounted(() => {
   document.addEventListener("click", handleClickOutside);
 });

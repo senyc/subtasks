@@ -44,7 +44,7 @@ export function useProjects({
     queryKey: [
       "projects",
       completed ? "completed" : "incomplete",
-      { search: search, pagbe: page, size: pageSize },
+      { search: search, page: page, size: pageSize },
     ],
 
     queryFn: () =>

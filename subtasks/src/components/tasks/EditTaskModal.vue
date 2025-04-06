@@ -28,8 +28,9 @@ import ProjectTaskForm from "./ProjectTaskForm.vue";
 const queryClient = useQueryClient();
 import type { Task, TaskDisplay } from "@annotations/task";
 import { Delta } from "@vueup/vue-quill";
+import type { Tag } from "@annotations/tag";
 const props = defineProps<{
-  task: Task;
+  task: Task & { tags: Tag[] };
   projectId?: number;
 }>();
 
@@ -44,7 +45,11 @@ async function onSubmit() {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify({ ...task, body: JSON.stringify(task.body) }),
+    body: JSON.stringify({
+      ...task,
+      due_date: task.due_date ? task.due_date : undefined,
+      body: JSON.stringify(task.body),
+    }),
   });
   if (res.ok) {
     emit("close");
@@ -66,5 +71,6 @@ const task = reactive<TaskDisplay>({
     : "",
   project_id: props.task.project_id,
   time_estimate: props.task.time_estimate,
+  tags: props.task.tags,
 });
 </script>

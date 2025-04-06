@@ -15,6 +15,11 @@
       :options="timeEstimateOptions"
       label="Time Estimate"
     />
+    <MultiSelect
+      v-model="task.tags"
+      :options="tags || []"
+      @search-change="(query: string) => (tagSearch = query)"
+    />
     <RichTextEditor v-model="task.body" />
     <fwb-input type="date" v-model="task.due_date!" label="Due Date" />
     <fwb-select
@@ -30,7 +35,6 @@
 </template>
 
 <script lang="ts" setup>
-// @ts-nocheck
 import type { Project } from "@annotations/project";
 import type { TaskDisplay } from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";
@@ -41,9 +45,12 @@ import {
   onMounted,
   onBeforeUnmount,
   onBeforeMount,
+  ref,
 } from "vue";
 
 import RichTextEditor from "@components/shared/RichTextEditor.vue";
+import MultiSelect from "@components/shared/MultiSelect.vue";
+import { useTags } from "@composables/useTags";
 
 const titleRef = useTemplateRef("titleRef");
 
@@ -56,17 +63,24 @@ const timeEstimateOptions = [
   { value: 120, name: "2h" },
   { value: 180, name: "3h" },
 ];
+
+const tagSearch = ref("");
+
 const { data } = useQuery({
   queryKey: ["projects", "all"],
   queryFn: async (): Promise<Project[]> => {
     const res = await fetch("http://localhost:8000/projects/all");
     if (!res.ok) {
-      throw "Failure getting tasks";
+      throw "Failure getting projects";
     }
     return res.json();
   },
 });
 
+const { data: tags } = useTags({
+  type: "tasks",
+  search: () => tagSearch.value,
+});
 // Warns the user if they are about to leave the page
 onBeforeUnmount(() => {
   window.onbeforeunload = null;

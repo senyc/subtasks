@@ -89,20 +89,24 @@
           />
         </svg>
       </template>
-      <div>
-        <SideSelectBox
-          @selected-option="
-            (option) =>
-              runForAll(
-                (id) => updateTaskProject(option.value, id),
-                ['tasks', projectId ?? ''],
-              )
-          "
-          label-text="Select Project"
-          :default-value="projectId"
-          :options="projectOptions"
-        />
-        <MultiSelect :options="projectOptions" v-model="selectedProjects" />
+      <div class="flex flex-col gap-3">
+        <div class="w-full">
+          <SideSelectBox
+            @selected-option="
+              (option) =>
+                runForAll(
+                  (id) => updateTaskProject(option.value, id),
+                  ['tasks', projectId ?? ''],
+                )
+            "
+            label-text="Select Project"
+            :default-value="projectId"
+            :options="projectOptions!"
+          />
+        </div>
+        <div class="w-fit">
+          <TagModalToggle />
+        </div>
       </div>
     </Dropdown>
     <div class="flex flex-row items-center ml-auto">
@@ -184,7 +188,7 @@ import SearchBar from "@components/shared/SearchBar.vue";
 import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
-import MultiSelect from "@components/shared/MultiSelect.vue";
+import TagModalToggle from "@components/tags/TagModalToggle.vue";
 
 const {
   completed = false,
@@ -216,11 +220,9 @@ const { data: projects } = useProjects({
   pageSize: 100,
 });
 
-const selectedProjects = ref([]);
-
 const projectOptions = computed(() =>
   projects.value?.projects.map((project) => {
-    return { name: project.id, label: project.title };
+    return { value: project.id, label: project.title };
   }),
 );
 

@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .db.db import create_db_and_tables
 from .tasks.tasks import task_router
 from .projects.projects import project_router
+from .tags.tags import tag_router
 
 
 @asynccontextmanager
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.include_router(task_router)
 app.include_router(project_router)
+app.include_router(tag_router)
 origins = [
     "*",
 ]

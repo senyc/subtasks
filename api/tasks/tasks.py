@@ -2,8 +2,10 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import desc, select, and_
 
+from ..tags.tags import get_task_tags, update_task_tags
+
 from ..shared.shared import new_task, get_task_count
-from ..projects.projects import PagedTasks
+from ..types.types import TaskData, PagedTasks
 
 from ..db.db import SessionDep, Task
 
@@ -21,16 +23,20 @@ def read_completed_tasks(
 ) -> PagedTasks:
     tasks = session.exec(
         select(Task)
-        .where(and_(Task.completed == True , Task.title.like("%" + search + "%")))  # type: ignore
+        .where(and_(Task.completed == True, Task.title.like("%" + search + "%")))  # type: ignore
         .offset(offset)
         .limit(limit)
         .order_by(desc(Task.order))
     ).all()
 
+    tasks_with_tags = [
+        TaskData(**task.model_dump(), tags=get_task_tags(task.id, session))
+        for task in tasks
+    ]
     if not tasks:
-        return PagedTasks(tasks=tasks, count=0)
+        return PagedTasks(tasks=tasks_with_tags, count=0)
     count = get_task_count(session, True, search)
-    return PagedTasks(tasks=tasks, count=count)
+    return PagedTasks(tasks=tasks_with_tags, count=count)
 
 
 @task_router.get("/tasks")
@@ -40,18 +46,28 @@ def read_tasks(
     limit: int = Query(default=100, le=100),
     search: str = "",
 ) -> PagedTasks:
+
     tasks = session.exec(
         select(Task)
-        .where(and_(Task.completed == False, Task.title.like("%" + search + "%")))  # type: ignore
+        .where(and_(Task.completed == False, Task.title.like(f"%{search}%")))  # type: ignore
+        .order_by(desc(Task.order))
         .offset(offset)
         .limit(limit)
-        .order_by(desc(Task.order))
     ).all()
 
     if not tasks:
-        return PagedTasks(tasks=tasks, count=0)
+        return PagedTasks(tasks=[], count=0)
     count = get_task_count(session, False, search)
-    return PagedTasks(tasks=tasks, count=count)
+
+    tasks_with_tags = [
+        TaskData(**task.model_dump(), tags=get_task_tags(task.id, session))
+        for task in tasks
+    ]
+
+    return PagedTasks(
+        tasks=tasks_with_tags,
+        count=count,
+    )
 
 
 @task_router.get("/task/{task_id}")
@@ -63,15 +79,28 @@ def read_task(task_id: int, session: SessionDep) -> Task:
 
 
 @task_router.patch("/task/{task_id}")
-def update_task(task_id: int, task: Task, session: SessionDep) -> Task | None:
+def update_task(task_id: int, task: TaskData, session: SessionDep) -> Task | None:
     updated_task = session.get(Task, task_id)
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
     # Only update values that are set in the request
-    for attr in ["time_estimate", "title", "body", "due_date", "project_id", "order"]:
+    for attr in [
+        "time_estimate",
+        "title",
+        "body",
+        "due_date",
+        "project_id",
+        "order",
+        "tags",
+    ]:
         value = getattr(task, attr, None)
         if value:
-            setattr(updated_task, attr, value)
+            # If tags we should put the new tags, otherwise just update the model
+            if attr == "tags":
+                print(value)
+                update_task_tags(task_id, value, session)
+            else:
+                setattr(updated_task, attr, value)
     session.commit()
     session.refresh(updated_task)
     return updated_task
