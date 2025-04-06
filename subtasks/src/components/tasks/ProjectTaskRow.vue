@@ -19,7 +19,11 @@
       v-if="completed"
       >{{ reprDate(task.completed_date) }}</fwb-table-cell
     >
-    <fwb-table-cell class="min-w-36"> Tag </fwb-table-cell>
+    <fwb-table-cell class="min-w-36">
+      <div class="flex flex-row gap-1">
+        <fwb-badge v-for="tag in task.tags">{{ tag.name }}</fwb-badge>
+      </div>
+    </fwb-table-cell>
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
@@ -55,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
+import { FwbTableCell, FwbTableRow, FwbCheckbox, FwbBadge } from "flowbite-vue";
 import type { Task } from "@annotations/task";
 import EditTask from "./EditTask.vue";
 import { reprDate, dateHasElapsed, dateIsToday } from "@utils/date";

@@ -23,11 +23,18 @@
 <script setup lang="ts">
 import type { Tag } from "@annotations/tag";
 import TagForm from "./TagForm.vue";
-import { FwbButton, FwbModal} from "flowbite-vue";
+import { FwbButton, FwbModal } from "flowbite-vue";
+import { useQueryClient } from "@tanstack/vue-query";
+
+const queryClient = useQueryClient();
 
 const props = defineProps<{
   tag: Tag;
-  type: "project" | "tag";
+  type: "projects" | "tasks";
+}>();
+
+const emit = defineEmits<{
+  (e: "close"): void;
 }>();
 
 async function onSubmit() {
@@ -40,7 +47,8 @@ async function onSubmit() {
     body: JSON.stringify({ ...props.tag, type: props.type }),
   });
   if (res.ok) {
-    console.log("okay");
+    queryClient.invalidateQueries({ queryKey: ["tags", () => props.type] });
+    emit("close");
   }
 }
 </script>

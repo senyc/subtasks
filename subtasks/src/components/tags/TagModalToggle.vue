@@ -21,7 +21,12 @@
       </svg>
     </template>
   </fwb-button>
-  <TagModal :tag="tag" type="tag" v-if="showModal" @close="showModal = false" />
+  <TagModal
+    :tag="tag"
+    type="tasks"
+    v-if="showModal"
+    @close="showModal = false"
+  />
 </template>
 
 <script setup lang="ts">

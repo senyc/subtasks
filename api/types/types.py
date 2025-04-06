@@ -8,13 +8,13 @@ from dataclasses import dataclass
 class TaskData(BaseSQLModel, table=False):
     id: Optional[int] = None
     project_id: int | None = None
-    title: str
-    body: str = ""
+    title: str | None = None
+    body: str | None = None
     completed: bool = False
     due_date: datetime | None = None
     completed_date: datetime | None = None
     created_at: datetime | None = None
-    time_estimate: int | None =None
+    time_estimate: int | None = None
     """Estimated minutes until completion in minutes"""
     order: float | None = None
     tags: Sequence[Tag] | None = None

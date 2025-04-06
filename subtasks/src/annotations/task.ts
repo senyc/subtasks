@@ -12,6 +12,7 @@ export interface Task {
   completed_date?: string;
   created_at?: string;
   time_estimate?: number;
+  tags?: Tag[];
 }
 
 export interface TaskDisplay {
