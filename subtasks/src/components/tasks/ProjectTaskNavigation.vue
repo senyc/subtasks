@@ -104,6 +104,17 @@
             :options="projectOptions!"
           />
         </div>
+        <MultiSelect
+          v-model="selectedTags"
+          :options="tags || []"
+          @search-change="(query: string) => (tagSearch = query)"
+        />
+        <FwbButton
+          @click="runForAll(addTag, ['tasks', projectId ?? ''])"
+          v-if="(selectedTags?.length || 0) > 0"
+          >Add tags to all</FwbButton
+        >
+
         <div class="w-fit">
           <TagModalToggle />
         </div>
@@ -189,6 +200,10 @@ import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
 import TagModalToggle from "@components/tags/TagModalToggle.vue";
+import { useTags } from "@composables/useTags";
+import MultiSelect from "@components/shared/MultiSelect.vue";
+import type { Tag } from "@annotations/tag";
+import { FwbButton } from "flowbite-vue";
 
 const {
   completed = false,
@@ -203,6 +218,15 @@ const {
   pageSize?: number;
   search?: string;
 }>();
+
+const tagSearch = ref("");
+
+const { data: tags } = useTags({
+  type: "tasks",
+  search: () => tagSearch.value,
+});
+
+const selectedTags = defineModel<Tag[]>();
 
 const { data, isSuccess } = useTasks({
   projectId: projectId ? () => projectId : undefined,
@@ -254,6 +278,16 @@ async function runForAll(func: (id: number) => void, key: (string | number)[]) {
   await Promise.all(checked.map((id) => func(id)));
   queryClient.invalidateQueries({ queryKey: key });
   clearCheckedTasks();
+}
+
+async function addTag(id: number) {
+  return fetch(`http://localhost:8000/task/${id}/tags`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(selectedTags.value),
+  });
 }
 
 async function completeTask(id: number) {

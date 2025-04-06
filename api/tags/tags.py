@@ -113,6 +113,22 @@ def update_task_tags(task_id: int, tags: Sequence[Tag], session: SessionDep):
     return {"message": "Tags updated successfully"}
 
 
+@tag_router.put("/task/{task_id}/tags/add")
+def add_task_tags(task_id: int, tags: Sequence[Tag], session: SessionDep):
+    existing_tags = session.exec(
+        select(TaskTag).where(TaskTag.task_id == task_id)
+    ).all()
+    existing_tag_ids = {tag.tag_id for tag in existing_tags}
+
+    for tag in tags:
+        if tag.id not in existing_tag_ids:
+            task_tag = TaskTag(task_id=task_id, tag_id=tag.id)
+            session.add(task_tag)
+
+    session.commit()
+    return {"message": "Tags added successfully"}
+
+
 @tag_router.delete("/tags/{tag_id}")
 def delete_tag(tag_id: int, session: SessionDep):
     db_tag = session.get(Tag, tag_id)
