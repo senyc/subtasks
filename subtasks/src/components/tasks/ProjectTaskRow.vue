@@ -21,7 +21,7 @@
     >
     <fwb-table-cell class="min-w-36">
       <div class="flex flex-row gap-1">
-        <fwb-badge v-for="tag in task.tags">{{ tag.name }}</fwb-badge>
+        <Tag :color="tag.color" v-for="tag in task.tags">{{ tag.name }}</Tag>
       </div>
     </fwb-table-cell>
     <fwb-table-cell
@@ -65,6 +65,7 @@ import EditTask from "./EditTask.vue";
 import { reprDate, dateHasElapsed, dateIsToday } from "@utils/date";
 import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
+import Tag from "@components/shared/Tag.vue";
 
 const showModal = ref(false);
 

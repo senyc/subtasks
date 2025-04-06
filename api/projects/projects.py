@@ -5,8 +5,9 @@ from collections.abc import Sequence
 
 
 from ..db.db import Project, SessionDep, Task
-from ..types.types import PagedProjectResponse, PagedTasks, ProjectResponse
+from ..types.types import PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
 from ..shared.shared import new_task
+from ..tags.tags import get_task_tags
 
 
 project_router = APIRouter(
@@ -187,11 +188,15 @@ def read_project_tasks(
         raise HTTPException(status_code=404, detail="Project not found")
 
     tasks = get_project_tasks(project_id, session, False, offset, limit, search)
+    tasks_with_tags = [
+        TaskData(**task.model_dump(), tags=get_task_tags(task.id, session))
+        for task in tasks
+    ]
     if not tasks:
-        return PagedTasks(tasks=tasks, count=0)
+        return PagedTasks(tasks=tasks_with_tags, count=0)
 
     count = get_project_task_count(project_id, session, False, search)
-    return PagedTasks(tasks=tasks, count=count)
+    return PagedTasks(tasks=tasks_with_tags, count=count)
 
 
 def get_project_tasks(
@@ -247,9 +252,12 @@ def read_completed_project_tasks(
 
     tasks = get_project_tasks(project_id, session, True, offset, limit, search)
 
+    tasks_with_tags = [
+        TaskData(**task.model_dump(), tags=get_task_tags(task.id, session))
+        for task in tasks
+    ]
     if not tasks:
-        return PagedTasks(tasks=tasks, count=0)
-
+        return PagedTasks(tasks=tasks_with_tags, count=0)
     count = get_project_task_count(project_id, session, True, search)
 
-    return PagedTasks(tasks=tasks, count=count)
+    return PagedTasks(tasks=tasks_with_tags, count=count)

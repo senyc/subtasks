@@ -63,6 +63,8 @@ class Tag(BaseSQLModel, table=True):
     name: str
     description: str = Field(default=None, nullable=True)
     type: str = Field(default="")
+    color: str = Field(default="#ADD8E6")
+    """Defaults to light blue"""
 
 
 class ProjectTag(BaseSQLModel, table=True):

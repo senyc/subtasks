@@ -9,25 +9,26 @@
       label="Tag Name"
       ref="nameRef"
     />
-    <fwb-input
-      type="text"
+    <fwb-textarea
       placeholder="Tag Description"
       v-model="tag.description"
       label="Tag Description"
     />
-    <fwb-input
-      class="w-fit"
-      type="color"
-      v-model="tag.color"
-      label="Tag Color"
-    />
+    <div class="w-fit">
+      <fwb-input
+        class="w-fit"
+        type="color"
+        v-model="tag.color"
+        label="Tag Color"
+      />
+    </div>
   </form>
 </template>
 
 <script lang="ts" setup>
 import type { Tag } from "@annotations/tag";
 import { ref } from "vue";
-import { FwbInput } from "flowbite-vue";
+import { FwbInput, FwbTextarea } from "flowbite-vue";
 
 const nameRef = ref(null);
 
