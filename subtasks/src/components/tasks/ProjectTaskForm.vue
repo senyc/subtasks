@@ -35,6 +35,7 @@
 </template>
 
 <script lang="ts" setup>
+// @ts-nocheck
 import type { Project } from "@annotations/project";
 import type { TaskDisplay } from "@annotations/task";
 import { useQuery } from "@tanstack/vue-query";

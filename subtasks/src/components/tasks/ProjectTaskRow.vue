@@ -24,7 +24,7 @@
         <Tag :color="tag.color" v-for="tag in task.tags"
           >{{ tag.name }}
           <template #delete
-            ><button @click="() => deleteTag(tag.id)" class="cursor-pointer">
+            ><button @click="() => deleteTag(tag.id!)" class="cursor-pointer">
               &times
             </button></template
           >
@@ -74,7 +74,6 @@ import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
 import Tag from "@components/shared/Tag.vue";
 import { useQueryClient } from "@tanstack/vue-query";
-import type { Tag as TagType } from "@annotations/tag";
 
 const showModal = ref(false);
 const queryClient = useQueryClient();
@@ -96,7 +95,7 @@ function onOpen() {
 
 const props = withDefaults(
   defineProps<{
-    task: Task & { tags: TagType[] };
+    task: Task;
     checked: boolean;
     projectId: number;
     completed?: boolean;

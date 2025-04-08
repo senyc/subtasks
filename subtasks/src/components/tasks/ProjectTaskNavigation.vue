@@ -106,7 +106,7 @@
         </div>
         <MultiSelect
           v-model="selectedTags"
-          :options="tags || []"
+          :options="tags!"
           @search-change="(query: string) => (tagSearch = query)"
         />
         <FwbButton

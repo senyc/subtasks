@@ -5,9 +5,9 @@ from collections.abc import Sequence
 
 
 from ..db.db import Project, SessionDep, Task
-from ..types.types import PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
+from ..types.types import NewTask, PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
 from ..shared.shared import new_task
-from ..tags.tags import get_task_tags
+from ..tags.tags import get_task_tags, update_task_tags
 
 
 project_router = APIRouter(
@@ -169,10 +169,14 @@ def incomplete_project(project_id, session: SessionDep) -> Project:
 
 @project_router.post("/project/{project_id}/task")
 def create_project_task(
-    project_id: int, task: Task, session: SessionDep
+    project_id: int, task: NewTask, session: SessionDep
 ) -> Task | None:
     task.project_id = project_id
-    return new_task(task, session)
+    task_item = Task(**task.model_dump())
+    created_task = new_task(task_item, session)
+    if task.tags:
+        update_task_tags(created_task.id, task.tags, session)
+    return created_task
 
 
 @project_router.get("/project/{project_id}/tasks")

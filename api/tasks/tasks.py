@@ -5,7 +5,7 @@ from sqlmodel import desc, select, and_
 from ..tags.tags import get_task_tags, update_task_tags
 
 from ..shared.shared import new_task, get_task_count
-from ..types.types import TaskData, PagedTasks
+from ..types.types import NewTask, TaskData, PagedTasks
 
 from ..db.db import SessionDep, Task
 
@@ -119,8 +119,12 @@ def delete_task(task_id: int, session: SessionDep) -> int | None:
 
 
 @task_router.post("/task")
-def create_task(task: Task, session: SessionDep) -> Task:
-    return new_task(task, session)
+def create_task(task: NewTask, session: SessionDep) -> Task:
+    task_item = Task(**task.model_dump())
+    created_task = new_task(task_item, session)
+    if task.tags:
+        update_task_tags(created_task.id, task.tags, session)
+    return created_task
 
 
 @task_router.patch("/task/{task_id}/complete")

@@ -33,6 +33,6 @@ import { FwbInput, FwbTextarea } from "flowbite-vue";
 const nameRef = ref(null);
 
 defineProps<{
-  tag: Tag;
+  tag: Omit<Tag, "id">;
 }>();
 </script>

@@ -14,13 +14,13 @@ async function getProjects({
   pageSize: number;
   search: string;
 }): Promise<{ projects: ProjectResponse[]; count: number }> {
-  const [offset, limit] = calculateOffsetLimit({
+  const [offset, _] = calculateOffsetLimit({
     page: page,
     pageSize: pageSize,
   });
 
   const res = await fetch(
-    `http://localhost:8000/projects${completed ? "/completed" : ""}?offset=${offset}&limt=${limit}&search=${search}`,
+    `http://localhost:8000/projects${completed ? "/completed" : ""}?offset=${offset}&limt=${pageSize}&search=${search}`,
   );
   if (!res.ok) {
     throw new Error("Cannot fetch projects");

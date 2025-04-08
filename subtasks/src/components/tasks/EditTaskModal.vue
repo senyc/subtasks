@@ -28,9 +28,8 @@ import ProjectTaskForm from "./ProjectTaskForm.vue";
 const queryClient = useQueryClient();
 import type { Task, TaskDisplay } from "@annotations/task";
 import { Delta } from "@vueup/vue-quill";
-import type { Tag } from "@annotations/tag";
 const props = defineProps<{
-  task: Task & { tags: Tag[] };
+  task: Task;
   projectId?: number;
 }>();
 

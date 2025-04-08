@@ -35,7 +35,7 @@ import { FwbButton } from "flowbite-vue";
 import TagModal from "./TagModal.vue";
 import { ref } from "vue";
 const showModal = ref(false);
-const tag: Tag = {
+const tag: Omit<Tag, "id"> = {
   description: "",
   name: "",
   color: "",

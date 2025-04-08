@@ -29,7 +29,7 @@ import { useQueryClient } from "@tanstack/vue-query";
 const queryClient = useQueryClient();
 
 const props = defineProps<{
-  tag: Tag;
+  tag: Omit<Tag, "id">;
   type: "projects" | "tasks";
 }>();
 
