@@ -20,7 +20,7 @@
       :options="tags || []"
       @search-change="(query: string) => (tagSearch = query)"
     />
-    <RichTextEditor v-model="task.body" />
+    <RichTextEditor @submit="$emit('onSubmit')" v-model="task.body" />
     <fwb-input type="date" v-model="task.due_date!" label="Due Date" />
     <fwb-select
       v-model="task.project_id as string"
