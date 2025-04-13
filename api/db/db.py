@@ -83,8 +83,8 @@ class Task(BaseSQLModel, table=True):
     title: str
     body: str
     completed: bool = Field(default=False)
-    due_date: DueDate = Field(default=False)
-    completed_date: DueDate = Field(default=False)
+    due_date: DueDate
+    completed_date: DueDate
     created_at: datetime = Field(default=datetime.now(), nullable=False)
     time_estimate: int = Field(default=15, nullable=False)
     """Estimated minutes until completion in minutes"""
