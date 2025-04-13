@@ -52,4 +52,6 @@ def get_ids_from_search(search: str, session: SessionDep):
                         select(TaskTag.task_id).where(TaskTag.tag_id == tag_record.id)
                     ).all()
                 )
+    else:
+        return [], search
     return task_ids, remaining_search_text
