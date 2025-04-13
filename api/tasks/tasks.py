@@ -4,7 +4,7 @@ from sqlmodel import desc, select, and_
 
 from ..tags.tags import get_task_tags, update_task_tags
 
-from ..shared.shared import new_task, get_task_count
+from ..shared.shared import get_ids_from_search, new_task, get_task_count
 from ..types.types import NewTask, TaskData, PagedTasks
 
 from ..db.db import SessionDep, Task
@@ -47,14 +47,13 @@ def read_tasks(
     search: str = "",
 ) -> PagedTasks:
 
-    tasks = session.exec(
-        select(Task)
-        .where(and_(Task.completed == False, Task.title.like(f"%{search}%")))  # type: ignore
-        .order_by(desc(Task.order))
-        .offset(offset)
-        .limit(limit)
-    ).all()
-
+    task_ids, search_text = get_ids_from_search(search, session)
+    tasks_query = select(Task).where(Task.completed == False)
+    if task_ids:
+        tasks_query = tasks_query.where(Task.id.in_(task_ids))  # type: ignore
+    tasks_query = tasks_query.where(Task.title.like(f"%{search_text}%"))  # type: ignore
+    tasks_query = tasks_query.order_by(desc(Task.order)).offset(offset).limit(limit)
+    tasks = session.exec(tasks_query).all()
     if not tasks:
         return PagedTasks(tasks=[], count=0)
     count = get_task_count(session, False, search)
