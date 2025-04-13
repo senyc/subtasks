@@ -8,6 +8,7 @@ import CompletedProjectTasks from "./views/CompletedProjectTasks.vue";
 import CompletedProjects from "./views/CompletedProjects.vue";
 import Tasks from "./views/Tasks.vue";
 import CompletedTasks from "./views/CompletedTasks.vue";
+import Tags from "./views/Tags.vue";
 
 const routes = [
   { path: "", component: Projects, name: "root" },
@@ -30,6 +31,7 @@ const routes = [
   },
   { path: "/projects/:id", component: Projects, name: "project" },
   { path: "/tasks", component: Tasks, name: "tasks" },
+  { path: "/tasks/tags/edit", component: Tags, name: "tags" },
   { path: "/tasks/completed", component: CompletedTasks, name: "completedTasks" },
 ];
 

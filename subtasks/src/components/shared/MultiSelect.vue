@@ -78,7 +78,7 @@ const computedOptions = computed(() => {
 
 const handleSelect = (option: Option) => {
   if (option.id === -1) {
-    router.push("/tags/edit");
+    router.push("/tasks/tags/edit");
   }
 };
 </script>

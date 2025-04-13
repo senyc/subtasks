@@ -38,13 +38,15 @@ def get_tags(
     return tags
 
 
-@tag_router.put("/tag/{tag_id}")
+@tag_router.patch("/tag/{tag_id}")
 def update_tag(tag_id: int, tag: Tag, session: SessionDep):
     updated_tag = session.get(Tag, tag_id)
     if not updated_tag:
         raise HTTPException(status_code=404, detail="Tag not found")
-    for key, value in tag.model_dump():
-        setattr(updated_tag, key, value)
+    for attr in ["color", "name", "description", "type"]:
+        value = getattr(tag, attr, None)
+        if value:
+            setattr(updated_tag, attr, value)
     session.commit()
     session.refresh(updated_tag)
     return updated_tag
@@ -131,7 +133,7 @@ def add_task_tags(task_id: int, tags: Sequence[Tag], session: SessionDep):
     return {"message": "Tags added successfully"}
 
 
-@tag_router.delete("/tags/{tag_id}")
+@tag_router.delete("/tag/{tag_id}")
 def delete_tag(tag_id: int, session: SessionDep):
     db_tag = session.get(Tag, tag_id)
     if not db_tag:
@@ -140,8 +142,13 @@ def delete_tag(tag_id: int, session: SessionDep):
         select(ProjectTag).where(ProjectTag.tag_id == tag_id)
     ).all()
     task_tags = session.exec(select(TaskTag).where(TaskTag.tag_id == tag_id)).all()
-    session.delete(task_tags)
-    session.delete(project_tags)
+
+    for task_tag in task_tags:
+        session.delete(task_tag)
+
+    for project_tag in project_tags:
+        session.delete(project_tag)
+
     session.delete(db_tag)
     session.commit()
     return {"message": "Tag deleted successfully"}

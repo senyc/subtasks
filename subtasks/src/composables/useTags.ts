@@ -5,12 +5,16 @@ import type { Tag } from "@annotations/tag";
 async function getTags({
   type,
   search,
+  limit,
+  offset,
 }: {
   type: "projects" | "tasks";
   search: string;
+  limit: number;
+  offset: number;
 }): Promise<Tag[]> {
   const res = await fetch(
-    `http://localhost:8000/tags/${type}?offset=${0}&limit=${5}&search=${search}`,
+    `http://localhost:8000/tags/${type}?offset=${offset}&limit=${limit}&search=${search}`,
   );
   if (!res.ok) {
     throw new Error("Cannot fetch tags");
@@ -19,12 +23,16 @@ async function getTags({
   return res.json();
 }
 
-export function useTags({
+export default function useTags({
   type,
   search = "",
+  limit = 5,
+  offset = 0,
 }: {
   type: "projects" | "tasks";
   search?: MaybeRefOrGetter<string>;
+  limit?: number;
+  offset?: number;
 }) {
   return useQuery({
     placeholderData: keepPreviousData,
@@ -32,7 +40,9 @@ export function useTags({
 
     queryFn: () =>
       getTags({
-        type: type,
+        offset,
+        limit,
+        type,
         search: toValue(search),
       }),
   });

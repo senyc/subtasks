@@ -53,7 +53,7 @@ import {
 
 import RichTextEditor from "@components/shared/RichTextEditor.vue";
 import MultiSelect from "@components/shared/MultiSelect.vue";
-import { useTags } from "@composables/useTags";
+import useTags from "@composables/useTags";
 
 const titleRef = useTemplateRef("titleRef");
 

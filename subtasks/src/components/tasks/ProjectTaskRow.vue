@@ -61,7 +61,7 @@
       >{{ reprDate(task.created_at) }}</fwb-table-cell
     >
     <fwb-table-cell class="min-w-36">
-      <EditTask @click="onOpen" />
+      <EditButton @click="onOpen" />
     </fwb-table-cell>
   </fwb-table-row>
   <EditTaskModal
@@ -75,13 +75,13 @@
 <script setup lang="ts">
 import { FwbTableCell, FwbTableRow, FwbCheckbox } from "flowbite-vue";
 import type { Task } from "@annotations/task";
-import EditTask from "./EditTask.vue";
 import { reprDate, dateHasElapsed, dateIsToday } from "@utils/date";
 import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
 import Tag from "@components/shared/Tag.vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import useProject from "@composables/useProject";
+import EditButton from "@components/shared/EditButton.vue";
 
 const showModal = ref(false);
 const queryClient = useQueryClient();

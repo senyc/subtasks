@@ -21,7 +21,7 @@
       </svg>
     </template>
   </fwb-button>
-  <TagModal
+  <NewTagModal
     :tag="tag"
     type="tasks"
     v-if="showModal"
@@ -32,8 +32,8 @@
 <script setup lang="ts">
 import type { Tag } from "@annotations/tag";
 import { FwbButton } from "flowbite-vue";
-import TagModal from "./TagModal.vue";
 import { ref } from "vue";
+import NewTagModal from "./NewTagModal.vue";
 const showModal = ref(false);
 const tag: Omit<Tag, "id"> = {
   description: "",

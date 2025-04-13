@@ -114,10 +114,6 @@
           v-if="(selectedTags?.length || 0) > 0"
           >Add tags to all</FwbButton
         >
-
-        <div class="w-fit">
-          <TagModalToggle />
-        </div>
       </div>
     </Dropdown>
     <div class="flex flex-row items-center ml-auto">
@@ -200,7 +196,7 @@ import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
 import TagModalToggle from "@components/tags/TagModalToggle.vue";
-import { useTags } from "@composables/useTags";
+import useTags from "@composables/useTags";
 import MultiSelect from "@components/shared/MultiSelect.vue";
 import type { Tag } from "@annotations/tag";
 import { FwbButton } from "flowbite-vue";
