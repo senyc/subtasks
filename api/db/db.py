@@ -35,7 +35,7 @@ class BaseSQLModel(SQLModel):
 
 
 def convert_to_date(s: str | datetime | None) -> datetime | None:
-    if s is None or s == "":
+    if not s or s == "":
         return None
     if isinstance(s, datetime):
         return s
@@ -83,8 +83,8 @@ class Task(BaseSQLModel, table=True):
     title: str
     body: str
     completed: bool = Field(default=False)
-    due_date: DueDate
-    completed_date: DueDate
+    due_date: DueDate = Field(default=False)
+    completed_date: DueDate = Field(default=False)
     created_at: datetime = Field(default=datetime.now(), nullable=False)
     time_estimate: int = Field(default=15, nullable=False)
     """Estimated minutes until completion in minutes"""

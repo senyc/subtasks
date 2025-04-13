@@ -17,6 +17,7 @@
           with p; [
             fastapi
             sqlmodel
+            pytest
           ]))
         fastapi-cli
         sqlite
