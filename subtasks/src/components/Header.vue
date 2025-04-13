@@ -34,5 +34,5 @@
 <script setup lang="ts">
 import Navbar from "./shared/Navbar.vue";
 import { FwbNavbarCollapse } from "flowbite-vue";
-defineProps<{ active: "projects" | "tasks" | "calendar" }>();
+defineProps<{ active?: "projects" | "tasks" | "calendar" }>();
 </script>

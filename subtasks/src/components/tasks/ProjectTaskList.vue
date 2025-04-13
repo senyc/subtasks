@@ -13,18 +13,18 @@
           />
         </fwb-table-head-cell>
         <fwb-table-head-cell class="grow w-1/2">Task Name</fwb-table-head-cell>
-        <fwb-table-head-cell v-if="completed" class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell class="min-w-36"></fwb-table-head-cell>
+        <fwb-table-head-cell v-if="showProjectName" class="w-64"
+          >Project</fwb-table-head-cell
+        >
+        <fwb-table-head-cell v-if="completed" class="min-w-36"
           >Date Completed</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
+        <fwb-table-head-cell class="min-w-36"
           >Time Estimate</fwb-table-head-cell
         >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Date Due</fwb-table-head-cell
-        >
-        <fwb-table-head-cell class="xl:min-w-52 min-w-36"
-          >Date Added</fwb-table-head-cell
-        >
+        <fwb-table-head-cell class="min-w-36">Date Due</fwb-table-head-cell>
+        <fwb-table-head-cell class="min-w-36">Date Added</fwb-table-head-cell>
         <fwb-table-head-cell class="min-w-36">
           <span class="sr-only">Edit</span>
         </fwb-table-head-cell>
@@ -39,6 +39,7 @@
         v-model="tasks"
       >
         <ProjectTaskRow
+          :show-project-name="showProjectName"
           v-if="tasks && tasks.length > 0"
           v-for="task in tasks"
           :completed="completed"
@@ -82,12 +83,14 @@ const {
   page,
   pageSize = 20,
   search = "",
+  showProjectName = false,
 } = defineProps<{
   projectId?: number;
   completed?: boolean;
   page: number;
   pageSize?: number;
   search: string;
+  showProjectName?: boolean;
 }>();
 
 const { data, isFetched } = useTasks({

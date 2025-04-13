@@ -7,6 +7,7 @@
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />
     <ProjectTaskList
+      show-project-name
       :search="$route.query?.search as string"
       :page="parseInt(($route.query?.page as string) ?? '1')"
     />

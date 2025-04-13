@@ -9,9 +9,16 @@ async function getProject(id: number): Promise<Project> {
   return res.json();
 }
 
-export default ({ id, enabled = true }: { id: number; enabled?: boolean }) =>
-  useQuery({
+export default function useProject({
+  id,
+  enabled = true,
+}: {
+  id: number;
+  enabled?: boolean;
+}) {
+  return useQuery({
     enabled: enabled,
     queryKey: ["project", id],
     queryFn: () => getProject(id),
   });
+}

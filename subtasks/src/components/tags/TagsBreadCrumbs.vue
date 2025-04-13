@@ -29,12 +29,12 @@
         </template>
         <RouterLink
           class="text-gray-700 hover:text-gray-900 dark:hover:text-white text-[17px]"
-          :to="completed ? '/tasks' : '#'"
+          to="/tasks"
         >
           Tasks
         </RouterLink>
       </fwb-breadcrumb-item>
-      <fwb-breadcrumb-item class="text-xl" v-if="completed" href="#">
+      <fwb-breadcrumb-item class="text-xl" href="#">
         <template #arrow-icon>
           <svg
             class="mr-1 size-7 text-gray-400"
@@ -49,52 +49,18 @@
             />
           </svg>
         </template>
-        <p class="text-[17px]">Completed</p>
+        <p class="text-[17px]">Tags</p>
       </fwb-breadcrumb-item>
     </fwb-breadcrumb>
     <div class="flex gap-5 items-center ml-auto">
-      <fwb-toggle
-        :model-value="completed"
-        @change="toggleIncomplete"
-        reverse
-        label="Show Completed"
-        size="sm"
-      />
-      <div><NewTask /></div>
+      <div><TagModalToggle /></div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { FwbBreadcrumb, FwbBreadcrumbItem, FwbToggle } from "flowbite-vue";
-import { useRoute, useRouter } from "vue-router";
+import { FwbBreadcrumb, FwbBreadcrumbItem } from "flowbite-vue";
 
-import NewTask from "@components/tasks/NewTask.vue";
-const route = useRoute();
-const router = useRouter();
+import TagModalToggle from "./TagModalToggle.vue";
 
-const props = withDefaults(
-  defineProps<{
-    completed?: boolean;
-    showProjectName?: boolean;
-  }>(),
-  {
-    completed: false,
-    showProjectName: false,
-  },
-);
-
-function toggleIncomplete() {
-  if (props.completed) {
-    router.push({
-      path: route.path.replace("/completed", "/"),
-      query: route.query,
-    });
-  } else {
-    router.push({
-      path: `${route.path.replace(/\/$/, "")}/completed`,
-      query: route.query,
-    });
-  }
-}
 </script>

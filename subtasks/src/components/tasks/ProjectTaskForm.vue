@@ -4,6 +4,7 @@
     class="flex flex-col gap-3 text-left"
   >
     <fwb-input
+      spellcheck="true"
       @keydown.enter="$emit('onSubmit')"
       placeholder="Task Title"
       v-model="task.title"
@@ -15,7 +16,13 @@
       :options="timeEstimateOptions"
       label="Time Estimate"
     />
-    <RichTextEditor v-model="task.body" />
+    <label class="text-sm font-medium">Tags</label>
+    <MultiSelect
+      v-model="task.tags"
+      :options="tags || []"
+      @search-change="(query: string) => (tagSearch = query)"
+    />
+    <RichTextEditor @submit="$emit('onSubmit')" v-model="task.body" />
     <fwb-input type="date" v-model="task.due_date!" label="Due Date" />
     <fwb-select
       v-model="task.project_id as string"
@@ -41,9 +48,12 @@ import {
   onMounted,
   onBeforeUnmount,
   onBeforeMount,
+  ref,
 } from "vue";
 
 import RichTextEditor from "@components/shared/RichTextEditor.vue";
+import MultiSelect from "@components/shared/MultiSelect.vue";
+import useTags from "@composables/useTags";
 
 const titleRef = useTemplateRef("titleRef");
 
@@ -55,18 +65,27 @@ const timeEstimateOptions = [
   { value: 90, name: "1.5h" },
   { value: 120, name: "2h" },
   { value: 180, name: "3h" },
+  { value: 240, name: "4h" },
+  { value: 300, name: "5h" },
 ];
+
+const tagSearch = ref("");
+
 const { data } = useQuery({
   queryKey: ["projects", "all"],
   queryFn: async (): Promise<Project[]> => {
     const res = await fetch("http://localhost:8000/projects/all");
     if (!res.ok) {
-      throw "Failure getting tasks";
+      throw "Failure getting projects";
     }
     return res.json();
   },
 });
 
+const { data: tags } = useTags({
+  type: "tasks",
+  search: () => tagSearch.value,
+});
 // Warns the user if they are about to leave the page
 onBeforeUnmount(() => {
   window.onbeforeunload = null;

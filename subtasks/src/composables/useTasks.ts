@@ -16,12 +16,12 @@ async function getTasks({
   pageSize: number;
   search?: string;
 }): Promise<{ tasks: Task[]; count: number }> {
-  const [offset, limit] = calculateOffsetLimit({
+  const [offset, _] = calculateOffsetLimit({
     page: page,
     pageSize: pageSize,
   });
   const res = await fetch(
-    `http://localhost:8000${projectId ? `/project/${projectId}` : "" }/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${limit}&search=${search}`,
+    `http://localhost:8000${projectId ? `/project/${projectId}` : "" }/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${pageSize}&search=${search}`,
   );
 
   if (!res.ok) {

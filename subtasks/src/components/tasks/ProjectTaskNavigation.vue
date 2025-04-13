@@ -89,19 +89,31 @@
           />
         </svg>
       </template>
-      <div>
-        <SideSelectBox
-          @selected-option="
-            (option) =>
-              runForAll(
-                (id) => updateTaskProject(option.value, id),
-                ['tasks', projectId ?? ''],
-              )
-          "
-          label-text="Select Project"
-          :default-value="projectId"
-          :options="projectOptions"
+      <div class="flex flex-col gap-3">
+        <div class="w-full">
+          <SideSelectBox
+            @selected-option="
+              (option) =>
+                runForAll(
+                  (id) => updateTaskProject(option.value, id),
+                  ['tasks', projectId ?? ''],
+                )
+            "
+            label-text="Select Project"
+            :default-value="projectId"
+            :options="projectOptions!"
+          />
+        </div>
+        <MultiSelect
+          v-model="selectedTags"
+          :options="tags!"
+          @search-change="(query: string) => (tagSearch = query)"
         />
+        <FwbButton
+          @click="runForAll(addTag, ['tasks', projectId ?? ''])"
+          v-if="(selectedTags?.length || 0) > 0"
+          >Add tags to all</FwbButton
+        >
       </div>
     </Dropdown>
     <div class="flex flex-row items-center ml-auto">
@@ -143,8 +155,7 @@
           <svg
             :class="{
               'text-gray-800': tasksRemaining > pageSize,
-              'text-gray-800/30 cursor-not-allowed':
-                tasksRemaining <= pageSize,
+              'text-gray-800/30 cursor-not-allowed': tasksRemaining <= pageSize,
             }"
             class="size-9 dark:text-white"
             aria-hidden="true"
@@ -177,13 +188,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject } from "vue";
+import { computed, inject, ref } from "vue";
 import { useQueryClient } from "@tanstack/vue-query";
 import SideSelectBox from "@components/shared/SideSelectBox.vue";
 import SearchBar from "@components/shared/SearchBar.vue";
 import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
+import TagModalToggle from "@components/tags/TagModalToggle.vue";
+import useTags from "@composables/useTags";
+import MultiSelect from "@components/shared/MultiSelect.vue";
+import type { Tag } from "@annotations/tag";
+import { FwbButton } from "flowbite-vue";
 
 const {
   completed = false,
@@ -198,6 +214,15 @@ const {
   pageSize?: number;
   search?: string;
 }>();
+
+const tagSearch = ref("");
+
+const { data: tags } = useTags({
+  type: "tasks",
+  search: () => tagSearch.value,
+});
+
+const selectedTags = defineModel<Tag[]>();
 
 const { data, isSuccess } = useTasks({
   projectId: projectId ? () => projectId : undefined,
@@ -249,6 +274,16 @@ async function runForAll(func: (id: number) => void, key: (string | number)[]) {
   await Promise.all(checked.map((id) => func(id)));
   queryClient.invalidateQueries({ queryKey: key });
   clearCheckedTasks();
+}
+
+async function addTag(id: number) {
+  return fetch(`http://localhost:8000/task/${id}/tags`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(selectedTags.value),
+  });
 }
 
 async function completeTask(id: number) {

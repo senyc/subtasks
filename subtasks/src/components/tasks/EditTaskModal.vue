@@ -44,7 +44,11 @@ async function onSubmit() {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: JSON.stringify({ ...task, body: JSON.stringify(task.body) }),
+    body: JSON.stringify({
+      ...task,
+      due_date: task.due_date ? task.due_date : undefined,
+      body: JSON.stringify(task.body),
+    }),
   });
   if (res.ok) {
     emit("close");
@@ -66,5 +70,6 @@ const task = reactive<TaskDisplay>({
     : "",
   project_id: props.task.project_id,
   time_estimate: props.task.time_estimate,
+  tags: props.task.tags,
 });
 </script>

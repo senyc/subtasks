@@ -69,7 +69,7 @@ async function onSubmit() {
     // Reset the new task data
     task.title = ""
     task.body = new Delta()
-    task.due_date = ""
+    task.due_date = undefined
   }
 }
 </script>
