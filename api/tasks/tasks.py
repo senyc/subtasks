@@ -93,14 +93,15 @@ def update_task(task_id: int, task: TaskData, session: SessionDep) -> Task | Non
         "order",
         "tags",
     ]:
+
         value = getattr(task, attr, None)
-        if value:
-            # If tags we should put the new tags, otherwise just update the model
-            if attr == "tags":
-                print(value)
-                update_task_tags(task_id, value, session)
-            else:
-                setattr(updated_task, attr, value)
+        if value is None:
+            continue
+        # If tags we should put the new tags, otherwise just update the model
+        if attr == "tags":
+            update_task_tags(task_id, value, session)
+        else:
+            setattr(updated_task, attr, value)
     session.commit()
     session.refresh(updated_task)
     return updated_task
@@ -122,8 +123,7 @@ def delete_task(task_id: int, session: SessionDep) -> int | None:
 def create_task(task: NewTask, session: SessionDep) -> Task:
     task_item = Task(**task.model_dump())
     created_task = new_task(task_item, session)
-    if task.tags:
-        update_task_tags(created_task.id, task.tags, session)
+    update_task_tags(created_task.id, task.tags, session)
     return created_task
 
 

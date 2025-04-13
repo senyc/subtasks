@@ -1,6 +1,6 @@
 <template>
   <div
-    class="px-2.5 py-0.5 rounded-sm select-none me-2 font-bold"
+    class="px-2.5 py-0.5 text-nowrap rounded-md select-none me-2 font-bold"
     :style="{ backgroundColor: color, color: textColor }"
   >
     <slot />

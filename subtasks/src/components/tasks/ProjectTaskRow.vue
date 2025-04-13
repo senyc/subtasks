@@ -12,6 +12,25 @@
         {{ task.title }}
       </h3>
     </fwb-table-cell>
+    <fwb-table-cell class="min-w-36">
+      <div class="flex flex-row gap-1">
+        <Tag :color="tag.color" v-for="tag in task.tags"
+        >{{ tag.name }}
+          <template #delete
+          ><button @click="() => deleteTag(tag.id!)" class="cursor-pointer">
+              &times
+            </button></template
+          >
+        </Tag>
+      </div>
+    </fwb-table-cell>
+    <fwb-table-cell
+      v-if="showProjectName"
+      @click="handleClick"
+      @dblclick="handleDoubleClick"
+      class="w-64"
+      >{{ project?.title }}</fwb-table-cell
+    >
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
@@ -19,18 +38,6 @@
       v-if="completed"
       >{{ reprDate(task.completed_date) }}</fwb-table-cell
     >
-    <fwb-table-cell class="min-w-36">
-      <div class="flex flex-row gap-1">
-        <Tag :color="tag.color" v-for="tag in task.tags"
-          >{{ tag.name }}
-          <template #delete
-            ><button @click="() => deleteTag(tag.id!)" class="cursor-pointer">
-              &times
-            </button></template
-          >
-        </Tag>
-      </div>
-    </fwb-table-cell>
     <fwb-table-cell
       @click="handleClick"
       @dblclick="handleDoubleClick"
@@ -74,6 +81,7 @@ import { computed, onUnmounted, ref } from "vue";
 import EditTaskModal from "./EditTaskModal.vue";
 import Tag from "@components/shared/Tag.vue";
 import { useQueryClient } from "@tanstack/vue-query";
+import useProject from "@composables/useProject";
 
 const showModal = ref(false);
 const queryClient = useQueryClient();
@@ -87,6 +95,7 @@ function onClose() {
   showModal.value = false;
   emit("toggleModal");
 }
+
 function onOpen() {
   showModal.value = true;
 
@@ -99,11 +108,15 @@ const props = withDefaults(
     checked: boolean;
     projectId: number;
     completed?: boolean;
+    showProjectName?: boolean
   }>(),
   {
     completed: false,
+    showProjectName: false
   },
 );
+
+const { data: project } = useProject({ id: props.projectId, enabled: true });
 
 async function deleteTag(tagId: number) {
   const req = await fetch(`http://localhost:8000/task/${props.task.id}/tags`, {

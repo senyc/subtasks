@@ -1,7 +1,8 @@
 <template>
   <Multiselect
     v-model="modelValue"
-    :options="props.options"
+    :options="computedOptions"
+    ref="multiselectRef"
     placeholder="Pick one or type to add"
     selectLabel=""
     :internal-search="false"
@@ -11,7 +12,7 @@
     track-by="name"
     multiple
     :close-on-select="false"
-    :clear-on-select="false"
+    @select="handleSelect"
   >
     <template #tag="{ option }">
       <span
@@ -35,16 +36,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import Multiselect from "vue-multiselect";
 import "vue-multiselect/dist/vue-multiselect.min.css";
+import { useRouter } from "vue-router";
 
+const multiselectRef = ref(null);
 interface Option {
   id: number;
   name: string;
   color: string;
 }
+
 const modelValue = defineModel<Option[]>();
+const router = useRouter();
 
 const removeTag = (id: number) => {
   modelValue.value = modelValue.value?.filter((value) => value.id != id);
@@ -62,9 +67,20 @@ const textColor = computed(() => {
     return `rgb(${darken(r)}, ${darken(g)}, ${darken(b)})`;
   };
 });
+
 const props = defineProps<{
   options: Option[];
 }>();
+
+const computedOptions = computed(() => {
+  return [...props.options, { id: -1, name: "🖊️ Edit tags", color: "#ffffff" }];
+});
+
+const handleSelect = (option: Option) => {
+  if (option.id === -1) {
+    router.push("/tags/edit");
+  }
+};
 </script>
 
 <style>

@@ -4,6 +4,7 @@
     class="flex flex-col gap-3 text-left"
   >
     <fwb-input
+      spellcheck="true"
       @keydown.enter="$emit('onSubmit')"
       placeholder="Task Title"
       v-model="task.title"
@@ -15,6 +16,7 @@
       :options="timeEstimateOptions"
       label="Time Estimate"
     />
+    <label class="text-sm font-medium">Tags</label>
     <MultiSelect
       v-model="task.tags"
       :options="tags || []"
@@ -63,6 +65,8 @@ const timeEstimateOptions = [
   { value: 90, name: "1.5h" },
   { value: 120, name: "2h" },
   { value: 180, name: "3h" },
+  { value: 240, name: "4h" },
+  { value: 300, name: "5h" },
 ];
 
 const tagSearch = ref("");

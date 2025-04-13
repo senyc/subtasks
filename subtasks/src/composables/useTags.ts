@@ -10,7 +10,7 @@ async function getTags({
   search: string;
 }): Promise<Tag[]> {
   const res = await fetch(
-    `http://localhost:8000/tags/${type}?offset=${0}&limt=${5}&search=${search}`,
+    `http://localhost:8000/tags/${type}?offset=${0}&limit=${5}&search=${search}`,
   );
   if (!res.ok) {
     throw new Error("Cannot fetch tags");

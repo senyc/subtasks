@@ -5,6 +5,7 @@
       v-model:content="modelValue"
       theme="snow"
       toolbar="#my-toolbar"
+      :modules="modules"
     >
       <template #toolbar>
         <div id="my-toolbar">
@@ -36,7 +37,15 @@ import { onMounted, nextTick, ref } from "vue";
 
 const modelValue = defineModel<Delta>();
 const editorRef = ref();
+import BlotFormatter from "quill-blot-formatter";
 
+const modules = {
+  name: "blotFormatter",
+  module: BlotFormatter,
+  options: {
+    /* options */
+  },
+};
 const emit = defineEmits<{
   (e: "submit"): void;
 }>();

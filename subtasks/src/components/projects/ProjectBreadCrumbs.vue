@@ -94,7 +94,7 @@
 import { FwbBreadcrumb, FwbBreadcrumbItem, FwbToggle } from "flowbite-vue";
 import { useRoute, useRouter } from "vue-router";
 
-import useProject from "../../composables/project";
+import useProject from "../../composables/useProject";
 import NewProject from "./NewProject.vue";
 import NewTask from "@components/tasks/NewTask.vue";
 const route = useRoute();

@@ -94,7 +94,9 @@ def get_task_tags(task_id: int, session: SessionDep):
 
 
 @tag_router.put("/task/{task_id}/tags")
-def update_task_tags(task_id: int, tags: Sequence[Tag], session: SessionDep):
+def update_task_tags(task_id: int, tags: Sequence[Tag] | None, session: SessionDep):
+    if not tags:
+        tags = []
     existing_tags = session.exec(
         select(TaskTag).where(TaskTag.task_id == task_id)
     ).all()
