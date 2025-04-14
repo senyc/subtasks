@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from sqlmodel import Session, create_engine
-from ..shared.shared import get_ids_from_search
+from ..shared.shared import parse_ids_from_search
 from ..db.db import Tag, TaskTag, Task
 
 # Assuming you have a test database URL
@@ -71,7 +71,7 @@ def test_get_ids_from_search(test_db):
     search_input = "tag:Daily"
 
     # Call the function
-    task_ids = get_ids_from_search(search_input, session)[0]
+    task_ids = parse_ids_from_search(search_input, session)[0]
 
     # Assert the expected output
     assert task_ids == [1, 2]  # Assuming task IDs are 1 and 2
@@ -79,7 +79,7 @@ def test_get_ids_from_search(test_db):
     search_input = "tag:Chores,tag:Daily test"
 
     # Call the function
-    task_ids = get_ids_from_search(search_input, session)[0]
+    task_ids = parse_ids_from_search(search_input, session)[0]
 
     # Assert the expected output
     assert task_ids == [3, 1, 2]  # Assuming task IDs are 1 and 2

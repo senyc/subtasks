@@ -28,16 +28,18 @@ export default function useTags({
   search = "",
   limit = 5,
   offset = 0,
+  enabled = false,
 }: {
   type: "projects" | "tasks";
   search?: MaybeRefOrGetter<string>;
   limit?: number;
   offset?: number;
+  enabled?: MaybeRefOrGetter<boolean>;
 }) {
   return useQuery({
     placeholderData: keepPreviousData,
     queryKey: ["tags", type, search],
-
+    enabled,
     queryFn: () =>
       getTags({
         offset,
