@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
-    <SearchBar :search="search" placeholder="Search for Tasks" />
+    <SearchBar type="tasks" :search="search" placeholder="Search for Tasks" />
     <button
       v-if="!completed"
       @click="runForAll(completeTask, ['tasks', projectId ?? ''])"
@@ -195,7 +195,6 @@ import SearchBar from "@components/shared/SearchBar.vue";
 import Dropdown from "@components/shared/Dropdown.vue";
 import { useTasks } from "../../composables/useTasks";
 import { useProjects } from "../../composables/useProjects";
-import TagModalToggle from "@components/tags/TagModalToggle.vue";
 import useTags from "@composables/useTags";
 import MultiSelect from "@components/shared/MultiSelect.vue";
 import type { Tag } from "@annotations/tag";

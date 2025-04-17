@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-row pb-3 pt-1 items-center gap-5 mr-0.5">
-    <SearchBar placeholder="Search for Projects" :search="search" />
+    <SearchBar type="tasks" placeholder="Search for Projects" :search="search" />
     <button
       v-if="!completed"
       @click="completeCheckedProjects"

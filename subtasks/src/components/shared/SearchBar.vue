@@ -3,6 +3,8 @@
     <input
       class="text-sm w-full p-2.5 bg-gray-50 border border-gray-300 text-gray-900 rounded-lg has-[input:focus]:ring-blue-500 has-[input:focus]:border-blue-500"
       :value="search"
+      @focusin="displaySearchResults = true"
+      @focusout="onFocusOut"
       @input="
         (e) => {
           const inputValue = (e.target as HTMLInputElement).value;
@@ -17,7 +19,6 @@
       @keydown="(e) => handleKeydown(e)"
       type="text"
       :placeholder="placeholder"
-      autofocus
     />
     <button
       v-if="search.length > 0"
@@ -49,7 +50,12 @@
       </svg>
     </button>
     <ul
-      v-if="tags?.length && !search.includes(' ') && search.length > 0"
+      v-if="
+        tags?.length &&
+        displaySearchResults &&
+        search.includes('tag:') &&
+        !search.split(',').some((part) => part.includes(' '))
+      "
       class="absolute z-10 bg-white border border-gray-300 rounded-lg mt-1 w-full"
     >
       <li
@@ -70,6 +76,12 @@ import useTags from "@composables/useTags";
 import { computed, ref, watch } from "@vue/reactivity";
 import { useRoute, useRouter } from "vue-router";
 
+function onFocusOut() {
+  setTimeout(() => {
+    displaySearchResults.value = false;
+  }, 150);
+}
+
 const selectedTag = ref(0);
 const { search = "", type = "tasks" } = defineProps<{
   search?: string;
@@ -77,14 +89,22 @@ const { search = "", type = "tasks" } = defineProps<{
   type: "tasks" | "projects";
 }>();
 
+const displaySearchResults = ref(false);
+
 const { data: tags } = useTags({
   type,
   search: () => {
     const split = search.split(",");
-    const searchString = split[split.length - 1];
-    return searchString.replace("tag:", "");
+    const lastPart = split[split.length - 1];
+    if (lastPart.startsWith("tag:") && !lastPart.includes(" ")) {
+      return lastPart.replace("tag:", "");
+    }
+    return "";
   },
-  enabled: () => !search.includes(" "),
+  enabled: () =>
+    displaySearchResults.value &&
+    search.includes("tag:") &&
+    !search.split(",").some((part) => part.includes(" ")),
   limit: 5,
   offset: 0,
 });
@@ -97,7 +117,10 @@ const filteredOutDuplicateTags = computed(() => {
   if (!tags.value) {
     return tags.value;
   }
-  return tags.value.filter((tag) => !search.includes(tag.name));
+  const existingTags = search
+    .split(",")
+    .map((part) => part.trim().replace("tag:", ""));
+  return tags.value.filter((tag) => !existingTags.includes(tag.name));
 });
 
 watch(
