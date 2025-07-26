@@ -50,6 +50,6 @@ const dates = computed(() =>
           d.setDate(startDate.getDate() + i);
           return d;
         })
-      : [],
+      : [scope],
 );
 </script>
