@@ -1,6 +1,6 @@
 <template>
   <section class="h-full flex flex-col px-7 pb-7">
-    <CalendarHeader :scope="scope" :type="span" />
+    <CalendarHeader :scope="scope" :span="span" />
     <CalendarWeekDays :scope="scope" :span="span" />
     <CalendarDays :scope="scope" :span="span" />
   </section>

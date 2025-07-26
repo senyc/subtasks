@@ -19,37 +19,37 @@ import type { CalendarSpan } from "@annotations/calendarSpan";
 import DayPanel from "./DayPanel.vue";
 import { computed } from "vue";
 
-const { span, scope } = defineProps<{
+const props = defineProps<{
   span: CalendarSpan;
   scope: Date;
 }>();
 
-const getFirstDayOfWeek = (date = new Date()) => {
-  const d = new Date(date);
-  d.setDate(d.getDate() - d.getDay());
-  return d;
-};
+const dates = computed(() => {
+  const daysInMonth = new Date(
+    props.scope.getFullYear(),
+    props.scope.getMonth() + 1,
+    0,
+  ).getDate();
 
-const startDate = getFirstDayOfWeek(scope);
+  const getFirstDayOfWeek = (date = new Date()) => {
+    const d = new Date(date);
+    d.setDate(d.getDate() - d.getDay());
+    return d;
+  };
 
-const daysInMonth = new Date(
-  new Date().getFullYear(),
-  scope.getMonth(),
-  0,
-).getDate();
-
-const dates = computed(() =>
-  span === "month"
+  const startDate = getFirstDayOfWeek(props.scope);
+  return props.span === "month"
     ? Array.from(
-        { length: daysInMonth + 1 },
-        (_, i) => new Date(new Date().getFullYear(), scope.getMonth(), i + 1),
+        { length: daysInMonth },
+        (_, i) =>
+          new Date(props.scope.getFullYear(), props.scope.getMonth(), i + 1),
       )
-    : span === "week"
+    : props.span === "week"
       ? Array.from({ length: 7 }, (_, i) => {
           const d = new Date(startDate);
           d.setDate(startDate.getDate() + i);
           return d;
         })
-      : [scope],
-);
+      : [props.scope];
+});
 </script>

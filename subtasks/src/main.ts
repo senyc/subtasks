@@ -40,6 +40,21 @@ const routes = [
   },
   { path: "/calendar/", component: Calendar, name: "calendar" },
   { path: "/calendar/:span/", component: Calendar, name: "calendarspan" },
+  {
+    path: "/calendar/:span/:year/:month/:day",
+    component: Calendar,
+    name: "calendarspanfulldate",
+  },
+  {
+    path: "/calendar/:span/:year/:month",
+    component: Calendar,
+    name: "calendarspanmonth",
+  },
+  {
+    path: "/calendar/:span/:year",
+    component: Calendar,
+    name: "calendarspanyear",
+  },
 ];
 
 const router = createRouter({
