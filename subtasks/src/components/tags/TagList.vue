@@ -27,5 +27,6 @@ const { data: tags } = useTags({
   offset: 0,
   limit: 20,
   type,
+  enabled: true
 });
 </script>

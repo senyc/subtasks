@@ -28,7 +28,7 @@ export default function useTags({
   search = "",
   limit = 5,
   offset = 0,
-  enabled = false,
+  enabled = true,
 }: {
   type: "projects" | "tasks";
   search?: MaybeRefOrGetter<string>;

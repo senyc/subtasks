@@ -1,7 +1,7 @@
 <template>
   <div
     class="px-2.5 py-0.5 text-nowrap rounded-md select-none me-2 font-bold"
-    :style="{ backgroundColor: color, color: textColor }"
+    :style="{ backgroundColor: color, color: textColor, borderColor: textColor, border: '1px solid' }"
   >
     <slot />
     <slot name="delete" />

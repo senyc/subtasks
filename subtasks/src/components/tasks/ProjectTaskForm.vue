@@ -86,6 +86,7 @@ const { data: tags } = useTags({
   type: "tasks",
   search: () => tagSearch.value,
 });
+
 // Warns the user if they are about to leave the page
 onBeforeUnmount(() => {
   window.onbeforeunload = null;
