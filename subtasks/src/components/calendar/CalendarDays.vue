@@ -3,14 +3,20 @@
     :class="{
       'grid-cols-7': span === 'week' || span === 'month',
       'grid-cols-1': span === 'day',
+      'border-y-black/20 border-y': span !== 'month',
+      'border-t-black/20 border-t': span === 'month',
     }"
-    class="h-full grid gap-4"
+    class="h-full grid"
   >
     <div
       v-if="span === 'month' && dates[0].getDay() !== 0"
       v-for="_ in dates[0].getDay()"
     ></div>
-    <DayPanel v-for="date in dates" :date="date" />
+    <DayPanel
+      :card-view="span === 'month'"
+      v-for="date in dates"
+      :date="date"
+    />
   </section>
 </template>
 

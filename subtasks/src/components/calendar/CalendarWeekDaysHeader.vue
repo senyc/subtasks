@@ -1,5 +1,5 @@
 <template>
-  <section class="text-center grid auto-cols-fr grid-flow-col gap-4 font-bold">
+  <section class="text-center grid auto-cols-fr grid-flow-col font-bold">
     <p v-if="days > 1" v-for="day in daysInWeek">
       {{ day }}
     </p>
