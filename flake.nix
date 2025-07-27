@@ -19,6 +19,7 @@
             fastapi
             sqlmodel
             pytest
+            alembic
           ]))
         fastapi-cli
         sqlite
