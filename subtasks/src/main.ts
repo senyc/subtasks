@@ -56,10 +56,16 @@ const routes = [
     name: "calendarspanyear",
   },
 ];
-
+import PrimeVue from "primevue/config";
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
 
-createApp(App).use(VueQueryPlugin).use(router).mount("#app");
+const app = createApp(App);
+app
+  .use(VueQueryPlugin)
+  .use(router)
+  .mount("#app");
+// @ts-ignore
+  app.use(PrimeVue, { unstyled: true })
