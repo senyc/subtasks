@@ -1,5 +1,15 @@
 <template>
   <div>
+    <h3
+      class="font-bold inline-block p-1 text-xl"
+      :class="{
+        'bg-blue-500 rounded-full text-white':
+          date?.toDateString() == new Date().toDateString(),
+        'text-center': cardView,
+      }"
+    >
+      {{ date?.getDate() }}
+    </h3>
     <div
       v-if="!cardView"
       class="relative grid grid-cols-1 grid-rows-23 h-full mt-1"

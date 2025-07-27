@@ -85,3 +85,12 @@ class Task(BaseSQLModel, table=True):
     time_estimate: int = Field(default=15, nullable=False)
     """Estimated minutes until completion in minutes"""
     order: float = Field(default=0.0, nullable=False)
+
+
+class Event(BaseSQLModel, table=True):
+    id: int = Field(primary_key=True)
+    title: str
+    notes: str = Field(nullable=True)
+    created_at: datetime = Field(default=datetime.now(), nullable=False)
+    start_at: datetime
+    end_at: datetime
