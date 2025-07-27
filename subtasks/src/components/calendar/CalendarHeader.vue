@@ -1,6 +1,6 @@
 <template>
   <section
-    class="flex flex-row pb-3 pt-3 justify-between items-center gap-5 mr-0.5"
+    class="flex pr-7 flex-row pb-3 pt-3 justify-between items-center gap-5 mr-0.5"
   >
     <h1 class="text-3xl font-bold">{{ calendarHeader }}</h1>
     <div class="flex flex-row items-center gap-5">
@@ -56,14 +56,13 @@
         @change="
           (e: Event) => {
             const span = (e.target as HTMLSelectElement).value;
-            $router.push({
-              params: {
-                year: $route.params.year,
-                month: $route.params.month,
-                day: $route.params.day,
-                span: span,
-              },
-            });
+            if ($route.params.year) {
+              $router.push(
+                `/calendar/${span}/${scope.toLocaleDateString('en-CA').replace(/-/g, '/')}`,
+              );
+            } else {
+              $router.push(`/calendar/${span}/`);
+            }
           }
         "
         :value="span"
