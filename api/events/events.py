@@ -9,17 +9,30 @@ event_router = APIRouter(
 )
 
 
+from datetime import datetime
+
+
 @event_router.get("/events")
 def get_events(
     session: SessionDep,
     start_at: str = "",
     end_at: str = "",
 ) -> Sequence[Event]:
-    events = session.exec(
-        select(Event)
-        .where(and_(Event.start_at >= start_at, Event.end_at < end_at))  # type: ignore
-        .order_by(desc(Event.start_at))
-    ).all()
+    # Parse the ISO string dates, handling the 'Z' UTC identifier
+    start_datetime = None
+    end_datetime = None
+
+    start_datetime = datetime.fromisoformat(start_at)
+
+    end_datetime = datetime.fromisoformat(end_at)
+
+    # Build the query with optional date filters
+    query = select(Event).where(
+        and_(Event.end_at < end_datetime, Event.start_at >= start_datetime)  # type: ignore
+    )
+
+    events = session.exec(query.order_by(desc(Event.start_at))).all()
+
     return events
 
 

@@ -75,7 +75,7 @@ async function deleteEvent({
 }: {
   eventId: number;
 }): Promise<number> {
-  const res = await fetch(`http://localhost:8000/event${eventId}`, {
+  const res = await fetch(`http://localhost:8000/event/${eventId}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -158,7 +158,12 @@ export function useDeleteEvent() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["events"] });
-      toast.add({ detail: `Delete event` });
+      toast.add({
+        severity: "success",
+        summary: "Event",
+        detail: `Delete event`,
+        life: 2000,
+      });
     },
   });
 }

@@ -1,5 +1,5 @@
 export interface Event {
-  is_recurring: boolean;
+  is_recurring?: boolean;
   title?: string;
   start_at?: Date;
   end_at?: Date;

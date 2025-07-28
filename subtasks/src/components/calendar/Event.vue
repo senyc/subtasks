@@ -1,6 +1,6 @@
 <template>
   <div
-    class="event-box"
+    class="event-box select-none"
     @click.stop="() => !isDragging && (visible = true)"
     :style="{
       top: `calc((${startMargin} / (24 * 60)) * 100% - 29px)`,
@@ -9,7 +9,7 @@
   >
     <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
     <div class="event-content">
-      <div class="event-title">{{ event.title }}</div>
+      <div class="event-title">{{ event.title || "New Event" }}</div>
       <div class="event-time">{{ timeRange }}</div>
     </div>
 
@@ -17,14 +17,25 @@
     <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
   </div>
   <Dialog
+    :close-on-escape="true"
+    :draggable="false"
     v-model:visible="visible"
     modal
-    header="New Event"
+    header="Update Event"
     class="sm:w-100 w-9/10"
   >
     <EventForm v-if="eventModel" :event="eventModel" />
     <div class="flex justify-between gap-2">
-      <SecondaryButton type="button" label="Cancel" @click="visible = false" />
+      <div class="flex flex-row gap-2">
+        <DangerButton severity="danger" type="button" @click="onDelete"
+          >Delete</DangerButton
+        >
+        <SecondaryButton
+          type="button"
+          label="Cancel"
+          @click="visible = false"
+        />
+      </div>
       <Button type="button" label="Save" @click="updateEvent" />
     </div>
   </Dialog>
@@ -34,7 +45,7 @@
 import useEventResize from "@composables/useEventResize";
 import type { Event } from "@annotations/event";
 import { computed, ref } from "vue";
-import { useUpdateEvent } from "@composables/useEvents";
+import { useDeleteEvent, useUpdateEvent } from "@composables/useEvents";
 import { useToast } from "primevue";
 const { mutate } = useUpdateEvent();
 const toast = useToast();
@@ -42,11 +53,16 @@ import Dialog from "@volt/Dialog.vue";
 import Button from "@volt/Button.vue";
 import SecondaryButton from "@volt/SecondaryButton.vue";
 import EventForm from "./EventForm.vue";
+import DangerButton from "@volt/DangerButton.vue";
 const props = defineProps<{
   event: Event & { id?: number };
 }>();
 const eventModel = ref({ ...props.event });
+const { mutate: deleteEvent } = useDeleteEvent();
 
+function onDelete() {
+  deleteEvent({ eventId: props.event.id! });
+}
 const {
   eventHeight,
   startMargin,
@@ -62,7 +78,7 @@ const {
   onResizeEnd: () =>
     mutate({
       event: { end_at: actualEndTime.value, start_at: actualStartTime.value },
-      eventId: props.event.id,
+      eventId: props.event.id!,
     }),
 });
 

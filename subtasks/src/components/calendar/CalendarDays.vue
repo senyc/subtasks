@@ -77,7 +77,7 @@ const dates = computed(() => {
 });
 
 const endTime = computed(() => {
-  const date = dates.value[dates.value.length - 1];
+  const date = new Date(dates.value[dates.value.length - 1]);
   date.setHours(23);
   return date;
 });

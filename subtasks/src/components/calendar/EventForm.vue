@@ -7,6 +7,7 @@
         name="title"
         id="title"
         autocomplete="true"
+        :autofocus="true"
       />
     </div>
     <div class="flex flex-col gap-1 mb-8">
