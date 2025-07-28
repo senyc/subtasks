@@ -25,7 +25,7 @@
         :data-hour="hour"
       ></div>
 
-      <Event v-for="evt in events" :key="evt.id" :event="evt" />
+      <Event v-for="(event, idx) in allEvents" :key="idx" :event="event" />
 
       <!-- Preview event while dragging -->
       <div
@@ -43,25 +43,54 @@
       </div>
     </div>
   </div>
+
+  <Dialog
+    v-model:visible="visible"
+    modal
+    header="New Event"
+    @after-hide="() => (tempEvent = undefined)"
+    class="sm:w-100 w-9/10"
+  >
+    <EventForm v-if="tempEvent" :event="tempEvent" />
+    <div class="flex justify-between gap-2">
+      <SecondaryButton type="button" label="Cancel" @click="visible = false" />
+      <Button type="button" label="Save" @click="submitNewEvent" />
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
-import type EventType from "@annotations/event";
+import type { EventResponse, Event as EventType } from "@annotations/event";
 import Event from "./Event.vue";
 import { ref, computed } from "vue";
+import Dialog from "@volt/Dialog.vue";
+import EventForm from "./EventForm.vue";
+import SecondaryButton from "@volt/SecondaryButton.vue";
+import Button from "@volt/Button.vue";
+
+const visible = ref(false);
 
 const props = withDefaults(
   defineProps<{
     date: Date;
     cardView?: boolean;
+    events?: EventResponse[];
   }>(),
   {
     cardView: false,
   },
 );
 
+const tempEvent = ref<EventType | undefined>();
+const allEvents = computed(() =>
+  tempEvent.value
+    ? [tempEvent?.value, ...(props.events ?? [])]
+    : [...(props.events ?? [])],
+);
+
+// Sync query data to local state once fetched
 const emit = defineEmits<{
-  createEvent: [event: Partial<EventType>];
+  createEvent: [event: EventType];
 }>();
 
 // Event creation state
@@ -69,21 +98,6 @@ const isCreating = ref(false);
 const createStartY = ref(0);
 const createCurrentY = ref(0);
 const createStartMinutes = ref(0);
-
-// Sample events
-const events = ref<EventType[]>([
-  {
-    start_at: new Date(),
-    id: 1,
-    end_at: (() => {
-      const fourHours = new Date();
-      fourHours.setHours(new Date().getHours() + 4);
-      return fourHours;
-    })(),
-    is_recurring: false,
-    title: "Meeting",
-  },
-]);
 
 // Convert mouse position to minutes from midnight
 const getMinutesFromMouseY = (
@@ -166,21 +180,17 @@ const finishCreateEvent = (e: MouseEvent) => {
     const endTime = new Date(startTime);
     endTime.setMinutes(endTime.getMinutes() + duration);
 
-    const newEvent: Partial<EventType> = {
+    const newEvent: EventType = {
       start_at: startTime,
       end_at: endTime,
       title: "New Event",
       is_recurring: false,
     };
 
+    tempEvent.value = newEvent;
+    visible.value = true;
     // Emit event creation
-    emit("createEvent", newEvent);
-
-    // Add to local events (you might want to handle this differently)
-    events.value.push({
-      ...newEvent,
-      id: Date.now(), // Temporary ID
-    } as EventType);
+    // emit("createEvent", newEvent);
   }
 
   // Reset creation state
@@ -190,4 +200,11 @@ const finishCreateEvent = (e: MouseEvent) => {
   createStartMinutes.value = 0;
   document.body.style.userSelect = "";
 };
+
+function submitNewEvent() {
+  if (tempEvent.value) {
+    emit("createEvent", tempEvent.value);
+  }
+  visible.value = false;
+}
 </script>

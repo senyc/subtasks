@@ -5,7 +5,7 @@ from sqlmodel import desc, select, and_
 from ..tags.tags import get_task_tags, update_task_tags
 
 from ..shared.shared import parse_ids_from_search, new_task, get_task_count
-from ..types.types import NewTask, TaskData, PagedTasks
+from ..annotations.types import NewTask, TaskData, PagedTasks
 
 from ..db.db import SessionDep, Task
 

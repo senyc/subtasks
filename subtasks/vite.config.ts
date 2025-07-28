@@ -20,6 +20,7 @@ export default defineConfig({
       ),
       "@composables": fileURLToPath(new URL("./src/composables/", import.meta.url)),
       "@utils": fileURLToPath(new URL("./src/utils/", import.meta.url)),
+      "@volt": fileURLToPath(new URL("./src/volt/", import.meta.url)),
     },
   },
 });

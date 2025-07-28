@@ -1,7 +1,7 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, Relationship
+from sqlmodel import Field, Session, SQLModel, create_engine
 from fastapi import Depends
 from pydantic import ConfigDict
-from typing import Annotated, List
+from typing import Annotated
 from datetime import datetime, timezone
 from pydantic import BeforeValidator
 from pathlib import Path
@@ -87,7 +87,17 @@ class Task(BaseSQLModel, table=True):
     order: float = Field(default=0.0, nullable=False)
 
 
-class Event(BaseSQLModel, table=True):
+# Global datetime serializer
+def serialize_datetime(dt: datetime) -> str:
+    return dt.isoformat() + "Z"
+
+
+# Base model with UTC serialization
+class UTCModel(BaseSQLModel):
+    model_config = ConfigDict(json_encoders={datetime: serialize_datetime})  # type: ignore
+
+
+class Event(UTCModel, table=True):
     id: int = Field(primary_key=True)
     title: str
     notes: str = Field(nullable=True)

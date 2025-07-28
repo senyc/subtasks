@@ -1,12 +1,15 @@
 import { computed, onUnmounted, ref } from "vue";
+
 interface UseEventResizeParams {
   startTime: Date;
   endTime: Date;
+  onResizeEnd?: () => void;
 }
 
 export default function useEventResize({
   startTime,
   endTime,
+  onResizeEnd,
 }: UseEventResizeParams) {
   // @ts-ignore
   const minDiff = (endTime - startTime) / (1000 * 60);
@@ -28,23 +31,29 @@ export default function useEventResize({
   const MAX_HEIGHT = 1440; // 24 hours maximum
   const SNAP_INTERVAL = 15; // 15 minute intervals
 
-  // Start resizing from top handle
+  // Start resizing from top handle - using mousedown with dragover simulation
   const startResizeTop = (e: MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     isDragging.value = true;
     resizeType.value = "top";
     startY.value = e.clientY;
     startHeight.value = eventHeight.value;
     startPosition.value = startMargin.value;
 
+    // Use mousemove instead of drag events for reliable coordinate tracking
     document.addEventListener("mousemove", doResize);
     document.addEventListener("mouseup", stopResize);
     document.body.style.userSelect = "none";
+    document.body.style.cursor = "ns-resize";
   };
 
   // Start resizing from bottom handle
   const startResizeBottom = (e: MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+
     isDragging.value = true;
     resizeType.value = "bottom";
     startY.value = e.clientY;
@@ -54,6 +63,7 @@ export default function useEventResize({
     document.addEventListener("mousemove", doResize);
     document.addEventListener("mouseup", stopResize);
     document.body.style.userSelect = "none";
+    document.body.style.cursor = "ns-resize";
   };
 
   const doResize = (e: MouseEvent) => {
@@ -97,11 +107,13 @@ export default function useEventResize({
   };
 
   const stopResize = () => {
-    isDragging.value = false;
     resizeType.value = null;
     document.removeEventListener("mousemove", doResize);
     document.removeEventListener("mouseup", stopResize);
     document.body.style.userSelect = "";
+    document.body.style.cursor = "";
+    onResizeEnd();
+    setTimeout(() => (isDragging.value = false), 0); // reset after click
   };
 
   // Computed properties
@@ -148,6 +160,7 @@ export default function useEventResize({
     actualStartTime,
     actualEndTime,
     HOUR_HEIGHT,
+    // Recommended mouse-based approach
     startResizeTop,
     startResizeBottom,
   };

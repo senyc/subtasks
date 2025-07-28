@@ -1,41 +1,86 @@
 <template>
   <div
-    ref="eventBox"
     class="event-box"
+    @click.stop="() => !isDragging && (visible = true)"
     :style="{
       top: `calc((${startMargin} / (24 * 60)) * 100% - 29px)`,
       height: `${(eventHeight / (24 * 60)) * 100}%`,
     }"
   >
-    <div class="resize-handle-top" @mousedown="startResizeTop"></div>
+    <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
     <div class="event-content">
-      <div class="event-title">Team Meeting</div>
+      <div class="event-title">{{ event.title }}</div>
       <div class="event-time">{{ timeRange }}</div>
     </div>
 
     <!-- Resize handle -->
-    <div class="resize-handle" @mousedown="startResizeBottom"></div>
+    <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
   </div>
+  <Dialog
+    v-model:visible="visible"
+    modal
+    header="New Event"
+    class="sm:w-100 w-9/10"
+  >
+    <EventForm v-if="eventModel" :event="eventModel" />
+    <div class="flex justify-between gap-2">
+      <SecondaryButton type="button" label="Cancel" @click="visible = false" />
+      <Button type="button" label="Save" @click="updateEvent" />
+    </div>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import useEventResize from "@composables/useEventResize";
-import type EventType from "@annotations/event";
-
+import type { Event } from "@annotations/event";
+import { computed, ref } from "vue";
+import { useUpdateEvent } from "@composables/useEvents";
+import { useToast } from "primevue";
+const { mutate } = useUpdateEvent();
+const toast = useToast();
+import Dialog from "@volt/Dialog.vue";
+import Button from "@volt/Button.vue";
+import SecondaryButton from "@volt/SecondaryButton.vue";
+import EventForm from "./EventForm.vue";
 const props = defineProps<{
-  event: EventType;
+  event: Event & { id?: number };
 }>();
+const eventModel = ref({ ...props.event });
 
 const {
   eventHeight,
   startMargin,
+  actualStartTime,
+  actualEndTime,
   timeRange,
   startResizeTop,
+  isDragging,
   startResizeBottom,
 } = useEventResize({
-  startTime: props.event.start_at,
-  endTime: props.event.end_at,
+  startTime: new Date(props.event.start_at),
+  endTime: new Date(props.event.end_at),
+  onResizeEnd: () =>
+    mutate({
+      event: { end_at: actualEndTime.value, start_at: actualStartTime.value },
+      eventId: props.event.id,
+    }),
 });
+
+const visible = ref(false);
+function updateEvent() {
+  if (props.event.id) {
+    const updatedEvent: Event = {
+      title: eventModel.value.title,
+      notes: eventModel.value.notes || "",
+      is_recurring: false,
+    };
+    mutate({ event: updatedEvent, eventId: props.event.id });
+    visible.value = false;
+  } else {
+    toast.add({ severity: "error", detail: "Unable to edit event" });
+  }
+}
+const mouseDownTime = ref(0);
 </script>
 
 <style>

@@ -56,16 +56,18 @@ const routes = [
     name: "calendarspanyear",
   },
 ];
+
 import PrimeVue from "primevue/config";
+import ToastService from "primevue/toastservice";
+
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
 });
 
-const app = createApp(App);
-app
+createApp(App)
   .use(VueQueryPlugin)
   .use(router)
+  .use(PrimeVue, { unstyled: true })
+  .use(ToastService)
   .mount("#app");
-// @ts-ignore
-  app.use(PrimeVue, { unstyled: true })
