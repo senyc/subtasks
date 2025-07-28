@@ -9,7 +9,8 @@
       "@annotations/*": ["./src/annotations/*"],
       "@components/*": ["./src/components/*"],
       "@composables/*": ["./src/composables/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      "@volt/*": ["./src/volt/*"]
     }
   }
 }

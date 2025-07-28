@@ -5,7 +5,7 @@ from collections.abc import Sequence
 
 
 from ..db.db import Project, SessionDep, Task
-from ..types.types import NewTask, PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
+from ..annotations.types import NewTask, PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
 from ..shared.shared import new_task
 from ..tags.tags import get_task_tags, update_task_tags
 

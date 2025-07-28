@@ -16,6 +16,7 @@ class NewTask(BaseSQLModel, table=False):
     order: float = 0
     tags: Sequence[Tag] | None = None
 
+
 class TaskData(BaseSQLModel, table=False):
     id: int | None = None
     project_id: int | None = None

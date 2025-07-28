@@ -1,23 +1,17 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .db.db import create_db_and_tables
 from .tasks.tasks import task_router
 from .projects.projects import project_router
 from .tags.tags import tag_router
+from .events.events import event_router
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    create_db_and_tables()
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 app.include_router(task_router)
 app.include_router(project_router)
 app.include_router(tag_router)
+app.include_router(event_router)
 origins = [
     "*",
 ]

@@ -1,5 +1,5 @@
 from sqlmodel import select, func, and_
-from ..db.db import SessionDep, Task, Tag, TaskTag
+from ..db.db import SessionDep, Task, Tag, TaskTag, Event
 
 
 def new_task(task: Task, session: SessionDep) -> Task:
@@ -12,6 +12,14 @@ def new_task(task: Task, session: SessionDep) -> Task:
     session.refresh(task)
 
     return task
+
+
+def new_event(event: Event, session: SessionDep) -> Event:
+    session.add(event)
+    session.commit()
+    session.refresh(event)
+
+    return event
 
 
 def get_task_count(session: SessionDep, completed: bool, search: str):
@@ -27,7 +35,7 @@ def get_task_count(session: SessionDep, completed: bool, search: str):
     ).one()
 
 
-# TODO: make this accecpt a type field
+# TODO: make this accept a type field
 def parse_ids_from_search(search: str, session: SessionDep):
     """Currently only works with tasks"""
     tag_prefix = "tag:"

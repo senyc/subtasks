@@ -111,4 +111,5 @@ onMounted(() => {
 defineProps<{
   task: TaskDisplay;
 }>();
+
 </script>

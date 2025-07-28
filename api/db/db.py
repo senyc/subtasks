@@ -1,7 +1,7 @@
-from sqlmodel import Field, Session, SQLModel, create_engine, Relationship
+from sqlmodel import Field, Session, SQLModel, create_engine
 from fastapi import Depends
 from pydantic import ConfigDict
-from typing import Annotated, List
+from typing import Annotated
 from datetime import datetime, timezone
 from pydantic import BeforeValidator
 from pathlib import Path
@@ -11,10 +11,6 @@ sqlite_url = f"sqlite:///{sqlite_path}"
 
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
 
 
 def get_session():
@@ -89,3 +85,22 @@ class Task(BaseSQLModel, table=True):
     time_estimate: int = Field(default=15, nullable=False)
     """Estimated minutes until completion in minutes"""
     order: float = Field(default=0.0, nullable=False)
+
+
+# Global datetime serializer
+def serialize_datetime(dt: datetime) -> str:
+    return dt.isoformat() + "Z"
+
+
+# Base model with UTC serialization
+class UTCModel(BaseSQLModel):
+    model_config = ConfigDict(json_encoders={datetime: serialize_datetime})  # type: ignore
+
+
+class Event(UTCModel, table=True):
+    id: int = Field(primary_key=True)
+    title: str
+    notes: str = Field(nullable=True)
+    created_at: datetime = Field(default=datetime.now(), nullable=False)
+    start_at: datetime
+    end_at: datetime
