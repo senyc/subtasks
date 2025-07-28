@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="">
     <h3
       class="font-bold inline-block p-1 text-xl"
       :class="{

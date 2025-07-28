@@ -1,12 +1,11 @@
 <template>
   <section
     :class="{
+      'divide-y divide-y-black/30': span === 'month',
       'grid-cols-7': span === 'week' || span === 'month',
       'grid-cols-1': span === 'day',
-      'border-y-black/20 border-y': span !== 'month',
-      'border-t-black/20 border-t': span === 'month',
     }"
-    class="h-full grid"
+    class="h-full divide-x border-x border-x-black/30 divide-black/30 grid"
   >
     <div
       v-if="span === 'month' && dates[0].getDay() !== 0"
@@ -86,4 +85,5 @@ const { data: events } = useEvents({
   startTime: () => dates.value[0],
   endTime: () => endTime.value,
 });
+
 </script>

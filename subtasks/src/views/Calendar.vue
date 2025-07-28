@@ -4,10 +4,7 @@
     <div class="px-8">
       <CalendarBreadCrumbs />
     </div>
-    <CalendarDisplay
-      :span="currentSpan"
-      :scope="scope"
-    />
+    <CalendarDisplay :span="currentSpan" :scope="scope" />
   </div>
 </template>
 
@@ -26,6 +23,7 @@ const currentSpan = computed(() => {
 
 const scope = computed(() => {
   let date = new Date();
+  date.setHours(0, 0, 0, 0);
   if (route.params.year) {
     const year = parseInt(route.params.year as string);
     const month =
@@ -36,5 +34,4 @@ const scope = computed(() => {
   }
   return date;
 });
-
 </script>
