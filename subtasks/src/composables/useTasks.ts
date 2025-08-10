@@ -1,6 +1,11 @@
 import { calculateOffsetLimit } from "../utils/pagination";
 import { toValue, type MaybeRefOrGetter } from "vue";
-import { keepPreviousData, useQuery } from "@tanstack/vue-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/vue-query";
 import type { Task } from "@annotations/task";
 
 async function getTasks({
@@ -21,9 +26,54 @@ async function getTasks({
     pageSize: pageSize,
   });
   const res = await fetch(
-    `http://localhost:8000${projectId ? `/project/${projectId}` : "" }/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${pageSize}&search=${search}`,
+    `http://localhost:8000${projectId ? `/project/${projectId}` : ""}/tasks${completed ? "/completed" : ""}?offset=${offset}&limit=${pageSize}&search=${search}`,
   );
 
+  if (!res.ok) {
+    throw new Error("Cannot fetch tasks");
+  }
+  return res.json();
+}
+
+async function updateTask({
+  taskId,
+  task,
+}: {
+  taskId?: number;
+  task: Task;
+}): Promise<Task> {
+  const res = await fetch(`http://localhost:8000/task/${taskId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(task),
+  });
+  if (!res.ok) {
+    throw new Error("Cannot fetch tasks");
+  }
+  return res.json();
+}
+
+async function createTask({
+  task,
+  projectId,
+}: {
+  task: Task;
+  projectId?: number;
+}): Promise<Task> {
+  const res = await fetch(
+    `http://localhost:8000${projectId ? `/project/${projectId}` : ""}/task`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(task),
+    },
+  );
   if (!res.ok) {
     throw new Error("Cannot fetch tasks");
   }
@@ -60,5 +110,35 @@ export function useTasks({
         pageSize: toValue(pageSize),
         search: toValue(search),
       }),
+  });
+}
+
+export function useUpdateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ task, taskId }: { task: Task; taskId: number }) =>
+      updateTask({
+        task,
+        taskId,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+}
+
+export function useCreateTask() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ task, projectId }: { task: Task; projectId?: number }) =>
+      createTask({
+        task,
+        projectId,
+      }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", variables.projectId || ""],
+      });
+    },
   });
 }

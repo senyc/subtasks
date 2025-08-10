@@ -83,8 +83,6 @@ const props = defineProps<{
   scope: Date;
 }>();
 
-// Can't de-structure props because of how the precompiler works with defineModel
-
 const spans = ["month", "week", "day"];
 
 const calendarHeader = computed(() => {

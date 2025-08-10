@@ -38,7 +38,7 @@ def convert_to_date(s: str | datetime | None) -> datetime | None:
     return datetime.strptime(s, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
 
-DueDate = Annotated[datetime | None, BeforeValidator(convert_to_date)]
+Date = Annotated[datetime | None, BeforeValidator(convert_to_date)]
 
 
 class Project(BaseSQLModel, table=True):
@@ -48,8 +48,8 @@ class Project(BaseSQLModel, table=True):
     # (or we can just store the rich text as a blob)
     body: str
     completed: bool = Field(default=False)
-    due_date: DueDate
-    completed_date: DueDate
+    due_date: Date
+    completed_date: Date
     created_at: datetime = Field(default=datetime.now(), nullable=False)
     order: float = Field(default=0.0, nullable=False)
 
@@ -73,28 +73,36 @@ class TaskTag(BaseSQLModel, table=True):
     tag_id: int = Field(foreign_key="tag.id", primary_key=True)
 
 
-class Task(BaseSQLModel, table=True):
-    id: int = Field(primary_key=True)
-    project_id: int | None = Field(default=None, foreign_key="project.id")
-    title: str
-    body: str
-    completed: bool = Field(default=False)
-    due_date: DueDate
-    completed_date: DueDate
-    created_at: datetime = Field(default=datetime.now(), nullable=False)
-    time_estimate: int = Field(default=15, nullable=False)
-    """Estimated minutes until completion in minutes"""
-    order: float = Field(default=0.0, nullable=False)
-
-
 # Global datetime serializer
-def serialize_datetime(dt: datetime) -> str:
+def serialize_datetime(dt: datetime | None) -> str | None:
+    if dt is None:
+        return dt
     return dt.isoformat() + "Z"
 
 
 # Base model with UTC serialization
 class UTCModel(BaseSQLModel):
     model_config = ConfigDict(json_encoders={datetime: serialize_datetime})  # type: ignore
+
+
+class Task(UTCModel, table=True):
+    id: int = Field(primary_key=True)
+    project_id: int | None = Field(default=None, foreign_key="project.id")
+    title: str
+    body: str
+    # TODO: remove this in favor of completed_at
+    # https://stackoverflow.com/questions/9010018/is-not-null-vs-boolean-mysql-performance
+    completed: bool = Field(default=False)
+    due_date: Date
+    completed_date: Date
+    created_at: datetime = Field(default=datetime.now(), nullable=False)
+    time_estimate: int = Field(default=15, nullable=False)
+    """Estimated minutes until completion in minutes"""
+    order: float = Field(default=0.0, nullable=False)
+    """Order relative to other tasks, generally defaults to the id number"""
+    do_date: Date
+    start_at: datetime = Field(nullable=True)
+    end_at: datetime = Field(nullable=True)
 
 
 class Event(UTCModel, table=True):

@@ -1,8 +1,9 @@
 import { computed, onUnmounted, ref } from "vue";
+import { toValue, type MaybeRefOrGetter } from "vue";
 
 interface UseEventResizeParams {
-  startTime: Date;
-  endTime: Date;
+  startTime?: MaybeRefOrGetter<string>;
+  endTime?: MaybeRefOrGetter<string>;
   onResizeEnd?: () => void;
 }
 
@@ -12,11 +13,11 @@ export default function useEventResize({
   onResizeEnd,
 }: UseEventResizeParams) {
   // @ts-ignore
-  const minDiff = (endTime - startTime) / (1000 * 60);
-  const midnight = new Date(startTime);
+  const minDiff = (new Date(toValue(endTime)) - new Date(toValue(startTime))) / (1000 * 60);
+  const midnight = new Date(toValue(startTime));
   midnight.setHours(0, 0, 0, 0);
   // @ts-ignore
-  const initialStartMargin = (startTime - midnight) / (1000 * 60);
+  const initialStartMargin = (new Date(toValue(startTime ))- midnight) / (1000 * 60);
 
   const eventHeight = ref(minDiff);
   const startMargin = ref(initialStartMargin);

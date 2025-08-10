@@ -15,7 +15,7 @@
       :card-view="span === 'month'"
       v-for="date in dates"
       :date="date"
-      @create-event="
+      @create-time-slot="
         (event) => {
           mutate({ event });
         }
@@ -38,8 +38,9 @@
 import type { CalendarSpan } from "@annotations/calendarSpan";
 import DayPanel from "./DayPanel.vue";
 import { computed } from "vue";
-import { useCreateEvent, useEvents } from "@composables/useEvents";
-const { mutate } = useCreateEvent();
+import { useCalendar } from "@/composables/useCalendar";
+import { useCreateTimeSlot } from "@/composables/useTimeSlot";
+const { mutate } = useCreateTimeSlot();
 
 const props = defineProps<{
   span: CalendarSpan;
@@ -81,9 +82,8 @@ const endTime = computed(() => {
   return date;
 });
 
-const { data: events } = useEvents({
+const { data: events } = useCalendar({
   startTime: () => dates.value[0],
   endTime: () => endTime.value,
 });
-
 </script>

@@ -1,9 +1,9 @@
 <template>
   <div class="">
     <h3
-      class="font-bold inline-block p-1 text-xl"
+      class="font-bold text-xl"
       :class="{
-        'bg-blue-500 rounded-full text-white':
+        'bg-blue-500 inline-flex flex-row items-center justify-center px-2 rounded-full text-white':
           date?.toDateString() == new Date().toDateString(),
         'text-center': cardView,
       }"
@@ -25,7 +25,11 @@
         :data-hour="hour"
       ></div>
 
-      <Event v-for="(event, idx) in allEvents" :key="idx" :event="event" />
+      <Event
+        v-for="event in allEvents"
+        :key="'id' in event ? event.id : 'new'"
+        :event="event"
+      />
 
       <!-- Preview event while dragging -->
       <div
@@ -44,29 +48,22 @@
     </div>
   </div>
 
-  <Dialog
+  <NewTimeSlot
+    @create-time-slot="createTimeSlot"
+    @cancel-time-slot="cancelTimeSlot"
+    v-model:timeSlot="tempEvent!"
     v-model:visible="visible"
-    modal
-    header="New Event"
-    @after-hide="() => (tempEvent = undefined)"
-    class="sm:w-100 w-9/10"
-  >
-    <EventForm v-if="tempEvent" :event="tempEvent" />
-    <div class="flex justify-between gap-2">
-      <SecondaryButton type="button" label="Cancel" @click="visible = false" />
-      <Button type="button" label="Save" @click="submitNewEvent" />
-    </div>
-  </Dialog>
+  />
 </template>
 
 <script setup lang="ts">
-import type { EventResponse, Event as EventType } from "@annotations/event";
 import Event from "./Event.vue";
 import { ref, computed } from "vue";
-import Dialog from "@volt/Dialog.vue";
-import EventForm from "./EventForm.vue";
-import SecondaryButton from "@volt/SecondaryButton.vue";
-import Button from "@volt/Button.vue";
+import NewTimeSlot from "./events/NewTimeSlot.vue";
+import type {
+  TimeSlotForm,
+  TimeSlotResponse,
+} from "@annotations/models/timeSlot";
 
 const visible = ref(false);
 
@@ -74,23 +71,33 @@ const props = withDefaults(
   defineProps<{
     date: Date;
     cardView?: boolean;
-    events?: EventResponse[];
+    events?: TimeSlotResponse[];
   }>(),
   {
     cardView: false,
   },
 );
 
-const tempEvent = ref<EventType | undefined>();
-const allEvents = computed(() =>
+const tempEvent = ref<TimeSlotForm>();
+
+function cancelTimeSlot() {
+  tempEvent.value = undefined;
+}
+
+function createTimeSlot(event: TimeSlotForm) {
+  tempEvent.value = undefined;
+  emit("createTimeSlot", event);
+}
+
+const allEvents = computed<(TimeSlotForm | TimeSlotResponse)[]>(() =>
   tempEvent.value
-    ? [tempEvent?.value, ...(props.events ?? [])]
+    ? [...(props.events ?? []), tempEvent.value]
     : [...(props.events ?? [])],
 );
 
 // Sync query data to local state once fetched
 const emit = defineEmits<{
-  createEvent: [event: EventType];
+  createTimeSlot: [event: TimeSlotForm];
 }>();
 
 // Event creation state
@@ -180,11 +187,12 @@ const finishCreateEvent = (e: MouseEvent) => {
     const endTime = new Date(startTime);
     endTime.setMinutes(endTime.getMinutes() + duration);
 
-    const newEvent: EventType = {
-      start_at: startTime,
-      end_at: endTime,
+    const newEvent: TimeSlotForm = {
+      start_at: startTime.toISOString(),
+      end_at: endTime.toISOString(),
       title: "New Event",
       is_recurring: false,
+      type: "event",
     };
 
     tempEvent.value = newEvent;
@@ -200,11 +208,4 @@ const finishCreateEvent = (e: MouseEvent) => {
   createStartMinutes.value = 0;
   document.body.style.userSelect = "";
 };
-
-function submitNewEvent() {
-  if (tempEvent.value) {
-    emit("createEvent", tempEvent.value);
-  }
-  visible.value = false;
-}
 </script>

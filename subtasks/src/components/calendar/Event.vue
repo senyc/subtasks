@@ -24,7 +24,7 @@
     header="Update Event"
     class="sm:w-100 w-9/10"
   >
-    <EventForm v-if="eventModel" :event="eventModel" />
+    <TimeSlotForm v-if="eventModel" v-model:model-value="eventModel" />
     <div class="flex justify-between gap-2">
       <div class="flex flex-row gap-2">
         <DangerButton severity="danger" type="button" @click="onDelete"
@@ -44,24 +44,35 @@
 <script setup lang="ts">
 import useEventResize from "@composables/useEventResize";
 import type { Event } from "@annotations/event";
-import { computed, ref } from "vue";
-import { useDeleteEvent, useUpdateEvent } from "@composables/useEvents";
+import { ref } from "vue";
+import { useDeleteTimeSlot, useUpdateTimeSlot } from "@/composables/useTimeSlot";
 import { useToast } from "primevue";
-const { mutate } = useUpdateEvent();
+const { mutate } = useUpdateTimeSlot();
 const toast = useToast();
 import Dialog from "@volt/Dialog.vue";
 import Button from "@volt/Button.vue";
 import SecondaryButton from "@volt/SecondaryButton.vue";
-import EventForm from "./EventForm.vue";
+import TimeSlotForm from "./events/TimeSlotForm.vue";
 import DangerButton from "@volt/DangerButton.vue";
+import type {
+  TimeSlotForm as TimeSlotFormType,
+  TimeSlotResponse,
+} from "@/annotations/models/timeSlot";
+
 const props = defineProps<{
-  event: Event & { id?: number };
+  /** This can be either a saved timeslot (with an id) or an in-progress timeslot (currently saved within the form)*/
+  event: TimeSlotFormType | TimeSlotResponse;
 }>();
+
 const eventModel = ref({ ...props.event });
-const { mutate: deleteEvent } = useDeleteEvent();
+const { mutate: deleteEvent } = useDeleteTimeSlot();
 
 function onDelete() {
-  deleteEvent({ eventId: props.event.id! });
+  if ("id" in props.event) {
+    deleteEvent({ eventId: props.event?.id });
+  } else {
+    console.error("Cannot delete without id");
+  }
 }
 const {
   eventHeight,
@@ -73,24 +84,24 @@ const {
   isDragging,
   startResizeBottom,
 } = useEventResize({
-  startTime: new Date(props.event.start_at),
-  endTime: new Date(props.event.end_at),
+  startTime: () => props.event.start_at,
+  endTime: () => props.event.end_at,
   onResizeEnd: () =>
     mutate({
-      event: { end_at: actualEndTime.value, start_at: actualStartTime.value },
-      eventId: props.event.id!,
+      timeSlot: { end_at: actualEndTime.value, start_at: actualStartTime.value },
+      eventId: (props.event as TimeSlotResponse).id,
     }),
 });
 
 const visible = ref(false);
 function updateEvent() {
-  if (props.event.id) {
+  if ("id" in props.event) {
     const updatedEvent: Event = {
       title: eventModel.value.title,
       notes: eventModel.value.notes || "",
       is_recurring: false,
     };
-    mutate({ event: updatedEvent, eventId: props.event.id });
+    mutate({ timeSlot: updatedEvent, eventId: props.event.id });
     visible.value = false;
   } else {
     toast.add({ severity: "error", detail: "Unable to edit event" });
