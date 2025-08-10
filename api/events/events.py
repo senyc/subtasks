@@ -12,6 +12,7 @@ event_router = APIRouter(
 from datetime import datetime
 
 
+# add pagination endpt (for a list display or something
 @event_router.get("/events")
 def get_events(
     session: SessionDep,

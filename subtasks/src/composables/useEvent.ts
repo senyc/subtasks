@@ -1,19 +1,15 @@
-import {
-  useMutation,
-  useQueryClient,
-} from "@tanstack/vue-query";
-import type { Event } from "@annotations/event";
+import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import type { Event, EventResponse } from "@annotations/models/event";
 import { useToast } from "primevue";
-import type { TimeSlot } from "@annotations/models/timeSlot";
 
-// TODO: create a get timeslot function and hook (probably include a type like task/event)
-async function updateTimeSlot({
+// TODO: add use event hook
+async function updateEvent({
   timeSlot,
   eventId,
 }: {
-  timeSlot: TimeSlot;
+  timeSlot: Event;
   eventId: number;
-}): Promise<Event> {
+}): Promise<EventResponse> {
   const res = await fetch(`http://localhost:8000/event/${eventId}`, {
     method: "PATCH",
     headers: {
@@ -29,7 +25,11 @@ async function updateTimeSlot({
   return res.json();
 }
 
-async function createTimeSlot({ timeSlot }: { timeSlot: TimeSlot }): Promise<TimeSlot> {
+async function createEvent({
+  timeSlot,
+}: {
+  timeSlot: Event;
+}): Promise<EventResponse> {
   const res = await fetch(`http://localhost:8000/event`, {
     method: "POST",
     headers: {
@@ -44,12 +44,12 @@ async function createTimeSlot({ timeSlot }: { timeSlot: TimeSlot }): Promise<Tim
   }
   return res.json();
 }
-
-async function deleteTimeSlot({
+type EventId = number
+async function deleteEvent({
   eventId: eventId,
 }: {
   eventId: number;
-}): Promise<number> {
+}): Promise<EventId> {
   const res = await fetch(`http://localhost:8000/event/${eventId}`, {
     method: "DELETE",
     headers: {
@@ -64,12 +64,12 @@ async function deleteTimeSlot({
   return res.json();
 }
 
-export function useCreateTimeSlot() {
+export function useCreateEvent() {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useMutation({
-    mutationFn: ({ event }: { event: TimeSlot }) =>
-      createTimeSlot({
+    mutationFn: ({ event }: { event: Event }) =>
+      createEvent({
         timeSlot: event,
       }),
     onSuccess: (event) => {
@@ -84,12 +84,12 @@ export function useCreateTimeSlot() {
   });
 }
 
-export function useUpdateTimeSlot() {
+export function useUpdateEvent() {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useMutation({
-    mutationFn: ({ timeSlot, eventId }: { timeSlot: TimeSlot; eventId: number }) =>
-      updateTimeSlot({
+    mutationFn: ({ timeSlot, eventId }: { timeSlot: Event; eventId: number }) =>
+      updateEvent({
         timeSlot,
         eventId,
       }),
@@ -105,12 +105,12 @@ export function useUpdateTimeSlot() {
   });
 }
 
-export function useDeleteTimeSlot() {
+export function useDeleteEvent() {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useMutation({
     mutationFn: ({ eventId: eventId }: { eventId: number }) =>
-      deleteTimeSlot({
+      deleteEvent({
         eventId,
       }),
     onSuccess: () => {

@@ -17,7 +17,13 @@
       :date="date"
       @create-time-slot="
         (event) => {
-          mutate({ event });
+          mutate({
+            event: {
+              ...event,
+              end_at: new Date(event.end_at),
+              start_at: new Date(event.start_at),
+            },
+          });
         }
       "
       :events="
@@ -39,8 +45,8 @@ import type { CalendarSpan } from "@annotations/calendarSpan";
 import DayPanel from "./DayPanel.vue";
 import { computed } from "vue";
 import { useCalendar } from "@/composables/useCalendar";
-import { useCreateTimeSlot } from "@/composables/useTimeSlot";
-const { mutate } = useCreateTimeSlot();
+import { useCreateEvent } from "@/composables/useEvent";
+const { mutate } = useCreateEvent();
 
 const props = defineProps<{
   span: CalendarSpan;

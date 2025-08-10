@@ -25,7 +25,7 @@
         :data-hour="hour"
       ></div>
 
-      <Event
+      <TimeSlot
         v-for="event in allEvents"
         :key="'id' in event ? event.id : 'new'"
         :event="event"
@@ -57,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import Event from "./Event.vue";
+import TimeSlot from "./TimeSlot.vue";
 import { ref, computed } from "vue";
 import NewTimeSlot from "./events/NewTimeSlot.vue";
 import type {

@@ -3,7 +3,7 @@ import {
   keepPreviousData,
   useQuery,
 } from "@tanstack/vue-query";
-import type { EventResponse } from "@annotations/event";
+import type { TimeSlotResponse } from "@/annotations/models/timeSlot";
 
 async function getCalendar({
   startTime,
@@ -11,9 +11,9 @@ async function getCalendar({
 }: {
   startTime: Date;
   endTime: Date;
-}): Promise<EventResponse[]> {
+}): Promise<TimeSlotResponse[]> {
   const res = await fetch(
-    `http://localhost:8000/events?start_at=${startTime.toISOString()}&end_at=${endTime.toISOString()}`,
+    `http://localhost:8000/calendar?start_at=${startTime.toISOString()}&end_at=${endTime.toISOString()}`,
     {
       method: "GET",
       headers: {
@@ -24,7 +24,7 @@ async function getCalendar({
   );
 
   if (!res.ok) {
-    throw new Error("Could not get events");
+    throw new Error("Could not get calendar");
   }
   return res.json();
 }

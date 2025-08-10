@@ -1,7 +1,9 @@
 from datetime import datetime
-from ..db.db import BaseSQLModel, Project, Tag
+from ..db.db import BaseSQLModel, Project, Tag, serialize_datetime
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pydantic import BaseModel, field_serializer
+from typing import Literal
 
 
 class NewTask(BaseSQLModel, table=False):
@@ -47,3 +49,20 @@ class ProjectResponse(Project):
 class PagedProjectResponse:
     projects: Sequence[ProjectResponse]
     count: int
+
+
+class TimeSlot(BaseModel):
+    """Time slots are events or tasks"""
+
+    type: Literal["task", "event"]
+    id: int
+    title: str
+    notes: str | None
+    created_at: datetime
+    start_at: datetime
+    end_at: datetime
+
+    # Serialize datetime fields to indicate it is stored in utc
+    @field_serializer("start_at", "end_at", when_used="json")
+    def serialize_dt(self, dt: datetime) -> str | None:
+        return serialize_datetime(dt)

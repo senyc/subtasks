@@ -24,7 +24,7 @@
     header="Update Event"
     class="sm:w-100 w-9/10"
   >
-    <TimeSlotForm v-if="eventModel" v-model:model-value="eventModel" />
+    <TimeSlotForm @submit="updateEvent" v-if="eventModel" v-model:model-value="eventModel" />
     <div class="flex justify-between gap-2">
       <div class="flex flex-row gap-2">
         <DangerButton severity="danger" type="button" @click="onDelete"
@@ -45,9 +45,9 @@
 import useEventResize from "@composables/useEventResize";
 import type { Event } from "@annotations/event";
 import { ref } from "vue";
-import { useDeleteTimeSlot, useUpdateTimeSlot } from "@/composables/useTimeSlot";
+import { useDeleteEvent, useUpdateEvent } from "@/composables/useEvent";
 import { useToast } from "primevue";
-const { mutate } = useUpdateTimeSlot();
+const { mutate } = useUpdateEvent();
 const toast = useToast();
 import Dialog from "@volt/Dialog.vue";
 import Button from "@volt/Button.vue";
@@ -65,7 +65,7 @@ const props = defineProps<{
 }>();
 
 const eventModel = ref({ ...props.event });
-const { mutate: deleteEvent } = useDeleteTimeSlot();
+const { mutate: deleteEvent } = useDeleteEvent();
 
 function onDelete() {
   if ("id" in props.event) {
