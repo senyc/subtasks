@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from sqlmodel import desc, select, and_
 
 from ..annotations.types import TimeSlot
-from ..db.db import Event, SessionDep
+from ..db.db import Event, SessionDep, Task
 
 calendar_router = APIRouter(
     tags=["calendar"],
@@ -25,13 +25,25 @@ def get_calendar(
 
     end_datetime = datetime.fromisoformat(end_at)
 
-    # Build the query with optional date filters
-    query = select(Event).where(
-        and_(Event.end_at < end_datetime, Event.start_at >= start_datetime)  # type: ignore
+    event_query = select(Event).where(
+        and_(Event.end_at < end_datetime, Event.start_at >= start_datetime)
     )
 
-    events = session.exec(query.order_by(desc(Event.start_at))).all()
+    events = session.exec(event_query.order_by(desc(Event.start_at))).all()
 
-    time_slots = [TimeSlot(**event.model_dump(), type='event') for event in events]
+    task_query = select(Task).where(
+        and_(
+            Task.start_at.isnot(None),  # type: ignore
+            Task.end_at.isnot(None),  # type: ignore
+            Task.end_at < end_datetime,
+            Task.start_at >= start_datetime,
+        )
+    )
+
+    tasks = session.exec(task_query.order_by(desc(Task.start_at))).all()
+    time_slots = [TimeSlot(**event.model_dump(), type="event") for event in events]
+    time_slots.extend(
+        [TimeSlot(**task.model_dump(), type="task", notes=task.body) for task in tasks]
+    )
 
     return time_slots

@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
-import type { Task } from "@annotations/task";
+import type { Task } from "@annotations/models/task";
 
 async function getTasks({
   projectId,
@@ -138,6 +138,10 @@ export function useCreateTask() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["tasks", variables.projectId || ""],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["calendar"],
       });
     },
   });

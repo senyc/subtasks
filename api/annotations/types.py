@@ -17,6 +17,8 @@ class NewTask(BaseSQLModel, table=False):
     """Estimated minutes until completion in minutes"""
     order: float = 0
     tags: Sequence[Tag] | None = None
+    start_at: datetime | None = None
+    end_at: datetime | None = None
 
 
 class TaskData(BaseSQLModel, table=False):

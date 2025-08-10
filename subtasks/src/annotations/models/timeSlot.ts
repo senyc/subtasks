@@ -24,7 +24,7 @@ export interface TimeSlot {
 export interface TimeSlotForm {
   type: 'event' | 'task'
   is_recurring?: boolean;
-  title?: string;
+  title: string;
   /** Should be IsoString*/
   start_at: string;
   /** Should be IsoString*/

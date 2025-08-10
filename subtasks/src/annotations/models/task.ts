@@ -9,11 +9,13 @@ export interface TaskResponse {
   order: number;
   id: number;
   project_id: number;
-  due_date?: string;
+  do_date: string;
   completed_date?: string;
   created_at?: string;
   time_estimate?: number;
-  tags?: Tag[];
+  /** Optional if the task is supposed to just be done on that day */
+  start_at?: string;
+  end_at?: string;
 }
 
 /** Data passed to the setter */
@@ -24,6 +26,8 @@ export interface Task {
   project_id?: number;
   completed_date?: string;
   time_estimate?: number;
+  start_at?: Date;
+  end_at?: Date;
   tags?: Tag[];
 }
 
@@ -35,5 +39,8 @@ export interface TaskForm {
   due_date?: string;
   completed_date?: string;
   time_estimate?: number;
-  tags?: Tag[];
+  /** Should be IsoString*/
+  start_at?: string;
+  /** Should be IsoString*/
+  end_at?: string;
 }

@@ -16,14 +16,31 @@
       v-for="date in dates"
       :date="date"
       @create-time-slot="
-        (event) => {
-          mutate({
-            event: {
-              ...event,
-              end_at: new Date(event.end_at),
-              start_at: new Date(event.start_at),
-            },
-          });
+        (timeSlot) => {
+          if (timeSlot.type === 'event') {
+            createEvent({
+              event: {
+                ...timeSlot,
+                end_at: new Date(timeSlot.end_at),
+                start_at: new Date(timeSlot.start_at),
+              },
+            });
+          } else if (timeSlot.type === 'task') {
+            const endAt = new Date(timeSlot.end_at)
+            const startAt = new Date(timeSlot.start_at)
+            createTask({
+              task: {
+                ...timeSlot,
+                start_at: startAt,
+                end_at: endAt,
+                body: timeSlot.notes || '',
+                //@ts-ignore
+                time_estimate: (endAt - startAt) /(1000* 60) ,
+              },
+            });
+          } else {
+            throw new Error('Invalid type');
+          }
         }
       "
       :events="
@@ -46,7 +63,9 @@ import DayPanel from "./DayPanel.vue";
 import { computed } from "vue";
 import { useCalendar } from "@/composables/useCalendar";
 import { useCreateEvent } from "@/composables/useEvent";
-const { mutate } = useCreateEvent();
+import { useCreateTask } from "@/composables/useTasks";
+const { mutate: createEvent } = useCreateEvent();
+const { mutate: createTask } = useCreateTask();
 
 const props = defineProps<{
   span: CalendarSpan;
