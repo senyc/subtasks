@@ -28,7 +28,7 @@
       <TimeSlot
         v-for="event in allEvents"
         :key="'id' in event ? event.id : 'new'"
-        :event="event"
+        :timeSlot="event"
       />
 
       <!-- Preview event while dragging -->

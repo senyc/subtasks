@@ -14,6 +14,7 @@ export default function useEventResize({
 }: UseEventResizeParams) {
   // @ts-ignore
   const minDiff = (new Date(toValue(endTime)) - new Date(toValue(startTime))) / (1000 * 60);
+  // @ts-ignore
   const midnight = new Date(toValue(startTime));
   midnight.setHours(0, 0, 0, 0);
   // @ts-ignore

@@ -8,10 +8,18 @@
     }"
   >
     <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
-    <div class="event-content">
-      <div class="event-title">{{ event.title || "New Event" }}</div>
-      <div class="event-time">{{ timeRange }}</div>
-    </div>
+
+    <Event
+      v-if="timeSlot.type === 'event'"
+      :time-range="timeRange"
+      :title="timeSlot.title"
+    />
+
+    <Task
+      v-if="timeSlot.type === 'task'"
+      :time-estimate="eventHeight"
+      :title="timeSlot.title"
+    />
 
     <!-- Resize handle -->
     <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
@@ -24,7 +32,11 @@
     header="Update Event"
     class="sm:w-100 w-9/10"
   >
-    <TimeSlotForm @submit="updateEvent" v-if="eventModel" v-model:model-value="eventModel" />
+    <TimeSlotForm
+      @submit="updateEvent"
+      v-if="eventModel"
+      v-model:model-value="eventModel"
+    />
     <div class="flex justify-between gap-2">
       <div class="flex flex-row gap-2">
         <DangerButton severity="danger" type="button" @click="onDelete"
@@ -43,7 +55,9 @@
 
 <script setup lang="ts">
 import useEventResize from "@composables/useEventResize";
-import type { Event } from "@annotations/event";
+import type { Event as EventType } from "@annotations/event";
+import Event from "./Event.vue";
+import Task from "./Task.vue";
 import { ref } from "vue";
 import { useDeleteEvent, useUpdateEvent } from "@/composables/useEvent";
 import { useToast } from "primevue";
@@ -61,15 +75,15 @@ import type {
 
 const props = defineProps<{
   /** This can be either a saved timeslot (with an id) or an in-progress timeslot (currently saved within the form)*/
-  event: TimeSlotFormType | TimeSlotResponse;
+  timeSlot: TimeSlotFormType | TimeSlotResponse;
 }>();
 
-const eventModel = ref({ ...props.event });
+const eventModel = ref({ ...props.timeSlot });
 const { mutate: deleteEvent } = useDeleteEvent();
 
 function onDelete() {
-  if ("id" in props.event) {
-    deleteEvent({ eventId: props.event?.id });
+  if ("id" in props.timeSlot) {
+    deleteEvent({ eventId: props.timeSlot?.id });
   } else {
     console.error("Cannot delete without id");
   }
@@ -84,24 +98,27 @@ const {
   isDragging,
   startResizeBottom,
 } = useEventResize({
-  startTime: () => props.event.start_at,
-  endTime: () => props.event.end_at,
+  startTime: () => props.timeSlot.start_at,
+  endTime: () => props.timeSlot.end_at,
   onResizeEnd: () =>
     mutate({
-      timeSlot: { end_at: actualEndTime.value, start_at: actualStartTime.value },
-      eventId: (props.event as TimeSlotResponse).id,
+      timeSlot: {
+        end_at: actualEndTime.value,
+        start_at: actualStartTime.value,
+      },
+      eventId: (props.timeSlot as TimeSlotResponse).id,
     }),
 });
 
 const visible = ref(false);
 function updateEvent() {
-  if ("id" in props.event) {
-    const updatedEvent: Event = {
+  if ("id" in props.timeSlot) {
+    const updatedEvent: EventType = {
       title: eventModel.value.title,
       notes: eventModel.value.notes || "",
       is_recurring: false,
     };
-    mutate({ timeSlot: updatedEvent, eventId: props.event.id });
+    mutate({ timeSlot: updatedEvent, eventId: props.timeSlot.id });
     visible.value = false;
   } else {
     toast.add({ severity: "error", detail: "Unable to edit event" });
@@ -122,22 +139,6 @@ const mouseDownTime = ref(0);
   min-height: 60px;
   cursor: default;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.event-content {
-  padding: 8px 12px;
-  pointer-events: none;
-}
-
-.event-title {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.event-time {
-  font-size: 12px;
-  opacity: 0.9;
 }
 
 .resize-handle {
