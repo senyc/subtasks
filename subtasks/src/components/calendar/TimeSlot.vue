@@ -26,9 +26,8 @@
   </div>
   <Dialog
     :close-on-escape="true"
-    :draggable="false"
+    draggable
     v-model:visible="visible"
-    modal
     header="Update Event"
     class="sm:w-100 w-9/10"
   >
@@ -56,12 +55,14 @@
 <script setup lang="ts">
 import useEventResize from "@composables/useEventResize";
 import type { Event as EventType } from "@annotations/event";
+import type { Task as TaskType } from "@annotations/models/task";
 import Event from "./Event.vue";
 import Task from "./Task.vue";
 import { ref } from "vue";
 import { useDeleteEvent, useUpdateEvent } from "@/composables/useEvent";
 import { useToast } from "primevue";
-const { mutate } = useUpdateEvent();
+const { mutate: mutateEvent } = useUpdateEvent();
+const { mutate: mutateTask } = useUpdateTask();
 const toast = useToast();
 import Dialog from "@volt/Dialog.vue";
 import Button from "@volt/Button.vue";
@@ -72,6 +73,7 @@ import type {
   TimeSlotForm as TimeSlotFormType,
   TimeSlotResponse,
 } from "@/annotations/models/timeSlot";
+import { useUpdateTask } from "@/composables/useTasks";
 
 const props = defineProps<{
   /** This can be either a saved timeslot (with an id) or an in-progress timeslot (currently saved within the form)*/
@@ -100,28 +102,48 @@ const {
 } = useEventResize({
   startTime: () => props.timeSlot.start_at,
   endTime: () => props.timeSlot.end_at,
-  onResizeEnd: () =>
-    mutate({
-      timeSlot: {
-        end_at: actualEndTime.value,
-        start_at: actualStartTime.value,
-      },
-      eventId: (props.timeSlot as TimeSlotResponse).id,
-    }),
+  onResizeEnd: () => {
+    if (props.timeSlot.type === "event") {
+      mutateEvent({
+        event: {
+          end_at: actualEndTime.value,
+          start_at: actualStartTime.value,
+        },
+        eventId: (props.timeSlot as TimeSlotResponse).id,
+      });
+    } else if (props.timeSlot.type === "task") {
+      mutateTask({
+        task: {
+          title: props.timeSlot.title,
+          end_at: actualEndTime.value,
+          start_at: actualStartTime.value,
+        },
+        taskId: (props.timeSlot as TimeSlotResponse).id,
+      });
+    }
+  },
 });
 
 const visible = ref(false);
 function updateEvent() {
-  if ("id" in props.timeSlot) {
-    const updatedEvent: EventType = {
+  if (!("id" in props.timeSlot)) {
+    toast.add({ severity: "error", detail: "Unable to edit event" });
+    return;
+  }
+  if (props.timeSlot.type === "event") {
+    const updatedTimeSLot: EventType = {
       title: eventModel.value.title,
       notes: eventModel.value.notes || "",
       is_recurring: false,
     };
-    mutate({ timeSlot: updatedEvent, eventId: props.timeSlot.id });
+    mutateEvent({ event: updatedTimeSLot, eventId: props.timeSlot.id });
     visible.value = false;
-  } else {
-    toast.add({ severity: "error", detail: "Unable to edit event" });
+  } else if (props.timeSlot.type === "task") {
+    const updatedTimeSLot: TaskType = {
+      title: eventModel.value.title,
+    };
+    mutateTask({ task: updatedTimeSLot, taskId: props.timeSlot.id });
+    visible.value = false;
   }
 }
 const mouseDownTime = ref(0);

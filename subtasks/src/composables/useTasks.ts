@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/vue-query";
 import type { Task } from "@annotations/models/task";
+import { useToast } from "primevue";
 
 async function getTasks({
   projectId,
@@ -115,14 +116,23 @@ export function useTasks({
 
 export function useUpdateTask() {
   const queryClient = useQueryClient();
+  const toast = useToast();
   return useMutation({
-    mutationFn: ({ task, taskId }: { task: Task; taskId: number }) =>
-      updateTask({
+    mutationFn: ({ task, taskId }: { task: Task; taskId: number }) => {
+      return updateTask({
         task,
         taskId,
-      }),
-    onSuccess: () => {
+      });
+    },
+    onSuccess: (task) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+      toast.add({
+        severity: "success",
+        summary: "Event",
+        detail: `Updated ${task.title}`,
+        life: 2000,
+      });
     },
   });
 }

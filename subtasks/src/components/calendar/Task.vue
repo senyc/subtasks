@@ -1,8 +1,10 @@
 <template>
-  <div class="h-full bg-green-500 py-2 px-3 pointer-events-none">
+  <div class="h-full bg-green-600 py-2 px-3 pointer-events-none">
     <div class="flex flex-row mb-1 items-center gap-1">
       <span class="pi-check-circle pi text-xs" />
-      <div class="font-semibold text-ellipsis truncate">{{ title || "New Task" }}</div>
+      <div class="font-semibold text-ellipsis truncate">
+        {{ title || "New Task" }}
+      </div>
     </div>
     <div class="opacity-90 text-sm">{{ timeEstimateDisplay }}</div>
   </div>
@@ -20,8 +22,11 @@ const timeEstimateDisplay = computed(() => {
   const hours = Math.floor(props.timeEstimate / 60);
   const mins = props.timeEstimate % 60;
   if (hours) {
-    return `${hours}h ${mins}M`;
+    if (mins) {
+      return `${hours}h ${mins}m`;
+    }
+    return `${hours}h`;
   }
-  return `${mins}M`;
+  return `${mins}m`;
 });
 </script>

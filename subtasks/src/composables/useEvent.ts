@@ -4,10 +4,10 @@ import { useToast } from "primevue";
 
 // TODO: add use event hook
 async function updateEvent({
-  timeSlot,
+  event: timeSlot,
   eventId,
 }: {
-  timeSlot: Event;
+  event: Event;
   eventId: number;
 }): Promise<EventResponse> {
   const res = await fetch(`http://localhost:8000/event/${eventId}`, {
@@ -44,7 +44,7 @@ async function createEvent({
   }
   return res.json();
 }
-type EventId = number
+type EventId = number;
 async function deleteEvent({
   eventId: eventId,
 }: {
@@ -88,9 +88,9 @@ export function useUpdateEvent() {
   const queryClient = useQueryClient();
   const toast = useToast();
   return useMutation({
-    mutationFn: ({ timeSlot, eventId }: { timeSlot: Event; eventId: number }) =>
+    mutationFn: ({ event, eventId }: { event: Event; eventId: number }) =>
       updateEvent({
-        timeSlot,
+        event,
         eventId,
       }),
     onSuccess: (event) => {

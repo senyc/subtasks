@@ -91,8 +91,8 @@ def update_task(task_id: int, task: TaskData, session: SessionDep) -> Task | Non
         "project_id",
         "order",
         "tags",
-        "start_at"
-        "end_at"
+        "start_at",
+        "end_at",
     ]:
 
         value = getattr(task, attr, None)

@@ -21,27 +21,6 @@ class NewTask(BaseSQLModel, table=False):
     end_at: datetime | None = None
 
 
-class TaskData(BaseSQLModel, table=False):
-    id: int | None = None
-    project_id: int | None = None
-    title: str | None = None
-    body: str | None = None
-    completed: bool = False
-    due_date: datetime | None = None
-    completed_date: datetime | None = None
-    created_at: datetime | None = None
-    time_estimate: int | None = None
-    """Estimated minutes until completion in minutes"""
-    order: float | None = None
-    tags: Sequence[Tag] | None = None
-
-
-@dataclass
-class PagedTasks:
-    tasks: Sequence[TaskData]
-    count: int
-
-
 class ProjectResponse(Project):
     total_tasks: int
     completed_tasks: int
@@ -68,3 +47,31 @@ class TimeSlot(BaseModel):
     @field_serializer("start_at", "end_at", when_used="json")
     def serialize_dt(self, dt: datetime) -> str | None:
         return serialize_datetime(dt)
+
+
+class TaskData(BaseModel):
+    id: int | None = None
+    project_id: int | None = None
+    title: str | None = None
+    body: str | None = None
+    completed: bool = False
+    due_date: datetime | None = None
+    completed_date: datetime | None = None
+    created_at: datetime | None = None
+    time_estimate: int | None = None
+    """Estimated minutes until completion in minutes"""
+    order: float | None = None
+    tags: Sequence[Tag] | None = None
+    start_at: datetime | None = None
+    end_at: datetime | None = None
+
+    # Serialize datetime fields to indicate it is stored in utc
+    @field_serializer("start_at", "end_at", when_used="json")
+    def serialize_dt(self, dt: datetime) -> str | None:
+        return serialize_datetime(dt)
+
+
+@dataclass
+class PagedTasks:
+    tasks: Sequence[TaskData]
+    count: int
