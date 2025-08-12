@@ -13,12 +13,14 @@ export default function useEventResize({
   onResizeEnd,
 }: UseEventResizeParams) {
   // @ts-ignore
-  const minDiff = (new Date(toValue(endTime)) - new Date(toValue(startTime))) / (1000 * 60);
+  const minDiff =
+    (new Date(toValue(endTime)) - new Date(toValue(startTime))) / (1000 * 60);
   // @ts-ignore
   const midnight = new Date(toValue(startTime));
   midnight.setHours(0, 0, 0, 0);
   // @ts-ignore
-  const initialStartMargin = (new Date(toValue(startTime ))- midnight) / (1000 * 60);
+  const initialStartMargin =
+    (new Date(toValue(startTime)) - midnight) / (1000 * 60);
 
   const eventHeight = ref(minDiff);
   const startMargin = ref(initialStartMargin);
@@ -114,7 +116,9 @@ export default function useEventResize({
     document.removeEventListener("mouseup", stopResize);
     document.body.style.userSelect = "";
     document.body.style.cursor = "";
-    onResizeEnd();
+    if (onResizeEnd) {
+      onResizeEnd();
+    }
     setTimeout(() => (isDragging.value = false), 0); // reset after click
   };
 

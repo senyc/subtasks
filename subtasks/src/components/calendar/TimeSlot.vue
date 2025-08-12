@@ -73,7 +73,7 @@ import type {
   TimeSlotForm as TimeSlotFormType,
   TimeSlotResponse,
 } from "@/annotations/models/timeSlot";
-import { useUpdateTask } from "@/composables/useTasks";
+import { useDeleteTask, useUpdateTask } from "@/composables/useTasks";
 
 const props = defineProps<{
   /** This can be either a saved timeslot (with an id) or an in-progress timeslot (currently saved within the form)*/
@@ -82,12 +82,19 @@ const props = defineProps<{
 
 const eventModel = ref({ ...props.timeSlot });
 const { mutate: deleteEvent } = useDeleteEvent();
+const { mutate: deleteTask } = useDeleteTask();
 
 function onDelete() {
-  if ("id" in props.timeSlot) {
-    deleteEvent({ eventId: props.timeSlot?.id });
-  } else {
+  if (!("id" in props.timeSlot)) {
     console.error("Cannot delete without id");
+    return;
+  }
+
+  if (props.timeSlot.type == "event") {
+    deleteEvent({ eventId: props.timeSlot?.id });
+  }
+  if (props.timeSlot.type == "task") {
+    deleteTask({ id: props.timeSlot?.id });
   }
 }
 const {

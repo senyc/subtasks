@@ -36,6 +36,17 @@ async function getTasks({
   return res.json();
 }
 
+async function deleteTask({ id }: { id: number }): Promise<number> {
+  const res = await fetch(`http://localhost:8000/task/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    throw new Error("Could not delete task");
+  }
+  return res.json();
+}
+
 async function updateTask({
   taskId,
   task,
@@ -152,6 +163,29 @@ export function useCreateTask() {
 
       queryClient.invalidateQueries({
         queryKey: ["calendar"],
+      });
+    },
+  });
+}
+
+export function useDeleteTask() {
+  const queryClient = useQueryClient();
+  const toast = useToast();
+  return useMutation({
+    mutationFn: ({ id }: { id: number }) => deleteTask({ id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["calendar"],
+      });
+      toast.add({
+        severity: "success",
+        summary: "Task",
+        detail: `Delete Task`,
+        life: 2000,
       });
     },
   });
