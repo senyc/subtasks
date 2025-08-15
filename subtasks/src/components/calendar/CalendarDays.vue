@@ -26,8 +26,8 @@
               },
             });
           } else if (timeSlot.type === 'task') {
-            const endAt = new Date(timeSlot.end_at)
-            const startAt = new Date(timeSlot.start_at)
+            const endAt = new Date(timeSlot.end_at);
+            const startAt = new Date(timeSlot.start_at);
             createTask({
               task: {
                 ...timeSlot,
@@ -35,7 +35,7 @@
                 end_at: endAt,
                 body: timeSlot.notes || '',
                 //@ts-ignore
-                time_estimate: (endAt - startAt) /(1000* 60) ,
+                time_estimate: (endAt - startAt) / (1000 * 60),
               },
             });
           } else {

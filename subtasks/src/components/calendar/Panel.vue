@@ -1,18 +1,21 @@
 <template>
-  <Test />
-  <div class="">
-    <h3
-      class="font-bold text-xl"
-      :class="{
-        'bg-blue-500 inline-flex flex-row items-center justify-center px-2 rounded-full text-white':
-          date?.toDateString() == new Date().toDateString(),
-        'text-center': cardView,
-      }"
-    >
-      {{ date?.getDate() }}
-    </h3>
+  <div>
+    <div class="flex flex-col gap-2">
+      <h2 class="text-center font-bold text-xl">
+        {{ date.toLocaleString("en-US", { weekday: "short" }) }}
+      </h2>
+      <h3
+        class="w-fit font-bold text-xl"
+        :class="{
+          'bg-blue-500 inline-flex flex-row items-center justify-center px-2 rounded-full text-white':
+            date.toDateString() == new Date().toDateString(),
+        }"
+      >
+        {{ date.getDate() }}
+      </h3>
+    </div>
+
     <div
-      v-if="!cardView"
       class="relative grid grid-cols-1 grid-rows-23 h-full mt-1"
       @mousedown="startCreateEvent"
       @mousemove="updateCreateEvent"
@@ -25,12 +28,6 @@
         :key="hour"
         :data-hour="hour"
       ></div>
-
-      <TimeSlot
-        v-for="event in allEvents"
-        :key="'id' in event ? event.id : 'new'"
-        :timeSlot="event"
-      />
 
       <!-- Preview event while dragging -->
       <div
@@ -46,6 +43,9 @@
           <div class="text-xs opacity-90">{{ previewEvent.timeRange }}</div>
         </div>
       </div>
+
+      <!-- Display temp slot -->
+      <TimeSlot :full-screen="true" v-if="tempEvent" :timeSlot="tempEvent" />
     </div>
   </div>
 
@@ -58,54 +58,37 @@
 </template>
 
 <script setup lang="ts">
-import TimeSlot from "./TimeSlot.vue";
 import { ref, computed } from "vue";
 import NewTimeSlot from "./events/NewTimeSlot.vue";
-import type {
-  TimeSlotForm,
-  TimeSlotResponse,
-} from "@annotations/models/timeSlot";
+import type { TimeSlotForm } from "@annotations/models/timeSlot";
+import TimeSlot from "./TimeSlot.vue";
 
 const visible = ref(false);
 
-const props = withDefaults(
-  defineProps<{
-    date: Date;
-    cardView?: boolean;
-    events?: TimeSlotResponse[];
-  }>(),
-  {
-    cardView: false,
-  },
-);
-
-const tempEvent = ref<TimeSlotForm>();
-
-function cancelTimeSlot() {
-  tempEvent.value = undefined;
-}
-
-function createTimeSlot(event: TimeSlotForm) {
-  tempEvent.value = undefined;
-  emit("createTimeSlot", event);
-}
-
-const allEvents = computed<(TimeSlotForm | TimeSlotResponse)[]>(() =>
-  tempEvent.value
-    ? [...(props.events ?? []), tempEvent.value]
-    : [...(props.events ?? [])],
-);
+const props = defineProps<{
+  date: Date;
+}>();
 
 // Sync query data to local state once fetched
 const emit = defineEmits<{
-  createTimeSlot: [event: TimeSlotForm];
+  createTimeSlot: [timeSlot: TimeSlotForm];
 }>();
+
+const tempEvent = ref<TimeSlotForm>();
 
 // Event creation state
 const isCreating = ref(false);
 const createStartY = ref(0);
 const createCurrentY = ref(0);
 const createStartMinutes = ref(0);
+
+function createTimeSlot(event: TimeSlotForm) {
+  tempEvent.value = undefined;
+  emit("createTimeSlot", event);
+}
+function cancelTimeSlot() {
+  tempEvent.value = undefined;
+}
 
 // Convert mouse position to minutes from midnight
 const getMinutesFromMouseY = (
@@ -144,7 +127,7 @@ const previewEvent = computed(() => {
     timeRange: `${formatTime(startMinutes)} - ${formatTime(startMinutes + duration)}`,
   };
 });
-import Test from './Test.vue'
+
 const startCreateEvent = (e: MouseEvent) => {
   // Only start creating if clicking on empty space (not on existing events)
   if ((e.target as HTMLElement).closest(".event-box")) return;
@@ -198,8 +181,6 @@ const finishCreateEvent = (e: MouseEvent) => {
 
     tempEvent.value = newEvent;
     visible.value = true;
-    // Emit event creation
-    // emit("createEvent", newEvent);
   }
 
   // Reset creation state

@@ -1,27 +1,28 @@
 <template>
   <div
-    class="event-box select-none"
-    @click.stop="() => !isDragging && (visible = true)"
+    class="event-box select-none absolute"
+    :class="{ 'w-1/8': !fullScreen }"
     :style="{
-      top: `calc((${startMargin} / (24 * 60)) * 100% - 29px)`,
+      top: `calc((${startMargin} / (24 * 60)) * 100% + 70px)`,
       height: `${(eventHeight / (24 * 60)) * 100}%`,
+      left: fullScreen ? '' : `calc(${(currentDay / 7) * 100}% + 20px)`,
     }"
   >
     <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
 
-    <Event
-      v-if="timeSlot.type === 'event'"
-      :time-range="timeRange"
-      :title="timeSlot.title"
-    />
+    <div
+      @mousedown="startDrag"
+      class="h-full"
+      @click.stop="() => !dragged && (visible = true)"
+    >
+      <Event
+        v-if="timeSlot.type === 'event'"
+        :time-range="timeRange"
+        :title="timeSlot.title"
+      />
+      <Task v-else :time-estimate="eventHeight" :title="timeSlot.title" />
+    </div>
 
-    <Task
-      v-if="timeSlot.type === 'task'"
-      :time-estimate="eventHeight"
-      :title="timeSlot.title"
-    />
-
-    <!-- Resize handle -->
     <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
   </div>
   <Dialog
@@ -78,6 +79,7 @@ import { useDeleteTask, useUpdateTask } from "@/composables/useTasks";
 const props = defineProps<{
   /** This can be either a saved timeslot (with an id) or an in-progress timeslot (currently saved within the form)*/
   timeSlot: TimeSlotFormType | TimeSlotResponse;
+  fullScreen?: boolean;
 }>();
 
 const eventModel = ref({ ...props.timeSlot });
@@ -97,14 +99,18 @@ function onDelete() {
     deleteTask({ id: props.timeSlot?.id });
   }
 }
+
+// We just need to update this to return the marginx and the callback based off of test
 const {
   eventHeight,
   startMargin,
+  currentDay,
   actualStartTime,
   actualEndTime,
   timeRange,
+  startDrag,
+  dragged,
   startResizeTop,
-  isDragging,
   startResizeBottom,
 } = useEventResize({
   startTime: () => props.timeSlot.start_at,
@@ -153,7 +159,6 @@ function updateEvent() {
     visible.value = false;
   }
 }
-const mouseDownTime = ref(0);
 </script>
 
 <style>
