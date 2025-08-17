@@ -26,7 +26,7 @@
 import type { CalendarSpan } from "@/annotations/calendarSpan";
 import { computed } from "vue";
 import Panel from "./Panel.vue";
-import TimeSlot from "./TimeSlot.vue";
+import TimeSlot from "./timeslots/TimeSlot.vue";
 import type { TimeSlotForm } from "@/annotations/models/timeSlot";
 import { useCreateEvent } from "@/composables/useEvent";
 import { useCreateTask } from "@/composables/useTasks";

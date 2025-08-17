@@ -5,7 +5,9 @@
     :style="{
       top: `calc((${startMargin} / (24 * 60)) * 100% + 70px)`,
       height: `${(eventHeight / (24 * 60)) * 100}%`,
-      left: fullScreen ? '' : `calc(${(currentDay / 7) * 100}% + 20px)`,
+      left: fullScreen
+        ? ''
+        : `calc(${(actualStartTime.getDay() / 7) * 100}% + 20px)`,
     }"
   >
     <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
@@ -54,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import useEventResize from "@composables/useEventResize";
+import useResize from "@/composables/useResize";
 import type { Event as EventType } from "@annotations/event";
 import type { Task as TaskType } from "@annotations/models/task";
 import Event from "./Event.vue";
@@ -68,7 +70,7 @@ const toast = useToast();
 import Dialog from "@volt/Dialog.vue";
 import Button from "@volt/Button.vue";
 import SecondaryButton from "@volt/SecondaryButton.vue";
-import TimeSlotForm from "./events/TimeSlotForm.vue";
+import TimeSlotForm from "./TimeSlotForm.vue";
 import DangerButton from "@volt/DangerButton.vue";
 import type {
   TimeSlotForm as TimeSlotFormType,
@@ -100,11 +102,9 @@ function onDelete() {
   }
 }
 
-// We just need to update this to return the marginx and the callback based off of test
 const {
-  eventHeight,
+  timeSlotHeight: eventHeight,
   startMargin,
-  currentDay,
   actualStartTime,
   actualEndTime,
   timeRange,
@@ -112,7 +112,7 @@ const {
   dragged,
   startResizeTop,
   startResizeBottom,
-} = useEventResize({
+} = useResize({
   startTime: () => props.timeSlot.start_at,
   endTime: () => props.timeSlot.end_at,
   onResizeEnd: () => {
@@ -171,7 +171,6 @@ function updateEvent() {
   color: white;
   border-radius: 4px;
   min-height: 60px;
-  cursor: default;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -227,15 +226,5 @@ function updateEvent() {
   height: 2px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 1px;
-}
-
-.dragging {
-  user-select: none;
-}
-
-.info {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #666;
 }
 </style>

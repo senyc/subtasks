@@ -5,7 +5,13 @@ from collections.abc import Sequence
 
 
 from ..db.db import Project, SessionDep, Task
-from ..annotations.types import NewTask, PagedProjectResponse, PagedTasks, ProjectResponse, TaskData
+from ..annotations.types import (
+    NewTask,
+    PagedProjectResponse,
+    PagedTasks,
+    ProjectResponse,
+    TaskData,
+)
 from ..shared.shared import new_task
 from ..tags.tags import get_task_tags, update_task_tags
 
@@ -172,7 +178,10 @@ def create_project_task(
     project_id: int, task: NewTask, session: SessionDep
 ) -> Task | None:
     task.project_id = project_id
+    print("hello")
+    print(task)
     task_item = Task(**task.model_dump())
+    print(task_item)
     created_task = new_task(task_item, session)
     if task.tags:
         update_task_tags(created_task.id, task.tags, session)

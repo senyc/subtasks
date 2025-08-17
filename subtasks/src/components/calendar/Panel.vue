@@ -17,9 +17,9 @@
 
     <div
       class="relative grid grid-cols-1 grid-rows-23 h-full mt-1"
-      @mousedown="startCreateEvent"
-      @mousemove="updateCreateEvent"
-      @mouseup="finishCreateEvent"
+      @mousedown="startCreateTimeSlot"
+      @mousemove="updateTempTimeSlot"
+      @mouseup="finishCreatingTimeSlot"
     >
       <!-- Hour grid lines -->
       <div
@@ -31,37 +31,42 @@
 
       <!-- Preview event while dragging -->
       <div
-        v-if="isCreating && previewEvent"
+        v-if="isCreating && previewTimeSlot"
         class="absolute left-1 right-1 bg-blue-500/50 border-2 border-blue-500 border-dashed rounded pointer-events-none z-10"
         :style="{
-          top: `calc((${previewEvent.startMinutes} / 1440) * 100%)`,
-          height: `calc((${previewEvent.duration} / 1440) * 100%)`,
+          top: `calc((${previewTimeSlot.startMinutes} / ${ONE_DAY}) * 100%)`,
+          height: `calc((${previewTimeSlot.duration} / ${ONE_DAY}) * 100%)`,
         }"
       >
         <div class="p-2 text-white text-sm">
           <div>New Event</div>
-          <div class="text-xs opacity-90">{{ previewEvent.timeRange }}</div>
+          <div class="text-xs opacity-90">{{ previewTimeSlot.timeRange }}</div>
         </div>
       </div>
 
       <!-- Display temp slot -->
-      <TimeSlot :full-screen="true" v-if="tempEvent" :timeSlot="tempEvent" />
+      <TimeSlot
+        :full-screen="true"
+        v-if="tempTimeSlot"
+        :timeSlot="tempTimeSlot"
+      />
     </div>
   </div>
 
+  <!-- Edit temp slot -->
   <NewTimeSlot
     @create-time-slot="createTimeSlot"
     @cancel-time-slot="cancelTimeSlot"
-    v-model:timeSlot="tempEvent!"
+    v-model:timeSlot="tempTimeSlot!"
     v-model:visible="visible"
   />
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import NewTimeSlot from "./events/NewTimeSlot.vue";
+import NewTimeSlot from "./timeslots/NewTimeSlot.vue";
 import type { TimeSlotForm } from "@annotations/models/timeSlot";
-import TimeSlot from "./TimeSlot.vue";
+import TimeSlot from "./timeslots/TimeSlot.vue";
 
 const visible = ref(false);
 
@@ -74,7 +79,7 @@ const emit = defineEmits<{
   createTimeSlot: [timeSlot: TimeSlotForm];
 }>();
 
-const tempEvent = ref<TimeSlotForm>();
+const tempTimeSlot = ref<TimeSlotForm>();
 
 // Event creation state
 const isCreating = ref(false);
@@ -82,12 +87,17 @@ const createStartY = ref(0);
 const createCurrentY = ref(0);
 const createStartMinutes = ref(0);
 
+const ONE_DAY = 1440;
+const SNAP_INTERVAL_MINUTES = 15;
+const MINIMUM_TIME_SLOT_DURATION_MINUTES = 60;
+
 function createTimeSlot(event: TimeSlotForm) {
-  tempEvent.value = undefined;
+  tempTimeSlot.value = undefined;
   emit("createTimeSlot", event);
 }
+
 function cancelTimeSlot() {
-  tempEvent.value = undefined;
+  tempTimeSlot.value = undefined;
 }
 
 // Convert mouse position to minutes from midnight
@@ -98,28 +108,26 @@ const getMinutesFromMouseY = (
   const rect = containerElement.getBoundingClientRect();
   const relativeY = mouseY - rect.top;
   const percentage = relativeY / rect.height;
-  const minutes = Math.max(0, Math.min(1440, percentage * 1440)); // 1440 minutes in day
+  const minutes = Math.max(0, Math.min(ONE_DAY, percentage * ONE_DAY));
 
-  // Snap to 15-minute intervals
-  return Math.round(minutes / 15) * 15;
+  return Math.round(minutes / SNAP_INTERVAL_MINUTES) * SNAP_INTERVAL_MINUTES;
 };
 
-const formatTime = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-  const period = hours >= 12 ? "PM" : "AM";
-  const displayHour = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours;
-  const displayMinutes = mins.toString().padStart(2, "0");
-  return `${displayHour}:${displayMinutes} ${period}`;
+const formatTime = (minutesFromMidnight: number) => {
+  const date = new Date();
+  date.setHours(0, 0, 0, 0);
+  date.setMinutes(minutesFromMidnight);
+  return date.toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 };
 
-// Preview event data
-const previewEvent = computed(() => {
-  if (!isCreating.value) return null;
-
+const previewTimeSlot = computed(() => {
   const startMinutes = Math.min(createStartMinutes.value, createCurrentY.value);
   const endMinutes = Math.max(createStartMinutes.value, createCurrentY.value);
-  const duration = Math.max(15, endMinutes - startMinutes); // Minimum 15 minutes
+  const duration = Math.max(SNAP_INTERVAL_MINUTES, endMinutes - startMinutes);
 
   return {
     startMinutes,
@@ -128,10 +136,7 @@ const previewEvent = computed(() => {
   };
 });
 
-const startCreateEvent = (e: MouseEvent) => {
-  // Only start creating if clicking on empty space (not on existing events)
-  if ((e.target as HTMLElement).closest(".event-box")) return;
-
+const startCreateTimeSlot = (e: MouseEvent) => {
   e.preventDefault();
   const container = e.currentTarget as HTMLElement;
   const minutes = getMinutesFromMouseY(e.clientY, container);
@@ -145,7 +150,7 @@ const startCreateEvent = (e: MouseEvent) => {
   document.body.style.userSelect = "none";
 };
 
-const updateCreateEvent = (e: MouseEvent) => {
+const updateTempTimeSlot = (e: MouseEvent) => {
   if (!isCreating.value) return;
 
   e.preventDefault();
@@ -153,25 +158,26 @@ const updateCreateEvent = (e: MouseEvent) => {
   createCurrentY.value = getMinutesFromMouseY(e.clientY, container);
 };
 
-const finishCreateEvent = (e: MouseEvent) => {
+const finishCreatingTimeSlot = (e: MouseEvent) => {
   if (!isCreating.value) return;
-
   e.preventDefault();
 
   const startMinutes = Math.min(createStartMinutes.value, createCurrentY.value);
   const endMinutes = Math.max(createStartMinutes.value, createCurrentY.value);
-  const duration = Math.max(60, endMinutes - startMinutes); // Minimum 1 hour
+  const duration = Math.max(
+    MINIMUM_TIME_SLOT_DURATION_MINUTES,
+    endMinutes - startMinutes,
+  );
 
-  // Create the new event
-  if (duration >= 15) {
-    // Only create if dragged for at least 15 minutes
+  // Only create if surpasses minimum size
+  if (duration >= SNAP_INTERVAL_MINUTES) {
     const startTime = new Date(props.date);
     startTime.setHours(0, startMinutes, 0, 0);
 
     const endTime = new Date(startTime);
     endTime.setMinutes(endTime.getMinutes() + duration);
 
-    const newEvent: TimeSlotForm = {
+    const newTimeSlot: TimeSlotForm = {
       start_at: startTime.toISOString(),
       end_at: endTime.toISOString(),
       title: "New Event",
@@ -179,11 +185,10 @@ const finishCreateEvent = (e: MouseEvent) => {
       type: "event",
     };
 
-    tempEvent.value = newEvent;
+    tempTimeSlot.value = newTimeSlot;
     visible.value = true;
   }
 
-  // Reset creation state
   isCreating.value = false;
   createStartY.value = 0;
   createCurrentY.value = 0;

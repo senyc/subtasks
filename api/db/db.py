@@ -75,8 +75,8 @@ class TaskTag(BaseSQLModel, table=True):
 
 # Global datetime serializer
 def serialize_datetime(dt: datetime | None) -> str | None:
-    if dt is None:
-        return dt
+    if not dt:
+        return None
     return dt.isoformat() + "Z"
 
 
@@ -101,8 +101,8 @@ class Task(UTCModel, table=True):
     order: float = Field(default=0.0, nullable=False)
     """Order relative to other tasks, generally defaults to the id number"""
     do_date: Date
-    start_at: datetime = Field(nullable=True)
-    end_at: datetime = Field(nullable=True)
+    start_at: datetime | None= Field(nullable=True)
+    end_at: datetime | None= Field(nullable=True)
 
 
 class Event(UTCModel, table=True):
