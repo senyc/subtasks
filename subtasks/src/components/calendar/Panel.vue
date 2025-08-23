@@ -1,35 +1,18 @@
 <template>
-  <div>
-    <div class="flex flex-col gap-2">
-      <h2 class="text-center font-bold text-xl">
-        {{ date.toLocaleString("en-US", { weekday: "short" }) }}
-      </h2>
-      <h3
-        class="w-fit font-bold text-xl"
-        :class="{
-          'bg-blue-500 inline-flex flex-row items-center justify-center px-2 rounded-full text-white':
-            date.toDateString() == new Date().toDateString(),
-        }"
-      >
-        {{ date.getDate() }}
-      </h3>
-    </div>
-
+  <div class="h-full flex flex-col">
     <div
-      class="relative grid grid-cols-1 grid-rows-23 h-full mt-1"
+      class="grid grid-cols-1 relative grid-rows-23 flex-grow mt-1"
       @mousedown="startCreateTimeSlot"
       @mousemove="updateTempTimeSlot"
       @mouseup="finishCreatingTimeSlot"
     >
-      <!-- Hour grid lines -->
       <div
-        class="border-t border-t-black/20 h-3"
+        class="border-t border-t-black/20"
         v-for="hour in 23"
         :key="hour"
         :data-hour="hour"
       ></div>
 
-      <!-- Preview event while dragging -->
       <div
         v-if="isCreating && previewTimeSlot"
         class="absolute left-1 right-1 bg-blue-500/50 border-2 border-blue-500 border-dashed rounded pointer-events-none z-10"
@@ -42,18 +25,15 @@
           <div>New Event</div>
           <div class="text-xs opacity-90">{{ previewTimeSlot.timeRange }}</div>
         </div>
+        <TimeSlot
+          :full-screen="true"
+          v-if="tempTimeSlot"
+          :timeSlot="tempTimeSlot"
+        />
       </div>
-
-      <!-- Display temp slot -->
-      <TimeSlot
-        :full-screen="true"
-        v-if="tempTimeSlot"
-        :timeSlot="tempTimeSlot"
-      />
     </div>
   </div>
 
-  <!-- Edit temp slot -->
   <NewTimeSlot
     @create-time-slot="createTimeSlot"
     @cancel-time-slot="cancelTimeSlot"
@@ -61,7 +41,6 @@
     v-model:visible="visible"
   />
 </template>
-
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import NewTimeSlot from "./timeslots/NewTimeSlot.vue";

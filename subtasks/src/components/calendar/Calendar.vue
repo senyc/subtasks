@@ -1,32 +1,59 @@
 <template>
-  <section
-    :class="{
-      'divide-y divide-y-black/30': span === 'month',
-      'grid-cols-7': span === 'week' || span === 'month',
-      'grid-cols-1': span === 'day',
-    }"
-    class="relative h-full divide-x border-x border-x-black/30 divide-black/30 grid"
-  >
-    <Panel
-      @create-time-slot="createTimeSlot"
-      :key="date.getDate()"
-      v-for="date in dates"
-      :date="date"
-    />
-    <TimeSlot
-      :key="timeSlot.id"
-      :full-screen="false"
-      v-for="timeSlot in timeSlots"
-      :time-slot="timeSlot"
-    />
-  </section>
+  <div class="flex flex-col w-full h-full">
+    <section
+      :class="{
+        'divide-y divide-y-black/30': span === 'month',
+        'grid-cols-7': span === 'week' || span === 'month',
+        'grid-cols-1': span === 'day',
+      }"
+      class="grow ml-18 w-full divide-x border-x border-x-black/30 divide-black/30 grid"
+    ></section>
+    <div class="h-full w-full flex-row flex">
+      <TimeSideBar v-if="span !== 'month'" />
+      <div class="flex w-full h-full flex-col">
+        <div
+          class="grid grid-cols-7 divide-x border-x border-x-black/30 divide-black/30 grow w-full"
+        >
+          <!-- Fix this for month view-->
+          <PanelHeader
+            :key="date.getDate()"
+            v-for="date in dates"
+            :date="date"
+          />
+        </div>
+        <div
+          :class="{
+            'divide-y divide-y-black/30': span === 'month',
+            'grid-cols-7': span === 'week' || span === 'month',
+            'grid-cols-1': span === 'day',
+          }"
+          class="relative divide-x border-x border-x-black/30 divide-black/30 grow h-full grid w-full mb-1"
+        >
+          <Panel
+            @create-time-slot="createTimeSlot"
+            :key="date.getDate()"
+            v-for="date in dates"
+            :date="date"
+          />
+          <TimeSlot
+            :key="timeSlot.id"
+            :full-screen="span === 'day'"
+            v-for="timeSlot in timeSlots"
+            :time-slot="timeSlot"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import type { CalendarSpan } from "@/annotations/calendarSpan";
 import { computed } from "vue";
 import Panel from "./Panel.vue";
+import PanelHeader from "./PanelHeader.vue";
 import TimeSlot from "./timeslots/TimeSlot.vue";
+import TimeSideBar from "./TimeSideBar.vue";
 import type { TimeSlotForm } from "@/annotations/models/timeSlot";
 import { useCreateEvent } from "@/composables/useEvent";
 import { useCreateTask } from "@/composables/useTasks";

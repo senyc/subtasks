@@ -1,12 +1,7 @@
 <template>
-  <section class="h-full w-full flex flex-col pl-7 pb-7">
+  <section class="h-full w-full flex flex-col pl-7">
     <CalendarHeader :scope="scope" :span="span" />
-    <div class="flex h-full w-full flex-row">
-      <TimeSideBar v-if="span !== 'month'" />
-      <div class="flex flex-col w-full">
-        <Calendar :scope="scope" :span="span" />
-      </div>
-    </div>
+    <Calendar :scope="scope" :span="span" />
   </section>
 </template>
 

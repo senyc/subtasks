@@ -3,7 +3,7 @@
     class="event-box select-none absolute"
     :class="{ 'w-1/8': !fullScreen }"
     :style="{
-      top: `calc((${startMargin} / (24 * 60)) * 100% + 70px)`,
+      top: `calc((${startMargin} / (24 * 60)) * 100%)`,
       height: `${(eventHeight / (24 * 60)) * 100}%`,
       left: fullScreen
         ? ''
@@ -163,7 +163,6 @@ function updateEvent() {
 
 <style>
 .event-box {
-  position: absolute;
   left: 8px;
   right: 8px;
   top: 0;
