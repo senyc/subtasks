@@ -1,14 +1,14 @@
 <template>
   <div class="h-full flex flex-col">
     <div
-      class="grid grid-cols-1 relative grid-rows-23 flex-grow mt-1"
+      class="grid grid-cols-1 relative grid-rows-24 flex-grow mt-1"
       @mousedown="startCreateTimeSlot"
       @mousemove="updateTempTimeSlot"
       @mouseup="finishCreatingTimeSlot"
     >
       <div
         class="border-t border-t-black/20"
-        v-for="hour in 23"
+        v-for="hour in 24"
         :key="hour"
         :data-hour="hour"
       ></div>

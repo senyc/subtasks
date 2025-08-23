@@ -9,7 +9,6 @@
 import type { CalendarSpan } from "@annotations/calendarSpan";
 import CalendarHeader from "./CalendarHeader.vue";
 import Calendar from "./Calendar.vue";
-import TimeSideBar from "./TimeSideBar.vue";
 
 defineProps<{
   span: CalendarSpan;

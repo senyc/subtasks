@@ -41,6 +41,7 @@
             v-for="timeSlot in timeSlots"
             :time-slot="timeSlot"
           />
+        <CurrentTimeBar :full-screen="span === 'day'" />
         </div>
       </div>
     </div>
@@ -61,6 +62,7 @@ import { useCalendar } from "@/composables/useCalendar";
 const { mutate: createEvent } = useCreateEvent();
 const { mutate: createTask } = useCreateTask();
 
+import CurrentTimeBar from "./CurrentTimeBar.vue";
 const props = defineProps<{
   span: CalendarSpan;
   scope: Date;

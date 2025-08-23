@@ -4,7 +4,7 @@
     :class="{ 'w-1/8': !fullScreen }"
     :style="{
       top: `calc((${startMargin} / (24 * 60)) * 100%)`,
-      height: `${(eventHeight / (24 * 60)) * 100}%`,
+      height: `${(timeSlotHeight / (24 * 60)) * 100}%`,
       left: fullScreen
         ? ''
         : `calc(${(actualStartTime.getDay() / 7) * 100}% + 20px)`,
@@ -22,7 +22,7 @@
         :time-range="timeRange"
         :title="timeSlot.title"
       />
-      <Task v-else :time-estimate="eventHeight" :title="timeSlot.title" />
+      <Task v-else :time-estimate="timeSlotHeight" :title="timeSlot.title" />
     </div>
 
     <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
@@ -103,7 +103,7 @@ function onDelete() {
 }
 
 const {
-  timeSlotHeight: eventHeight,
+  timeSlotHeight,
   startMargin,
   actualStartTime,
   actualEndTime,
