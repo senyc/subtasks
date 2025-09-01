@@ -37,6 +37,7 @@
     <TimeSlotForm
       @submit="updateEvent"
       v-if="eventModel"
+      @keydown="onKeydown"
       v-model:model-value="eventModel"
     />
     <div class="flex justify-between gap-2">
@@ -136,6 +137,20 @@ const {
     }
   },
 });
+
+const emit = defineEmits<{
+  (e: "cloneTimeSlot", event: TimeSlotFormType): void;
+}>();
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.ctrlKey && event.key === "c") {
+    console.log("emitted");
+    console.log(props.timeSlot.end_at);
+    const nfew = { ...props.timeSlot };
+    console.log(nfew);
+    emit("cloneTimeSlot", nfew);
+  }
+}
 
 const visible = ref(false);
 function updateEvent() {

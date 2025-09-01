@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full flex flex-col">
+  <div :data-date="date" class="panel h-full flex flex-col">
     <div
       class="grid grid-cols-1 relative grid-rows-24 flex-grow mt-1"
       @mousedown="startCreateTimeSlot"
@@ -7,7 +7,7 @@
       @mouseup="finishCreatingTimeSlot"
     >
       <div
-        class="border-t border-t-black/20"
+        class="hour border-t border-t-black/20"
         v-for="hour in 24"
         :key="hour"
         :data-hour="hour"
@@ -25,12 +25,12 @@
           <div>New Event</div>
           <div class="text-xs opacity-90">{{ previewTimeSlot.timeRange }}</div>
         </div>
-        <TimeSlot
-          :full-screen="true"
-          v-if="tempTimeSlot"
-          :timeSlot="tempTimeSlot"
-        />
       </div>
+      <TimeSlot
+        :full-screen="true"
+        v-if="tempTimeSlot"
+        :timeSlot="tempTimeSlot"
+      />
     </div>
   </div>
 
@@ -71,8 +71,8 @@ const SNAP_INTERVAL_MINUTES = 15;
 const MINIMUM_TIME_SLOT_DURATION_MINUTES = 60;
 
 function createTimeSlot(event: TimeSlotForm) {
-  tempTimeSlot.value = undefined;
   emit("createTimeSlot", event);
+  tempTimeSlot.value = undefined;
 }
 
 function cancelTimeSlot() {
