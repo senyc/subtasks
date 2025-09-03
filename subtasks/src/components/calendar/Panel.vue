@@ -1,5 +1,5 @@
 <template>
-  <div :data-date="date" class="panel h-full flex flex-col">
+  <div :data-date="date" class="relative panel h-full flex flex-col">
     <div
       class="grid grid-cols-1 relative grid-rows-24 flex-grow mt-1"
       @mousedown="startCreateTimeSlot"
@@ -32,6 +32,7 @@
         :timeSlot="tempTimeSlot"
       />
     </div>
+    <CurrentTimeBar full-screen v-if="isSameDateIgnoringTime(date)" />
   </div>
 
   <NewTimeSlot
@@ -46,12 +47,26 @@ import { ref, computed } from "vue";
 import NewTimeSlot from "./timeslots/NewTimeSlot.vue";
 import type { TimeSlotForm } from "@annotations/models/timeSlot";
 import TimeSlot from "./timeslots/TimeSlot.vue";
+import CurrentTimeBar from "./CurrentTimeBar.vue";
 
 const visible = ref(false);
 
 const props = defineProps<{
   date: Date;
 }>();
+
+function isSameDateIgnoringTime(date: Date) {
+  const today = new Date();
+
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  );
+}
+
+const d = new Date(); // e.g. 2025-09-01T10:30:00
+console.log(isSameDateIgnoringTime(d)); // true if it's today
 
 // Sync query data to local state once fetched
 const emit = defineEmits<{

@@ -1,6 +1,7 @@
 <template>
   <div
-    class="event-box select-none absolute"
+    ref="eventBox"
+    class="overflow-clip event-box select-none absolute"
     :class="{ 'w-1/8': !fullScreen }"
     :style="{
       top: `calc((${startMargin} / (24 * 60)) * 100%)`,
@@ -10,13 +11,14 @@
         : `calc(${(actualStartTime.getDay() / 7) * 100}% + 20px)`,
     }"
   >
-    <div class="resize-handle-top" @mousedown.stop="startResizeTop"></div>
-
+    <!-- Top resize handle -->
     <div
-      @mousedown="startDrag"
-      class="h-full"
-      @click.stop="() => !dragged && (visible = true)"
-    >
+      class="cursor-ns-resize h-1.5 left-0 right-0 absolute top-0"
+      @mousedown.stop="startResizeTop"
+    ></div>
+
+    <!-- Main content -->
+    <div class="h-full" @mousedown="startDrag" @click.stop="openDialog">
       <Event
         v-if="timeSlot.type === 'event'"
         :time-range="timeRange"
@@ -25,22 +27,33 @@
       <Task v-else :time-estimate="timeSlotHeight" :title="timeSlot.title" />
     </div>
 
-    <div class="resize-handle" @mousedown.stop="startResizeBottom"></div>
+    <!-- Bottom resize handle -->
+    <div
+      class="cursor-ns-resize h-1.5 left-0 right-0 absolute bottom-0"
+      @mousedown.stop="startResizeBottom"
+    ></div>
   </div>
+
+  <!-- Positioned Dialog -->
   <Dialog
-    :close-on-escape="true"
-    draggable
     v-model:visible="visible"
+    appendTo="body"
+    draggable
+    :style="{
+      position: 'absolute',
+      top: dialogTop + 'px',
+      left: dialogLeft + 'px',
+    }"
     header="Update Event"
-    class="sm:w-100 w-9/10"
+    class="sm:w-100"
   >
     <TimeSlotForm
-      @submit="updateEvent"
       v-if="eventModel"
-      @keydown="onKeydown"
       v-model:model-value="eventModel"
+      @submit="updateEvent"
+      @keydown="onKeydown"
     />
-    <div class="flex justify-between gap-2">
+    <div class="flex justify-between gap-2 mt-4">
       <div class="flex flex-row gap-2">
         <DangerButton severity="danger" type="button" @click="onDelete"
           >Delete</DangerButton
@@ -57,6 +70,23 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick } from "vue";
+
+const dialogTop = ref(0);
+const dialogLeft = ref(0);
+const eventBox = ref(null);
+
+// Call this on click
+function openDialog() {
+  nextTick(() => {
+    if (eventBox.value) {
+      const rect = eventBox.value.getBoundingClientRect();
+      dialogTop.value = rect.top + window.scrollY;
+      dialogLeft.value = rect.right + window.scrollX + 5; // 5px offset to the right
+      visible.value = true;
+    }
+  });
+}
 import useResize from "@/composables/useResize";
 import type { Event as EventType } from "@annotations/event";
 import type { Task as TaskType } from "@annotations/models/task";
@@ -184,7 +214,7 @@ function updateEvent() {
   background: #4285f4;
   color: white;
   border-radius: 4px;
-  min-height: 60px;
+  min-height: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 

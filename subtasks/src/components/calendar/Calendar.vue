@@ -57,7 +57,6 @@
               }
             "
           />
-          <CurrentTimeBar :full-screen="span === 'day'" />
         </div>
       </div>
     </div>

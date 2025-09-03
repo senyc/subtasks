@@ -18,7 +18,7 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 
 const currentSpan = computed(() => {
-  return (route.params.span as CalendarSpan) || "month";
+  return (route.params.span as CalendarSpan) || "week";
 });
 
 const scope = computed(() => {

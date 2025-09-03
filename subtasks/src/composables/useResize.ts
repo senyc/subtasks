@@ -8,7 +8,7 @@ interface UseResizeParams {
 }
 
 const HOUR_HEIGHT = 60;
-const MIN_HEIGHT = HOUR_HEIGHT;
+const MIN_HEIGHT = 15;
 const ONE_DAY = 1440;
 const SNAP_INTERVAL_MINUTES = 15;
 const DAYS_PER_WEEK = 7;
