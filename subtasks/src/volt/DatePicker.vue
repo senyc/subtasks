@@ -88,13 +88,14 @@
                 </template>
             </SecondaryButton>
         </template>
-        <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+        <!-- @vue-ignore -->
+        <template v-for="(_, slotName) in $slots" #[slotName]="slotProps: any">
             <slot :name="slotName" v-bind="slotProps ?? {}" />
         </template>
     </DatePicker>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import CalendarIcon from '@primevue/icons/calendar';
 import ChevronDownIcon from '@primevue/icons/chevrondown';
 import ChevronLeftIcon from '@primevue/icons/chevronleft';

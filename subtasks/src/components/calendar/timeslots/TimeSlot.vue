@@ -74,7 +74,7 @@ import { nextTick } from "vue";
 
 const dialogTop = ref(0);
 const dialogLeft = ref(0);
-const eventBox = ref(null);
+const eventBox = ref<HTMLDivElement | null>(null);
 
 // Call this on click
 function openDialog() {

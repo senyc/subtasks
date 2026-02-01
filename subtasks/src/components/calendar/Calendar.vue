@@ -197,11 +197,10 @@ function cloneEventToPanel({
   const newEnd = new Date(newStart.getTime() + diff);
 
   clonedTimeSlot.value = {
-    ...clonedTimeSlot.value,
+    ...clonedTimeSlot.value!,
     start_at: newStart.toISOString(),
     end_at: newEnd.toISOString(),
-    notes: clonedTimeSlot.value.notes || undefined,
-    id: undefined,
+    notes: clonedTimeSlot.value!.notes || undefined,
   };
 
   cloned.value = true;
@@ -211,8 +210,8 @@ function cloneEventToPanel({
 function handleKeydown(e: KeyboardEvent) {
   if (e.ctrlKey && e.key.toLowerCase() === "v") {
     const { x, y } = mousePos.value;
-    const panelEl = document.elementFromPoint(x, y)?.closest(".panel");
-    const panelHour = document.elementFromPoint(x, y)?.closest(".hour");
+    const panelEl = document.elementFromPoint(x, y)?.closest(".panel") as HTMLElement | null;
+    const panelHour = document.elementFromPoint(x, y)?.closest(".hour") as HTMLElement | null;
 
     if (panelEl && panelHour) {
       cloneEventToPanel({

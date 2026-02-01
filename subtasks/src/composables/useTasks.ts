@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/vue-query";
-import type { Task } from "@annotations/models/task";
+import type { Task, TaskResponse } from "@annotations/models/task";
 import { useToast } from "primevue";
 
 async function getTasks({
@@ -21,7 +21,7 @@ async function getTasks({
   page: number;
   pageSize: number;
   search?: string;
-}): Promise<{ tasks: Task[]; count: number }> {
+}): Promise<{ tasks: TaskResponse[]; count: number }> {
   const [offset, _] = calculateOffsetLimit({
     page: page,
     pageSize: pageSize,

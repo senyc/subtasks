@@ -21,7 +21,8 @@
                 </template>
             </SecondaryButton>
         </template>
-        <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
+        <!-- @vue-ignore -->
+        <template v-for="(_, slotName) in ($slots as Record<string, any>)" #[slotName]="slotProps: any">
             <slot :name="slotName" v-bind="slotProps ?? {}" />
         </template>
     </Dialog>

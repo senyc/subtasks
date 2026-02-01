@@ -68,7 +68,7 @@ import { inject, ref, watchEffect } from "vue";
 import { useTasks } from "@composables/useTasks";
 import ProjectTaskRow from "./ProjectTaskRow.vue";
 import EmptyRow from "@components/shared/EmptyRow.vue";
-import type { Task } from "@annotations/task";
+import type { TaskResponse } from "@annotations/models/task";
 import { useQueryClient } from "@tanstack/vue-query";
 import { getInbetweenOrder } from "@utils/sorting";
 
@@ -102,7 +102,7 @@ const { data, isFetched } = useTasks({
 });
 
 // Store re-orderable items
-const tasks = ref<Task[]>([]);
+const tasks = ref<TaskResponse[]>([]);
 
 // Sync query data to local state once fetched
 watchEffect(() => {

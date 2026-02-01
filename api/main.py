@@ -1,6 +1,10 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlmodel import SQLModel
+
+from .db.db import engine
 from .tasks.tasks import task_router
 from .projects.projects import project_router
 from .tags.tags import tag_router
@@ -8,7 +12,13 @@ from .events.events import event_router
 from .calendar.calendar import calendar_router
 
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engine)
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 app.include_router(task_router)
 app.include_router(project_router)
 app.include_router(tag_router)

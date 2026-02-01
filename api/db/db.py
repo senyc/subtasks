@@ -7,6 +7,7 @@ from pydantic import BeforeValidator
 from pathlib import Path
 
 sqlite_path = Path("~/database.db").expanduser()
+sqlite_path.touch(exist_ok=True)
 sqlite_url = f"sqlite:///{sqlite_path}"
 
 connect_args = {"check_same_thread": False}
